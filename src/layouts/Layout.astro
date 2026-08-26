@@ -14,7 +14,15 @@ interface Props {
 
 const { title, description, noindex = false, ogImage = '/og.png' } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+/**
+ * `build.format: 'file'` emits about.html, so Astro.url.pathname is
+ * "/about.html" (and "/index.html" for the root) at build time. Left as-is
+ * that produces a canonical pointing at a URL nobody visits. Normalise it.
+ */
+const canonical = new URL(
+  Astro.url.pathname.replace(/index\.html$/, '').replace(/\.html$/, ''),
+  Astro.site,
+).href;
 const ogImageUrl = new URL(ogImage, Astro.site).href;
 
 ---
