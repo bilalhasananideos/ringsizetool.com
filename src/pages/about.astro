@@ -1,9 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Prose from '../components/Prose.astro';
-const SITE_NAME = 'Site Name';
+import { SITE_NAME, NOINDEX_SITE } from '../config';
 ---
-<Layout title={`About — ${SITE_NAME}`} description="Who builds this tool and why." noindex={true}>
+<Layout title={`About — ${SITE_NAME}`} description="Who builds this tool and why." noindex={NOINDEX_SITE}>
   <Prose title="About">
     <p>{SITE_NAME} is a free tool that <!-- TODO: one sentence, the exact problem it solves -->.</p>
     <h2>Why it exists</h2>

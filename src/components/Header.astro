@@ -1,10 +1,7 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
+import { SITE_NAME, NAV } from '../config';
 
-const SITE_NAME = 'Site Name';
-const nav = [
-  { href: '/', label: 'Tool' },
-];
 const path = Astro.url.pathname;
 ---
 <header class="border-b border-border">
@@ -18,7 +15,7 @@ const path = Astro.url.pathname;
     </a>
 
     <nav aria-label="Main" class="flex items-center gap-1">
-      {nav.map((item) => (
+      {NAV.map((item) => (
         <a
           href={item.href}
           aria-current={path === item.href ? 'page' : undefined}

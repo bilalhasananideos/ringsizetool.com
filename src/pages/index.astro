@@ -1,32 +1,24 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import RingSizer from '../components/RingSizer.astro';
+import { SITE_NAME, NOINDEX_SITE } from '../config';
 ---
 <Layout
-  title="Template — Micro Tool Factory"
-  description="Starter template. Replace this with the real page."
-  noindex={true}
+  title="Ring Sizer — Measure Your Ring Size on Screen | Ring Size Tool"
+  description="Free ring sizer. Measure your ring size at home with a bank card and your screen — no printer, no ring sizer needed. US, UK, EU, Japan and India sizes instantly."
+  noindex={NOINDEX_SITE}
 >
-  <div class="mx-auto w-full max-w-5xl px-5 py-16">
-    <h1 class="text-[clamp(2.25rem,5vw,3.25rem)]">Template</h1>
-    <p class="mt-5 max-w-[68ch] text-text-muted">
-      This is the starter. Copy this folder to <code class="font-mono text-sm">sites/&lt;domain&gt;</code>,
-      then read <code class="font-mono text-sm">CLAUDE.md</code> and <code class="font-mono text-sm">DESIGN.md</code> before building anything.
+  <div class="mx-auto w-full max-w-3xl px-5 py-12 sm:py-16">
+    <h1 class="text-[clamp(2.25rem,5vw,3.25rem)]">
+      Find your ring size without a ring sizer
+    </h1>
+    <p class="mt-5 max-w-[62ch] text-lg text-text-muted">
+      Hold a bank card against your screen to calibrate, then measure a ring you already own — or
+      your finger with a strip of paper. No printer, no plastic sizer, nothing to install.
     </p>
 
-    <div class="mt-10 rounded-xl border border-border bg-surface p-6">
-      <h2 class="text-2xl">Token check</h2>
-      <p class="mt-3 text-sm text-text-muted">
-        Toggle the theme in the header. Everything below must stay readable in both.
-      </p>
-      <div class="mt-5 flex flex-wrap items-center gap-3">
-        <button class="h-11 rounded-lg bg-accent px-5 text-surface transition-colors duration-150 hover:bg-accent-hover">
-          Primary
-        </button>
-        <button class="h-11 rounded-lg border border-border-strong px-5 text-text transition-colors duration-150 hover:border-accent">
-          Secondary
-        </button>
-        <span data-readout class="rounded-lg bg-surface-sunk px-3 py-2 text-sm">16.50 mm</span>
-      </div>
+    <div class="mt-10">
+      <RingSizer />
     </div>
   </div>
 </Layout>

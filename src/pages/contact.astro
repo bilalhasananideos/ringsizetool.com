@@ -1,10 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Prose from '../components/Prose.astro';
-const SITE_NAME = 'Site Name';
-const EMAIL = 'hello@example.com';
+import { SITE_NAME, EMAIL, NOINDEX_SITE } from '../config';
 ---
-<Layout title={`Contact — ${SITE_NAME}`} description={`Get in touch with ${SITE_NAME}.`} noindex={true}>
+<Layout title={`Contact — ${SITE_NAME}`} description={`Get in touch with ${SITE_NAME}.`} noindex={NOINDEX_SITE}>
   <Prose title="Contact">
     <p>Email <a href={`mailto:${EMAIL}`}>{EMAIL}</a>. Replies usually within a few days.</p>
     <h2>Found something wrong?</h2>

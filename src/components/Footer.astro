@@ -1,18 +1,11 @@
 ---
-const SITE_NAME = 'Site Name';
+import { SITE_NAME, FOOTER_LINKS } from '../config';
 const year = new Date().getFullYear();
-
-const links = [
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
-  { href: '/privacy', label: 'Privacy' },
-  { href: '/terms', label: 'Terms' },
-];
 ---
 <footer class="mt-24 border-t border-border">
   <div class="mx-auto w-full max-w-5xl px-5 py-10">
     <nav aria-label="Footer" class="flex flex-wrap gap-x-6 gap-y-2">
-      {links.map((l) => (
+      {FOOTER_LINKS.map((l) => (
         <a href={l.href} class="text-sm text-text-muted no-underline transition-colors duration-150 hover:text-text">
           {l.label}
         </a>

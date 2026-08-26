@@ -1,10 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Prose from '../components/Prose.astro';
-const SITE_NAME = 'Site Name';
-const EMAIL = 'hello@example.com';
+import { SITE_NAME, EMAIL, NOINDEX_SITE } from '../config';
 ---
-<Layout title={`Privacy Policy — ${SITE_NAME}`} description={`How ${SITE_NAME} handles your data.`} noindex={true}>
+<Layout title={`Privacy Policy — ${SITE_NAME}`} description={`How ${SITE_NAME} handles your data.`} noindex={NOINDEX_SITE}>
   <Prose title="Privacy Policy">
     <p><strong>Last updated:</strong> <!-- TODO: date --></p>
 
