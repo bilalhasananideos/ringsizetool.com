@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Prose from '../components/Prose.astro';
+const SITE_NAME = 'Site Name';
+---
+<Layout title={`About — ${SITE_NAME}`} description="Who builds this tool and why." noindex={true}>
+  <Prose title="About">
+    <p>{SITE_NAME} is a free tool that <!-- TODO: one sentence, the exact problem it solves -->.</p>
+    <h2>Why it exists</h2>
+    <p><!-- TODO: the real reason. What was wrong with the existing options? Be specific — this is
+    where a reader decides whether to trust the numbers. --></p>
+    <h2>How it works</h2>
+    <p><!-- TODO: the method and its limits, in plain words. Say where it is less accurate. --></p>
+    <h2>Contact</h2>
+    <p>Questions or corrections: <a href="/contact">get in touch</a>.</p>
+  </Prose>
+</Layout>

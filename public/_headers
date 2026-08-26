@@ -1,0 +1,18 @@
+# Keep the temporary Cloudflare Pages URL out of the index.
+# Same content on two hosts is duplicate content and costs rankings.
+# Verify after every deploy:
+#   curl -I https://<project>.pages.dev   -> MUST show x-robots-tag
+#   curl -I https://<realdomain>.com      -> MUST NOT show it
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex, nofollow
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

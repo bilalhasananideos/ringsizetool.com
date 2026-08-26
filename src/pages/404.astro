@@ -1,0 +1,13 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Page not found (404)" description="That page does not exist." noindex={true}>
+  <div class="mx-auto w-full max-w-[68ch] px-5 py-24 text-center">
+    <p class="font-mono text-sm text-text-faint">404</p>
+    <h1 class="mt-3 text-[clamp(2rem,4vw,2.75rem)]">This page does not exist</h1>
+    <p class="mt-5 text-text-muted">The link may be out of date, or the address slightly off.</p>
+    <a href="/" class="mt-8 inline-flex h-11 items-center rounded-lg bg-accent px-5 text-surface no-underline transition-colors duration-150 hover:bg-accent-hover">
+      Go to the tool
+    </a>
+  </div>
+</Layout>

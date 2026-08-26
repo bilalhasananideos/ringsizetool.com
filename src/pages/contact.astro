@@ -1,0 +1,16 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Prose from '../components/Prose.astro';
+const SITE_NAME = 'Site Name';
+const EMAIL = 'hello@example.com';
+---
+<Layout title={`Contact — ${SITE_NAME}`} description={`Get in touch with ${SITE_NAME}.`} noindex={true}>
+  <Prose title="Contact">
+    <p>Email <a href={`mailto:${EMAIL}`}>{EMAIL}</a>. Replies usually within a few days.</p>
+    <h2>Found something wrong?</h2>
+    <p>
+      Accuracy matters here more than anything else. If a number looks wrong, tell us what you
+      measured and what the tool returned, and we will check it.
+    </p>
+  </Prose>
+</Layout>

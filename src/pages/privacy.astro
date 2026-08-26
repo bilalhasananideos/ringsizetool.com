@@ -1,0 +1,48 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Prose from '../components/Prose.astro';
+const SITE_NAME = 'Site Name';
+const EMAIL = 'hello@example.com';
+---
+<Layout title={`Privacy Policy — ${SITE_NAME}`} description={`How ${SITE_NAME} handles your data.`} noindex={true}>
+  <Prose title="Privacy Policy">
+    <p><strong>Last updated:</strong> <!-- TODO: date --></p>
+
+    <h2>The short version</h2>
+    <p>
+      The tool runs entirely in your browser. Anything you measure or upload stays on your device
+      and is never sent to us.
+    </p>
+
+    <h2>What is stored on your device</h2>
+    <ul>
+      <li><strong>Theme preference</strong> — light, dark or system, kept in your browser's local storage.</li>
+      <li><!-- TODO: list anything else, e.g. a saved calibration value. Remove if none. --></li>
+    </ul>
+    <p>This never leaves your browser. Clearing site data removes it.</p>
+
+    <h2>Analytics</h2>
+    <ul>
+      <li><strong>Google Analytics 4</strong> — page views and general usage. Sets cookies.</li>
+      <li><strong>Cloudflare Web Analytics</strong> — cookieless, no personal data.</li>
+    </ul>
+
+    <h2>Advertising</h2>
+    <p>
+      <!-- TODO: remove this section entirely until AdSense is actually approved and live. -->
+      Google AdSense may set cookies to show relevant ads. You can manage this at
+      <a href="https://adssettings.google.com" rel="nofollow noopener">Google Ad Settings</a>.
+      Visitors in the EEA and UK are shown a consent choice before any advertising cookie is set.
+    </p>
+
+    <h2>Your choices</h2>
+    <p>
+      Clear site data in your browser to remove everything stored locally. Use your browser's
+      tracking protection to block analytics. In the EEA and UK you can change your consent choice
+      at any time.
+    </p>
+
+    <h2>Contact</h2>
+    <p><a href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
+  </Prose>
+</Layout>

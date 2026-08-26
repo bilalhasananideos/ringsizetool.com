@@ -1,0 +1,41 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Prose from '../components/Prose.astro';
+const SITE_NAME = 'Site Name';
+const EMAIL = 'hello@example.com';
+---
+<Layout title={`Terms of Service — ${SITE_NAME}`} description={`Terms for using ${SITE_NAME}.`} noindex={true}>
+  <Prose title="Terms of Service">
+    <p><strong>Last updated:</strong> <!-- TODO: date --></p>
+
+    <h2>Accuracy — read this before you rely on a result</h2>
+    <p>
+      This tool gives an <strong>estimate</strong>. Accuracy depends on your screen, your browser
+      zoom level, and how carefully you align things. It is good enough for most everyday purposes.
+    </p>
+    <p>
+      <strong>For anything expensive or difficult to return, confirm the result with a
+      professional before you buy.</strong> We accept no liability for a purchase made on the basis
+      of a measurement taken here.
+    </p>
+
+    <h2>Use of the site</h2>
+    <p>Free to use, for personal and commercial purposes. No account needed.</p>
+    <p>Do not attempt to disrupt the site or use it in a way that harms other people.</p>
+
+    <h2>No warranty</h2>
+    <p>
+      Provided as-is, with no warranty of any kind. We do not guarantee it will always be available
+      or always correct — though if you find an error we genuinely want to hear about it.
+    </p>
+
+    <h2>External links</h2>
+    <p>We are not responsible for the content of sites we link to.</p>
+
+    <h2>Changes</h2>
+    <p>These terms may change. The date above shows the last revision.</p>
+
+    <h2>Contact</h2>
+    <p><a href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
+  </Prose>
+</Layout>
