@@ -19,7 +19,7 @@ import { INDIA_NOTE, UK_NOTE } from '../data/ringSizes';
   <h2 id="tool-heading" class="sr-only">Ring size tool</h2>
 
   <!-- ── Step 1: calibrate ───────────────────────────────────────────── -->
-  <div data-step="calibrate" class="rounded-xl border border-border bg-surface p-5 sm:p-7">
+  <div data-step="calibrate" class="card-elevated rounded-xl border border-border bg-surface p-6 md:p-10">
     <h3 class="text-lg font-semibold">Step 1 · Calibrate your screen</h3>
 
     <p class="mt-3 max-w-[62ch] text-text-muted">
@@ -82,7 +82,7 @@ import { INDIA_NOTE, UK_NOTE } from '../data/ringSizes';
   </div>
 
   <!-- ── Step 2: measure ─────────────────────────────────────────────── -->
-  <div data-step="measure" hidden class="mt-5 rounded-xl border border-border bg-surface p-5 sm:p-7">
+  <div data-step="measure" hidden class="card-elevated mt-5 rounded-xl border border-border bg-surface p-6 md:p-10">
     <h3 class="text-lg font-semibold">Step 2 · Measure</h3>
 
     <!-- The saved calibration must stay visible. Someone who calibrated on a
@@ -187,7 +187,7 @@ import { INDIA_NOTE, UK_NOTE } from '../data/ringSizes';
   </div>
 
   <!-- ── Result ──────────────────────────────────────────────────────── -->
-  <div data-step="result" hidden class="mt-5 rounded-xl border border-border bg-surface p-5 sm:p-7">
+  <div data-step="result" hidden class="card-elevated mt-5 rounded-xl border border-border bg-surface p-6 md:p-10">
     <h3 class="text-sm font-medium tracking-wide text-text-muted uppercase">Your ring size</h3>
 
     <!-- Out-of-range input must not leave the previous, now-wrong, numbers up. -->
@@ -232,27 +232,27 @@ import { INDIA_NOTE, UK_NOTE } from '../data/ringSizes';
            and these read as figures rather than data. A <dl> keeps the
            label/value pairing for assistive technology. -->
       <dl class="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div class="rounded-lg border border-border bg-surface-sunk px-3 py-3 text-center">
+        <div class="rounded-lg border border-border bg-surface-sunk px-4 py-4 text-center">
           <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">UK / AU</dt>
           <dd data-out-uk class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
         </div>
-        <div class="rounded-lg border border-border bg-surface-sunk px-3 py-3 text-center">
+        <div class="rounded-lg border border-border bg-surface-sunk px-4 py-4 text-center">
           <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">EU / ISO</dt>
           <dd data-readout data-out-eu class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
         </div>
-        <div class="rounded-lg border border-border bg-surface-sunk px-3 py-3 text-center">
+        <div class="rounded-lg border border-border bg-surface-sunk px-4 py-4 text-center">
           <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">Japan</dt>
           <dd data-readout data-out-jp class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
         </div>
-        <div class="rounded-lg border border-border bg-surface-sunk px-3 py-3 text-center">
+        <div class="rounded-lg border border-border bg-surface-sunk px-4 py-4 text-center">
           <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">India</dt>
           <dd data-readout data-out-in class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
         </div>
-        <div class="rounded-lg border border-border bg-surface-sunk px-3 py-3 text-center">
+        <div class="rounded-lg border border-border bg-surface-sunk px-4 py-4 text-center">
           <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">FR / IT / ES</dt>
           <dd data-readout data-out-fr class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
         </div>
-        <div class="rounded-lg border border-border bg-surface-sunk px-3 py-3 text-center">
+        <div class="rounded-lg border border-border bg-surface-sunk px-4 py-4 text-center">
           <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">Brazil</dt>
           <dd data-readout data-out-br class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
         </div>
