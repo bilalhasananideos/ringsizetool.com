@@ -360,3 +360,46 @@ differentiation** win, not a revenue one. Worth doing; not worth reordering prio
 
 `/oura-ring-size-chart/` and `/oura-ring-size-chart` are both indexed — the same page competing with
 itself. Our `trailingSlash: 'never'` plus canonical handling already prevents this.
+
+---
+
+## ⚠️ UK letters: our answer is half a letter below every published chart
+
+Found 27 Aug 2026 while checking the chart the owner extracted from `ringssizechart.com`.
+
+| | US 5 | US 5¾ | US 6 |
+|---|---|---|---|
+| Their published chart | K | L½ | **M** |
+| Our standards-derived answer | J½ | L | **L½** |
+
+**A consistent half-letter offset.** Not a rounding artifact — it holds across the whole scale.
+
+### Why
+
+Our formula follows BS EN 28653:1993 — A = 37.5 mm inner circumference, +1.25 mm per letter,
+half sizes at +0.625 mm. Cross-checked two ways: ringsize.online states the A = 37.5 mm anchor
+directly, and Wikipedia states C = 40 mm, which 37.5 + 2 × 1.25 satisfies exactly.
+
+Their chart is *also* internally consistent — each US quarter-size advances one UK half-letter,
+which matches the physics (US ¼ = 0.638 mm circumference, UK ½ = 0.625 mm). The scales track.
+
+**The offset comes from the letter sequence, not the arithmetic. Their chart omits I½** — it runs
+… H, H½, I, **J**, J½ … With one half-step missing, everything above J shifts by half a letter.
+
+Some published British scales include every half size; others omit particular ones. There is no
+single sequence everyone uses.
+
+### What to do — and what not to do
+
+**Do not "fix" this by shifting our formula to match their chart.** That would replace a
+standards-derived value with a competitor's value, which is the exact thing the project rules
+forbid, and their sequence is not more authoritative than the standard.
+
+**Treat UK exactly as we treat India:** give the letter our formula produces, and say plainly that
+published UK charts vary by up to half a size, with the circumference in mm alongside so a jeweller
+can confirm. The millimetre figure is the unambiguous one.
+
+This is defensible, it is true, and it is more useful than any competitor — all four of which print
+a single letter as though it were certain. Recall the measured disagreement for US 6 alone:
+**L (ringsize.app) · L½ (measureringsize, and ours) · M (brite.co and ringssizechart).**
+Four sites, three answers.
