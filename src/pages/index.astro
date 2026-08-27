@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import RingSizer from '../components/RingSizer.astro';
+import HeroIllustration from '../components/HeroIllustration.astro';
 import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
 import { CHART_ROWS, AVERAGE_US_SIZE, diameterFromUs, fromDiameter } from '../data/ringSizes';
 import { FAQS, faqPageSchema, howToSchema, webAppSchema, breadcrumbSchema } from '../data/faq';
@@ -33,7 +34,7 @@ const jsonLd = [
   noindex={NOINDEX_SITE}
   jsonLd={jsonLd}
 >
-  <div class="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
+  <div class="mx-auto w-full max-w-5xl px-5 py-10 sm:py-14">
 
     <!-- ── Hero ───────────────────────────────────────────────────────────
          Left-aligned and deliberately short. This is an instrument, not a
@@ -48,25 +49,40 @@ const jsonLd = [
 
          The h1 wording is the "without a ring sizer" cluster — 9 keyword
          variants, the largest in the set, and no competitor leads with it. -->
-    <header>
-      <h1 class="max-w-[18ch] text-[clamp(2.25rem,5.5vw,3.5rem)]">
-        Find your ring size <span class="text-accent">without a ring sizer</span>
-      </h1>
+    <header class="grid items-center gap-10 md:grid-cols-[1.1fr_0.9fr] md:gap-8">
+      <div class="max-w-[58ch]">
+        <h1 class="max-w-[15ch] text-[clamp(2.25rem,5.5vw,3.5rem)]">
+          Find your ring size <span class="text-accent">without a ring sizer</span>
+        </h1>
 
-      <p class="mt-5 max-w-[58ch] text-lg text-text-muted">
-        Hold a bank card against your screen to calibrate, then measure a ring you already own —
-        or your finger with a strip of paper. Nothing is uploaded.
-      </p>
+        <p class="mt-5 text-lg text-text-muted">
+          Hold a bank card against your screen to calibrate, then measure a ring you already own —
+          or your finger with a strip of paper. Nothing is uploaded.
+        </p>
 
-      <!-- The one claim no competitor can copy, because it is what we found
-           rather than what we assert. Links to the section that proves it. -->
-      <p class="mt-6 border-l-2 border-accent py-1 pl-4 text-sm text-text-muted">
-        Four ring size sites give <strong class="text-text">three different UK answers</strong> for
-        US&nbsp;6. Every number here is computed from the published standard instead.{' '}
-        <a href="#disagree" class="whitespace-nowrap text-accent-text underline underline-offset-2"
-          >See the arithmetic</a
+        <a
+          href="#tool-heading"
+          class="mt-7 inline-flex h-12 items-center gap-2 rounded-full bg-accent px-7 font-medium text-on-accent no-underline transition-colors duration-150 hover:bg-accent-hover"
         >
-      </p>
+          Start measuring
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" /></svg>
+        </a>
+
+        <!-- The one claim no competitor can copy, because it is what we found
+             rather than what we assert. Links to the section that proves it. -->
+        <p class="mt-6 border-l-2 border-accent py-1 pl-4 text-sm text-text-muted">
+          Four ring size sites give <strong class="text-text">three different UK answers</strong> for
+          US&nbsp;6. Every number here is computed from the published standard instead.{' '}
+          <a href="#disagree" class="whitespace-nowrap text-accent-text underline underline-offset-2"
+            >See the arithmetic</a
+          >
+        </p>
+      </div>
+
+      <div class="hidden justify-self-center md:flex">
+        <HeroIllustration />
+      </div>
 
       <!-- Was a two-card grid. It is a prerequisites line; it reads as one. -->
       <p class="mt-6 text-sm text-text-faint">

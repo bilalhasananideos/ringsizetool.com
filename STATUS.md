@@ -52,6 +52,19 @@ Nobody currently has both.
 - **`--accent-text` token added.** `--accent` (#8A6D3B) is only 4.09:1 on `--accent-sunk` and
   4.34:1 on `--surface-sunk` — both under AA for 14px text. Small accent text now uses
   `#7A6034`; the brand accent stays for marks, borders, fills and large display type (3:1).
+- **Three concrete gaps closed after the owner said the UI still didn't match the reference (28 Aug):**
+  `rounded-xl` was never registered in the Tailwind theme, so it silently rendered at Tailwind's
+  stock 12px instead of DESIGN.md's spec'd 24px — every card corner was half as round as intended.
+  The homepage had no hero (a prior session removed one for looking like a generic AI-template —
+  correct call, but the reference's hero isn't that template: it's headline + CTA + illustration,
+  nothing else). And DESIGN.md's own Toggle spec ("pill shape") wasn't applied — chips and buttons
+  used rounded-lg/rounded-xl rectangles.
+  Fixed: `--radius-xl: 1.5rem` registered in `@theme`; a two-column hero added with an **original
+  geometric diagram** (dashed guide circle + gold ring + caliper ticks + mm label) instead of a
+  hand illustration — a hand-drawn attempt looked amateurish and undermined the premium
+  positioning, and the diagram motif fits an "instrument" brand better anyway; primary buttons
+  and the method-chip toggle converted to the spec'd shapes. Also fixed one wrong token in
+  passing: a button used `text-surface` instead of the audited `text-on-accent`.
 - **Aurelian design system adopted** — Playfair Display 600 headings + Inter body, both
   self-hosted variable latin subsets (38KB + 47KB), preloaded. Result figures became six bordered
   cards instead of a six-column table (which forced a horizontal scroll at 375px to read your own
