@@ -8,8 +8,10 @@ Last updated: 27 Aug 2026 · **Stage: homepage + /ring-size-chart done — await
 
 | | |
 |---|---|
-| Keyword | `ring sizer` + `ring size tool` — **KD 4**, >10,000 US volume |
-| Do NOT target | `ring size` (KD 24), `online ring sizer` (Hard) |
+| Keyword | `ring sizer` + `ring size tool` — **KD 4**. `ring sizer` is **26,000/mo** (the free tool's ">10,000" is a bucket) |
+| Biggest target | **`ring size chart` — KD Easy, >100,000/mo.** ~4x `ring sizer`. See RESEARCH.md |
+| Do NOT target | `ring size` (KD 24) · `o ring size chart` (**a rubber machinery seal — wrong product**) |
+| ~~Do NOT target~~ | ~~`online ring sizer` (Hard)~~ — **that call was wrong.** measureringsize.com, a 6.8K site, ranks #1 for it. KD counts backlinks for the top ten; it does not say whether a better page can win |
 | Domain | `ringsizetool.com` — **not bought yet, user has no funds** |
 | Backups if taken | virtualringsizer · accurateringsizer · realringsizer · ringsizerhub · realringsize (all `.com`) |
 | Brand | **Ring Size Tool** · brand goes AFTER the pipe in titles, never before the keyword |
@@ -72,11 +74,17 @@ site holds #1 for both, so the earlier "skip these, KD says Hard" call was wrong
    both target that phrase (5 occurrences). A separate
    `/how-to-measure-ring-size-without-a-ring-sizer` page would compete with our own homepage.
    Either change the homepage h1 or drop that page — not both.
-3. **`/printable-ring-sizer`** — print CSS with real `mm` units + a print-scale check square.
+3. **Actual-size-on-screen chart** — the one requirement from the `ring size chart` keyword data
+   that is still unbuilt. `actual ring size chart on screen` (Easy, >1,000) and
+   `actual size ring size chart` (>1,000) both ask for circles drawn at **true physical size** so a
+   ring can be laid on the screen. We already store px/mm from the tool's calibration, so this is a
+   render, not new maths. **No competitor can match it** — theirs is a fixed-width PNG shown at
+   whatever size the browser picks, which is the wrong size on every device.
+4. **`/printable-ring-sizer`** — print CSS with real `mm` units + a print-scale check square.
    Not a PDF library. Easy at >1,000 volume. brite.co already has one *with* a check line —
    match that, then beat it on the chart.
-4. SVG diagrams of the three methods · logo + favicon (SVG, hand-drawn) · Lighthouse
-5. Deploy to Cloudflare Pages — **site stays `noindex`, submit nothing** until the domain is bought
+5. SVG diagrams of the three methods · logo + favicon (SVG, hand-drawn) · Lighthouse
+6. Deploy to Cloudflare Pages — **site stays `noindex`, submit nothing** until the domain is bought
 
 Add each new page to `NAV` in `config.ts` only once it exists.
 
