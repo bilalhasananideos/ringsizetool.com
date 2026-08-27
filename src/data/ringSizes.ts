@@ -61,6 +61,31 @@ export const UK_STEP_MM = 1.25;
 
 const UK_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
+/**
+ * ⚠️ Published UK charts disagree with each other by up to half a letter, and
+ * ours sits half a letter below most of them. That is not an arithmetic error.
+ *
+ * Our value follows BS EN 28653:1993 exactly. The competitor charts are also
+ * internally consistent — each US quarter-size advances one UK half-letter,
+ * which matches the physics (US ¼ = 0.638 mm of circumference, UK ½ = 0.625 mm).
+ * The offset comes from the LETTER SEQUENCE, not the maths: some published
+ * British scales omit particular half sizes (the chart we compared omits I½),
+ * and everything above the omission shifts by half a letter. There is no single
+ * sequence every jeweller uses.
+ *
+ * Measured for US 6 on 27 Aug 2026: ringsize.app says L, measureringsize says
+ * L½, brite.co and ringssizechart say M. Four sites, three answers.
+ *
+ * Do NOT shift this formula to match a competitor's chart. Report the
+ * standards-derived letter, say that charts vary, and show the circumference in
+ * millimetres alongside — that figure is unambiguous. Same policy as India.
+ */
+export const UK_NOTE =
+  'Published UK letter charts vary by up to half a size, because British scales ' +
+  'do not all include the same half letters. Ours follows BS EN 28653 exactly. ' +
+  'If your jeweller uses a different chart, give them the circumference in ' +
+  'millimetres above instead.';
+
 export function ukFromCircumference(circMm: number): string | null {
   // Position on the letter scale, rounded to the nearest half size.
   const raw = (circMm - UK_BASE_CIRC_MM) / UK_STEP_MM;

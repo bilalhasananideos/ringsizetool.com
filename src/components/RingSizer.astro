@@ -12,7 +12,7 @@
  * (~204 px) and it fits. The wrapper is also full-bleed and scrollable, because
  * on a narrow phone the card legitimately occupies most of the screen width.
  */
-import { INDIA_NOTE } from '../data/ringSizes';
+import { INDIA_NOTE, UK_NOTE } from '../data/ringSizes';
 ---
 
 <section class="ring-sizer" aria-labelledby="tool-heading">
@@ -55,7 +55,7 @@ import { INDIA_NOTE } from '../data/ringSizes';
       <div class="mt-2 flex flex-wrap items-center gap-3">
         <label for="cal-num" class="text-sm text-text-muted">Pixels per mm</label>
         <input
-          id="cal-num" data-cal-num type="number" inputmode="decimal"
+          id="cal-num" data-cal-num type="number" inputmode="decimal" autocomplete="off"
           min="2.5" max="7" step="0.01" value="3.78"
           class="h-11 w-28 rounded-lg border border-border bg-surface px-3 text-text"
         />
@@ -133,7 +133,7 @@ import { INDIA_NOTE } from '../data/ringSizes';
         <div>
           <label for="ring-num" class="block text-sm font-medium">Diameter</label>
           <div class="mt-2 flex items-center gap-2">
-            <input id="ring-num" data-ring-num type="number" inputmode="decimal" min="11" max="25" step="0.05" value="16.5"
+            <input id="ring-num" data-ring-num type="number" inputmode="decimal" autocomplete="off" min="11" max="25" step="0.05" value="16.5"
               class="h-11 w-24 rounded-lg border border-border bg-surface px-3 text-text" />
             <span class="text-sm text-text-muted">mm</span>
           </div>
@@ -150,7 +150,7 @@ import { INDIA_NOTE } from '../data/ringSizes';
       <div class="mt-5 flex flex-wrap items-end gap-3">
         <div>
           <label for="circ-input" class="block text-sm font-medium">Strip length</label>
-          <input id="circ-input" data-circ-input type="number" inputmode="decimal" min="30" max="90" step="0.1" value="51.9"
+          <input id="circ-input" data-circ-input type="number" inputmode="decimal" autocomplete="off" min="30" max="90" step="0.1" value="51.9"
             class="mt-2 h-11 w-40 rounded-lg border border-border bg-surface px-3 text-text" />
         </div>
         <div>
@@ -172,7 +172,7 @@ import { INDIA_NOTE } from '../data/ringSizes';
       <div class="mt-5 flex flex-wrap items-end gap-3">
         <div>
           <label for="dia-input" class="block text-sm font-medium">Inner diameter</label>
-          <input id="dia-input" data-dia-input type="number" inputmode="decimal" min="11" max="25" step="0.01" value="16.51"
+          <input id="dia-input" data-dia-input type="number" inputmode="decimal" autocomplete="off" min="11" max="25" step="0.01" value="16.51"
             class="mt-2 h-11 w-40 rounded-lg border border-border bg-surface px-3 text-text" />
         </div>
         <div>
@@ -203,6 +203,14 @@ import { INDIA_NOTE } from '../data/ringSizes';
       </p>
 
       <p data-out-context class="mt-3 max-w-[60ch] text-text-muted"></p>
+
+      <!-- Reachable: the slider bottoms out at 11 mm, below the smallest size
+           any of the seven systems defines (US 0 is 11.63 mm). Every cell is an
+           em dash there, which needs saying rather than just looking broken. -->
+      <p data-below-range hidden class="mt-3 max-w-[60ch] text-text-muted">
+        That is smaller than the smallest size any of these systems defines — the US scale starts
+        at 11.63&nbsp;mm. The diameter and circumference below are still exact.
+      </p>
 
       <fieldset class="mt-3">
         <legend class="sr-only">Compare against the average for</legend>
@@ -273,6 +281,9 @@ import { INDIA_NOTE } from '../data/ringSizes';
       <strong class="text-text">This is an estimate.</strong> Accuracy depends on your screen,
       browser zoom and how carefully you align things. For an engagement ring or anything that
       cannot be resized, confirm with a jeweller before buying.
+      <span class="mt-2 block" data-uk-note hidden>
+        <strong class="text-text">On the UK letter:</strong> {UK_NOTE}
+      </span>
       <span class="mt-2 block" data-india-note hidden>
         <strong class="text-text">On the Indian size:</strong> {INDIA_NOTE}
       </span>
@@ -484,6 +495,8 @@ import { INDIA_NOTE } from '../data/ringSizes';
       set('[data-out-circ-in]', `${r.circumferenceIn.toFixed(3)} in`);
       set('[data-out-context]', sizeContext(r.usNumeric, who));
 
+      $('[data-below-range]').hidden = !(r.us === null && r.uk === null && r.eu === null);
+      $('[data-uk-note]').hidden = r.uk === null;
       $('[data-india-note]').hidden = r.in === null;
 
       announce(

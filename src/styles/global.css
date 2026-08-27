@@ -123,6 +123,9 @@ h1, h2 {
   text-wrap: balance;
 }
 
+/* Anchored headings must not land under the sticky header. */
+h1, h2, h3, h4 { scroll-margin-top: 5rem; }
+
 h3, h4 {
   font-weight: 600;
   line-height: 1.3;
@@ -135,6 +138,13 @@ p { text-wrap: pretty; }
 .tabular, [data-readout] {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+/* Kill the 300ms double-tap zoom delay, and pick the tap flash deliberately
+   rather than letting each mobile browser choose its own blue. */
+button, a, label, summary, input, select {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgb(138 109 59 / 0.15);
 }
 
 /* Visible focus everywhere. Never remove without replacing. */

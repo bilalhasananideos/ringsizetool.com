@@ -67,11 +67,22 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
       type="font/woff2"
       crossorigin
     />
+    {/* Must match --bg. Kept in sync by setThemeColor() below, because the
+        toggle can override the system preference at runtime. */}
+    <meta name="theme-color" content="#FBFAF8" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     {/* Theme, applied before first paint. Without this the page flashes light then goes dark. */}
     <script is:inline>
+      window.setThemeColor = function () {
+        var dark =
+          document.documentElement.getAttribute('data-theme') === 'dark' ||
+          (!document.documentElement.hasAttribute('data-theme') &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.setAttribute('content', dark ? '#100F0D' : '#FBFAF8');
+      };
       (function () {
         try {
           var t = localStorage.getItem('theme');
@@ -81,6 +92,7 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
         } catch (e) {
           /* private mode, blocked storage — fall through to prefers-color-scheme */
         }
+        window.setThemeColor();
       })();
     </script>
 

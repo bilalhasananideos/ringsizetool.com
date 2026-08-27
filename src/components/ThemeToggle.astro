@@ -38,6 +38,7 @@
         document.documentElement.setAttribute('data-theme', next);
         try { localStorage.setItem('theme', next); } catch (e) {}
       }
+      if (window.setThemeColor) window.setThemeColor();
       if (label) label.textContent = next.charAt(0).toUpperCase() + next.slice(1) + ' theme';
     }
 
