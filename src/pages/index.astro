@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import RingSizer from '../components/RingSizer.astro';
 import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
 import { CHART_ROWS, AVERAGE_US_SIZE, diameterFromUs, fromDiameter } from '../data/ringSizes';
-import { FAQS, faqPageSchema, howToSchema, webAppSchema } from '../data/faq';
+import { FAQS, faqPageSchema, howToSchema, webAppSchema, breadcrumbSchema } from '../data/faq';
 
 /* The chart below is generated, never typed. Half-size steps from US 3 to 13 —
    the range actually sold. Quarter steps live on /ring-size-chart when it ships. */
@@ -19,13 +19,12 @@ const largest = fromDiameter(diameterFromUs(13));
 const inRange = (r: typeof six) => r.circumferenceIn.toFixed(1);
 
 /* Structured data. Built from the same modules the page renders from, so the
-   visible answer and the schema answer can never disagree.
-   No BreadcrumbList yet — a one-item breadcrumb on a single-level site says
-   nothing. Add it when /ring-size-chart and the others ship. */
+   visible answer and the schema answer can never disagree. */
 const jsonLd = [
   webAppSchema(SITE_URL, SITE_NAME),
   howToSchema(SITE_URL),
   faqPageSchema(),
+  breadcrumbSchema([{ name: 'Ring Sizer', url: SITE_URL }]),
 ];
 ---
 <Layout
@@ -64,7 +63,7 @@ const jsonLd = [
       <p class="mt-6 border-l-2 border-accent py-1 pl-4 text-sm text-text-muted">
         Four ring size sites give <strong class="text-text">three different UK answers</strong> for
         US&nbsp;6. Every number here is computed from the published standard instead.{' '}
-        <a href="#disagree" class="whitespace-nowrap text-accent underline underline-offset-2"
+        <a href="#disagree" class="whitespace-nowrap text-accent-text underline underline-offset-2"
           >See the arithmetic</a
         >
       </p>

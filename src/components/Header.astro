@@ -5,22 +5,25 @@ import { SITE_NAME, NAV } from '../config';
 const path = Astro.url.pathname;
 ---
 <header class="border-b border-border">
-  <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-5 py-4">
-    <a href="/" class="flex items-center gap-2.5 text-text no-underline">
+  <!-- Tight on purpose: at 375px the wordmark plus two nav labels plus the
+       toggle only just fit. Everything is nowrap so a second nav item can
+       never silently wrap the header into two lines. -->
+  <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-4 py-4 sm:gap-4 sm:px-5">
+    <a href="/" class="flex shrink-0 items-center gap-2.5 text-text no-underline">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="1.5" aria-hidden="true" class="text-accent">
         <circle cx="12" cy="12" r="8.5" />
       </svg>
-      <span class="font-medium tracking-tight">{SITE_NAME}</span>
+      <span class="font-medium tracking-tight whitespace-nowrap">{SITE_NAME}</span>
     </a>
 
-    <nav aria-label="Main" class="flex items-center gap-1">
+    <nav aria-label="Main" class="flex shrink-0 items-center gap-0.5 sm:gap-1">
       {NAV.map((item) => (
         <a
           href={item.href}
           aria-current={path === item.href ? 'page' : undefined}
           class:list={[
-            'rounded-lg px-3 py-2 text-sm no-underline transition-colors duration-150',
+            'whitespace-nowrap rounded-lg px-2 py-2 text-sm no-underline transition-colors duration-150 sm:px-3',
             path === item.href ? 'text-text' : 'text-text-muted hover:text-text',
           ]}
         >

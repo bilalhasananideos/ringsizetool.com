@@ -25,6 +25,7 @@ export const NOINDEX_SITE = true;
  *  Add each entry as its page ships: chart, printable, virtual, converter. */
 export const NAV = [
   { href: '/', label: 'Ring Sizer' },
+  { href: '/ring-size-chart', label: 'Chart' },
 ] as const;
 
 export const FOOTER_LINKS = [

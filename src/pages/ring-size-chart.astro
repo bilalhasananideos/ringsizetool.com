@@ -1,0 +1,367 @@
+---
+/**
+ * /ring-size-chart — the complete chart, as real HTML.
+ *
+ * Why this page exists, precisely: the site ranking #1 for chart intent
+ * publishes its comprehensive 9-column chart as a PNG (`ring-size-chart.png`,
+ * alt="ring size chart"). Google cannot read a single value in it, screen
+ * readers get four words, it cannot reflow on a phone, and nobody can copy a
+ * number out of it to send a jeweller. They rank first while their best asset
+ * is invisible. This page is the same data as selectable, indexable HTML.
+ *
+ * MUST NOT duplicate the homepage chart. The homepage carries HALF sizes and
+ * five systems. This page carries QUARTER sizes, all seven systems, and both
+ * millimetres and inches. Keep that split — two near-identical tables on one
+ * site is self-inflicted duplicate content.
+ */
+import Layout from '../layouts/Layout.astro';
+import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
+import { CHART_ROWS, AVERAGE_US_SIZE } from '../data/ringSizes';
+import { breadcrumbSchema } from '../data/faq';
+
+/* Every row is generated. Never type a size into this file. */
+const rows = CHART_ROWS;
+
+/* Women's and men's slices exist because "women's ring size chart" and
+   "men's ring size chart" are separate searches. They are cuts of the same
+   generated data, not a second set of numbers. */
+const womens = rows.filter((r) => r.usNumeric !== null && r.usNumeric >= 3 && r.usNumeric <= 9);
+const mens = rows.filter((r) => r.usNumeric !== null && r.usNumeric >= 8 && r.usNumeric <= 14);
+
+const first = rows[0];
+const last = rows[rows.length - 1];
+
+const jsonLd = [
+  breadcrumbSchema([
+    { name: 'Ring Sizer', url: SITE_URL },
+    { name: 'Ring Size Chart', url: `${SITE_URL}/ring-size-chart` },
+  ]),
+];
+
+const SECTIONS = [
+  { href: '#full', label: 'Every size' },
+  { href: '#womens', label: 'Women’s' },
+  { href: '#mens', label: 'Men’s' },
+  { href: '#units', label: 'mm, cm & inches' },
+  { href: '#sources', label: 'Where the numbers come from' },
+];
+---
+<Layout
+  title="Ring Size Chart — All Systems, Quarter Sizes in MM & Inches | Ring Size Tool"
+  description="Complete ring size chart: US, UK, EU/ISO, Japan, India, France/Italy/Spain and Brazil, in quarter sizes, with diameter and circumference in mm and inches. Computed from the published standards, not copied. No download needed."
+  noindex={NOINDEX_SITE}
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto w-full max-w-4xl px-5 py-10 sm:py-14">
+
+    <nav aria-label="Breadcrumb" class="text-sm text-text-faint">
+      <a href="/" class="text-accent-text underline underline-offset-2">Ring Sizer</a>
+      <span aria-hidden="true"> · </span>Ring Size Chart
+    </nav>
+
+    <header class="mt-6">
+      <h1 class="max-w-[20ch] text-[clamp(2.25rem,5.5vw,3.5rem)]">
+        Ring size <span class="text-accent">chart</span>
+      </h1>
+
+      <p class="mt-5 max-w-[60ch] text-lg text-text-muted">
+        Every quarter size from US {first.us} to US {last.us}, in all seven systems, with inner
+        diameter and circumference in millimetres and inches.
+      </p>
+
+      <p class="mt-6 border-l-2 border-accent py-1 pl-4 text-sm text-text-muted">
+        Every value is computed from the published standard — nothing is copied from another chart,
+        and nothing is behind a download. The site currently ranking first for this search publishes
+        its chart as an <strong class="text-text">image</strong>, so none of it can be read, copied
+        or searched.
+      </p>
+
+      <p class="mt-6 text-sm text-text-faint">
+        Don’t know your size yet? The{' '}
+        <a href="/" class="text-accent-text underline underline-offset-2">ring sizer</a>
+        {' '}measures it against your screen in about a minute.
+      </p>
+    </header>
+
+    <nav aria-label="On this page" class="mt-8 flex flex-wrap gap-2">
+      {SECTIONS.map((s) => (
+        <a
+          href={s.href}
+          class="rounded-lg border border-border px-3 py-2 text-sm text-text-muted no-underline
+                 transition-colors duration-150 hover:border-accent hover:text-text"
+        >{s.label}</a>
+      ))}
+    </nav>
+
+    <!-- ── The full chart ──────────────────────────────────────────────────
+         Query: "ring size chart", "ring sizer chart", "ring size conversion
+         chart". Quarter steps and all seven systems — the homepage carries
+         half steps and five, deliberately. -->
+    <section class="mt-14" aria-labelledby="full">
+      <h2 id="full" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Every size, every system</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        US sizes are sold in quarters, so the chart is built in quarters. India, France, Italy,
+        Spain and Brazil share one scale — inner circumference in millimetres minus 40 — which is
+        why those columns agree.
+      </p>
+
+      <div class="table-scroll mt-6">
+        <table class="w-full min-w-[54rem] text-left text-sm">
+          <caption class="sr-only">
+            Ring size conversion chart in quarter sizes: US and Canada, UK and Australia, EU/ISO,
+            Japan, India, France/Italy/Spain, Brazil, with inner diameter and circumference in
+            millimetres and inches.
+          </caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">US / CA</th>
+              <th scope="col" class="px-3 py-2 font-medium">UK / AU</th>
+              <th scope="col" class="px-3 py-2 font-medium">EU / ISO</th>
+              <th scope="col" class="px-3 py-2 font-medium">Japan</th>
+              <th scope="col" class="px-3 py-2 font-medium">India</th>
+              <th scope="col" class="px-3 py-2 font-medium">FR / IT / ES</th>
+              <th scope="col" class="px-3 py-2 font-medium">Brazil</th>
+              <th scope="col" class="px-3 py-2 font-medium">Diameter</th>
+              <th scope="col" class="px-3 py-2 font-medium">Ø inches</th>
+              <th scope="col" class="px-3 py-2 font-medium">Circumference</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Circ. inches</th>
+            </tr>
+          </thead>
+          <tbody class="tabular">
+            {rows.map((r) => (
+              <tr class="border-t border-border">
+                <th scope="row" class="px-3 py-2.5 font-medium text-text">{r.us}</th>
+                <td class="px-3 py-2.5">{r.uk ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.eu ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.jp ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.in ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.fr ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.br ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.diameterMm.toFixed(2)} mm</td>
+                <td class="px-3 py-2.5">{r.diameterIn.toFixed(3)}</td>
+                <td class="px-3 py-2.5">{r.circumferenceMm.toFixed(2)} mm</td>
+                <td class="px-3 py-2.5">{r.circumferenceIn.toFixed(3)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-5 max-w-[62ch] text-sm text-text-faint">
+        UK sizes run as long stretches of half letters. That is correct, not a bug: a US quarter
+        step is 0.64&nbsp;mm of circumference and a UK half letter is 0.625&nbsp;mm, so the two
+        scales drift against each other and never line up.{' '}
+        <a href="/#disagree" class="text-accent-text underline underline-offset-2">Why charts disagree</a>
+      </p>
+    </section>
+
+    <!-- ── Women's ─────────────────────────────────────────────────────────
+         Query: "women's ring size chart", "average ring size for women". -->
+    <section class="mt-16" aria-labelledby="womens">
+      <h2 id="womens" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Women’s ring size chart</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        The range jewellers actually stock for women, US 3 to 9. The commonest is
+        US&nbsp;{AVERAGE_US_SIZE.women}. There is no census of finger sizes — these figures describe
+        what sells, so treat them as a sanity check, not a verdict.
+      </p>
+
+      <div class="table-scroll mt-6">
+        <table class="w-full min-w-[38rem] text-left text-sm">
+          <caption class="sr-only">Women’s ring sizes, US 3 to 9, in every system</caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">US / CA</th>
+              <th scope="col" class="px-3 py-2 font-medium">UK / AU</th>
+              <th scope="col" class="px-3 py-2 font-medium">EU / ISO</th>
+              <th scope="col" class="px-3 py-2 font-medium">Japan</th>
+              <th scope="col" class="px-3 py-2 font-medium">India</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Diameter</th>
+            </tr>
+          </thead>
+          <tbody class="tabular">
+            {womens.map((r) => (
+              <tr class={`border-t border-border${r.usNumeric === AVERAGE_US_SIZE.women ? ' bg-accent-sunk' : ''}`}>
+                <th scope="row" class="px-3 py-2.5 font-medium text-text">
+                  {r.us}{r.usNumeric === AVERAGE_US_SIZE.women && (
+                    <span class="ml-2 text-xs font-normal text-accent-text">most common</span>
+                  )}
+                </th>
+                <td class="px-3 py-2.5">{r.uk ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.eu ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.jp ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.in ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.diameterMm.toFixed(2)} mm</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── Men's ───────────────────────────────────────────────────────────
+         Query: "men's ring size chart", "average ring size for men". -->
+    <section class="mt-16" aria-labelledby="mens">
+      <h2 id="mens" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Men’s ring size chart</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        US 8 to 14, with US&nbsp;{AVERAGE_US_SIZE.men} the commonest. The same caveat applies: this
+        is what jewellers sell, not a measurement of the population.
+      </p>
+
+      <div class="table-scroll mt-6">
+        <table class="w-full min-w-[38rem] text-left text-sm">
+          <caption class="sr-only">Men’s ring sizes, US 8 to 14, in every system</caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">US / CA</th>
+              <th scope="col" class="px-3 py-2 font-medium">UK / AU</th>
+              <th scope="col" class="px-3 py-2 font-medium">EU / ISO</th>
+              <th scope="col" class="px-3 py-2 font-medium">Japan</th>
+              <th scope="col" class="px-3 py-2 font-medium">India</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Diameter</th>
+            </tr>
+          </thead>
+          <tbody class="tabular">
+            {mens.map((r) => (
+              <tr class={`border-t border-border${r.usNumeric === AVERAGE_US_SIZE.men ? ' bg-accent-sunk' : ''}`}>
+                <th scope="row" class="px-3 py-2.5 font-medium text-text">
+                  {r.us}{r.usNumeric === AVERAGE_US_SIZE.men && (
+                    <span class="ml-2 text-xs font-normal text-accent-text">most common</span>
+                  )}
+                </th>
+                <td class="px-3 py-2.5">{r.uk ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.eu ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.jp ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.in ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.diameterMm.toFixed(2)} mm</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── Units ───────────────────────────────────────────────────────────
+         Query: "ring size chart in mm", "ring size in cm", "ring size in
+         inches". The #1 has a section on exactly this. -->
+    <section class="mt-16" aria-labelledby="units">
+      <h2 id="units" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Millimetres, centimetres and inches</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        These are the same measurement written three ways, so no conversion table is needed —
+        divide millimetres by 10 for centimetres, or by 25.4 for inches. What matters far more is
+        <strong class="text-text"> which</strong> measurement you have.
+      </p>
+
+      <dl class="mt-6 space-y-5">
+        <div class="rounded-xl border border-border bg-surface p-5">
+          <dt class="font-medium">Inner diameter</dt>
+          <dd class="mt-1 max-w-[62ch] text-text-muted">
+            Straight across the inside of the ring, edge to edge. This is the number every size
+            system is built from, and the one to give a jeweller. US&nbsp;{AVERAGE_US_SIZE.women} is
+            <span class="tabular"> {rows.find((r) => r.usNumeric === AVERAGE_US_SIZE.women)!.diameterMm.toFixed(2)} mm</span>.
+          </dd>
+        </div>
+        <div class="rounded-xl border border-border bg-surface p-5">
+          <dt class="font-medium">Inner circumference</dt>
+          <dd class="mt-1 max-w-[62ch] text-text-muted">
+            All the way round the inside — what a paper strip round your finger measures. It is
+            exactly π&nbsp;× the diameter, which is why EU/ISO sizes <em>are</em> this number.
+            US&nbsp;{AVERAGE_US_SIZE.women} is
+            <span class="tabular"> {rows.find((r) => r.usNumeric === AVERAGE_US_SIZE.women)!.circumferenceMm.toFixed(2)} mm</span>.
+          </dd>
+        </div>
+      </dl>
+
+      <p class="mt-6 max-w-[62ch] text-sm text-text-faint">
+        Mixing the two up is the commonest sizing mistake there is, and it puts you out by roughly
+        three times — a 16&nbsp;mm circumference is a child’s ring; a 16&nbsp;mm diameter is
+        about US&nbsp;5½.
+      </p>
+    </section>
+
+    <!-- ── Sources ─────────────────────────────────────────────────────────
+         The claim the whole site rests on. Short here; the full working is on
+         the homepage — do not restate it. -->
+    <section class="mt-16" aria-labelledby="sources">
+      <h2 id="sources" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Where these numbers come from</h2>
+
+      <div class="table-scroll mt-6">
+        <table class="w-full min-w-[34rem] text-left text-sm">
+          <caption class="sr-only">The standard behind each sizing system</caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">System</th>
+              <th scope="col" class="px-3 py-2 font-medium">Standard</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Rule</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">EU / ISO</th>
+              <td class="px-3 py-3 text-text-muted">ISO 8653:2016</td>
+              <td class="px-3 py-3 text-text-muted">Size = inner circumference in mm</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">UK / AU</th>
+              <td class="px-3 py-3 text-text-muted">BS EN 28653:1993</td>
+              <td class="px-3 py-3 text-text-muted">C = 40 mm, +1.25 mm per letter</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">Japan</th>
+              <td class="px-3 py-3 text-text-muted">JIS S 4700:2022</td>
+              <td class="px-3 py-3 text-text-muted">Size 1 = 13 mm diameter, +⅓ mm per size</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">Brazil</th>
+              <td class="px-3 py-3 text-text-muted">ABNT NBR 16058</td>
+              <td class="px-3 py-3 text-text-muted">Size = circumference − 40 (aligned to ISO 8653)</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">FR / IT / ES</th>
+              <td class="px-3 py-3 text-text-muted">—</td>
+              <td class="px-3 py-3 text-text-muted">Size = circumference − 40</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">US / CA</th>
+              <td class="px-3 py-3 text-text-muted">No governing standard</td>
+              <td class="px-3 py-3 text-text-muted">Size 0 = 0.458 in, +0.032 in per size</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">India</th>
+              <td class="px-3 py-3 text-danger">No standard exists</td>
+              <td class="px-3 py-3 text-text-muted">
+                Circumference − 40, per four jewellers’ published charts
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-6 max-w-[62ch] text-text-muted">
+        Two systems have no standard behind them, and we say so rather than presenting a number as
+        settled. India has no BIS specification; Tanishq’s own chart runs about a size smaller than
+        the convention four other Indian jewellers publish. UK letter charts vary by up to half a
+        size depending on which half letters a given scale includes.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        The full working — including where four ranking sites give three different UK answers for
+        the same ring — is on the{' '}
+        <a href="/#disagree" class="text-accent-text underline underline-offset-2">ring sizer page</a>.
+      </p>
+    </section>
+
+    <aside class="mt-16 rounded-xl border border-border bg-surface-sunk p-6">
+      <p class="max-w-[62ch] text-text-muted">
+        <strong class="text-text">A chart is only as good as the measurement you bring to it.</strong>
+        If you are reading off a ring you own, measure the inside diameter carefully — a
+        0.4&nbsp;mm error is a whole half size.{' '}
+        <a href="/" class="text-accent-text underline underline-offset-2">Measure it against your screen</a>
+        {' '}instead and the reading is taken for you.
+      </p>
+    </aside>
+  </div>
+</Layout>

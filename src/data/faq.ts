@@ -176,3 +176,21 @@ export const webAppSchema = (url: string, name: string) => ({
     'Runs entirely in the browser — nothing is uploaded',
   ],
 });
+
+/**
+ * Breadcrumbs. Only meaningful once a second page exists — a one-item
+ * breadcrumb on a single-level site says nothing, so the homepage passes just
+ * itself and subpages pass Home + themselves.
+ */
+export const breadcrumbSchema = (
+  trail: ReadonlyArray<{ name: string; url: string }>,
+) => ({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: trail.map((t, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: t.name,
+    item: t.url,
+  })),
+});

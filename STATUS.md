@@ -1,6 +1,6 @@
 # ringsizetool.com — status
 
-Last updated: 27 Aug 2026 · **Stage: tool + FAQ + schema done — awaiting the owner's read**
+Last updated: 27 Aug 2026 · **Stage: homepage + /ring-size-chart done — awaiting the owner's read**
 
 ---
 
@@ -44,6 +44,12 @@ Nobody currently has both.
 - **`src/data/faq.ts`** — all 21 verbatim PAA questions, answers computed from the engine
 - **JSON-LD: WebApplication + HowTo + FAQPage** via a `jsonLd` prop on `Layout.astro`.
   We had zero; all four competitors have schema. The #1 has no FAQPage despite 18 FAQs.
+- **`/ring-size-chart` shipped** — 45 quarter-size rows × 11 columns, all seven systems, mm and
+  inches, plus women's/men's cuts and a standards-source table. Generated from `CHART_ROWS`;
+  no number is typed. `BreadcrumbList` added to both pages now that a second page exists.
+- **`--accent-text` token added.** `--accent` (#8A6D3B) is only 4.09:1 on `--accent-sunk` and
+  4.34:1 on `--surface-sunk` — both under AA for 14px text. Small accent text now uses
+  `#7A6034`; the brand accent stays for marks, borders, fills and large display type (3:1).
 - **`--text-faint` was failing WCAG AA** (3.29:1 on `--surface-sunk`). Fixed in both themes;
   all 27 uses now pass. Do not lighten it back.
   **⬜ The owner has not read it yet. Nothing ships until that happens.**
@@ -60,17 +66,17 @@ site holds #1 for both, so the earlier "skip these, KD says Hard" call was wrong
 
 ## Next, in order ⬜
 
-1. **Owner reads the homepage** — `npm run build && npm run preview`, then edit or approve.
-   The page is now ~3,100 words with 21 FAQs. Nothing ships until this happens.
-2. **`/ring-size-chart`** — the complete chart, on the page, never gated behind a download
-   (`CHART_ROWS` in `ringSizes.ts` already generates it). Add `BreadcrumbList` schema once this
-   and the other subpages exist — a one-item breadcrumb on a single-level site says nothing.
+1. **Owner reads both pages** — `npm run build && npm run preview`. Homepage (~3,100 words,
+   21 FAQs) and `/ring-size-chart`. Nothing ships until this happens.
+2. **Decide the "without a ring sizer" cannibalisation.** The homepage `<h1>` and an `<h2>`
+   both target that phrase (5 occurrences). A separate
+   `/how-to-measure-ring-size-without-a-ring-sizer` page would compete with our own homepage.
+   Either change the homepage h1 or drop that page — not both.
 3. **`/printable-ring-sizer`** — print CSS with real `mm` units + a print-scale check square.
-   Not a PDF library. `printable ring sizer` is Easy at >1,000 volume and this is a real gap.
-   Note brite.co already has one *with* a check line — match that, then beat it on the chart.
-4. **`/how-to-measure-ring-size-without-a-ring-sizer`** — the 9-variant cluster, highest intent
-5. SVG diagrams · logo + favicon (SVG, hand-drawn) · Lighthouse
-6. Deploy to Cloudflare Pages — **site stays `noindex`, submit nothing** until the domain is bought
+   Not a PDF library. Easy at >1,000 volume. brite.co already has one *with* a check line —
+   match that, then beat it on the chart.
+4. SVG diagrams of the three methods · logo + favicon (SVG, hand-drawn) · Lighthouse
+5. Deploy to Cloudflare Pages — **site stays `noindex`, submit nothing** until the domain is bought
 
 Add each new page to `NAV` in `config.ts` only once it exists.
 
@@ -101,6 +107,13 @@ Add each new page to `NAV` in `config.ts` only once it exists.
 - **tanishq.co.in blocks Pakistani IPs**, so their full table could not be verified from here.
 - **The old Brazil formula `(mm-13.05)/0.325` was invented**, not NBR 16058, and drifted by one
   size at 19mm. Replaced with circumference − 40.
+- **⚠️ Open: the low end of the Brazil scale.** Our formula is anchored on NBR 16058's own worked
+  example (aro 19 → 59mm perimeter → 18.78mm), which it reproduces exactly. But one source says
+  Brazilian sizes *start at 8*, and ringssizechart's PDF gives BR 7 for US 3 where we give 4.
+  Below about aro 8 our value may be an extrapolation rather than a size anyone sells. Affects
+  US 3–4¾ only. Verify against a Brazilian jeweller's published table before launch.
+- **The header only just fits at 375px** with two nav items. Everything in it is `whitespace-nowrap`
+  and `shrink-0` on purpose. A third nav label will break it — collapse to a menu at that point.
 
 ## Commands
 

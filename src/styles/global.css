@@ -26,6 +26,7 @@
   --color-border:        var(--border);
   --color-border-strong: var(--border-strong);
   --color-accent:        var(--accent);
+  --color-accent-text:   var(--accent-text);
   --color-accent-hover:  var(--accent-hover);
   --color-accent-sunk:   var(--accent-sunk);
   --color-danger:        var(--danger);
@@ -51,6 +52,12 @@
   --border:        #E4E0D8;
   --border-strong: #C9C3B7;
   --accent:        #8A6D3B;
+  /* Small accent TEXT only. #8A6D3B is 4.09:1 on --accent-sunk and 4.34:1 on
+     --surface-sunk — both under the 4.5 that 14px text needs. The brand accent
+     stays as-is for marks, borders, fills and large display type (which only
+     needs 3:1). DESIGN.md already forbids accent "anywhere it would cost
+     contrast"; this is how that rule is kept. */
+  --accent-text:   #7A6034;
   --accent-hover:  #6F5730;
   --accent-sunk:   #F2EBDD;
   --danger:        #9B2C22;
@@ -71,6 +78,7 @@
     --border:        #2C2924;
     --border-strong: #423E36;
     --accent:        #D9B77E;
+    --accent-text:   #D9B77E;   /* 8.6:1 at worst in dark — no darker variant needed */
     --accent-hover:  #E8CB9A;
     --accent-sunk:   #241F16;
     --danger:        #E0796C;
@@ -91,6 +99,7 @@
   --border:        #2C2924;
   --border-strong: #423E36;
   --accent:        #D9B77E;
+  --accent-text:   #D9B77E;   /* 8.6:1 at worst in dark — no darker variant needed */
   --accent-hover:  #E8CB9A;
   --accent-sunk:   #241F16;
   --danger:        #E0796C;
