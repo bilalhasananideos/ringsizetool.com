@@ -34,8 +34,16 @@ the main thing doing the work.
 
 - **Dark mode on every page**, no flash on load. None of our five audited competitors has it — this
   is a real differentiator, not a nice-to-have.
-- **Accent is for interaction only** — the draggable ring outline, active states, the result figure,
-  focus rings, primary buttons. Never for headings, dividers, or decoration.
+- **Accent is brand-level, not interaction-only.** *(Revised 27 Aug 2026.)* The original rule kept
+  brass strictly for interaction. The site owner found the result too austere, and the competitor
+  evidence supports him: `ringssizechart.com` — the site ranking #1 — uses gold as its entire brand
+  identity, and `measureringsize.com` leads with a gold mark. Gold on a ring-sizing tool reads as
+  the subject matter, not as decoration.
+
+  So brass is now allowed on: the eyebrow rule, key words in the h1, section headings, the ring
+  mark, badges, and all the interaction states it already covered. Still forbidden: body text,
+  large filled areas, and anything where it would cost contrast. **Still never a second accent, and
+  still never a gradient.**
 - **Never a second accent. Never a gradient.**
 - **All measurements use `font-variant-numeric: tabular-nums`.** Numbers that update as the user
   drags must not shift the layout.
