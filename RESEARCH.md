@@ -489,3 +489,93 @@ The text-extraction tool returned the heading and the download button with nothi
 and I read that as "gated". The correct inference was "the content is not text" — which a single
 check of the DOM would have shown. When an extraction comes back empty, the question to ask is
 whether the content is really absent or merely not text.
+
+---
+
+## Keyword data: `ring size chart` — 27 Aug 2026
+
+**2,869 keyword ideas.** This is the largest opportunity found so far.
+
+| Keyword | KD | Volume (US) |
+|---|---|---|
+| **`ring size chart`** | **Easy** | **>100,000** |
+| `mens ring size chart` | Easy | >1,000 |
+| `printable ring size chart` | Easy | >1,000 |
+| `ring size chart printable` | Easy | >1,000 |
+| `us ring size chart` | **Hard** | >1,000 |
+| `ring size chart in cm` | Easy | >1,000 |
+| `ring size chart cm` | — | >1,000 |
+| `ring size chart inches` | Easy | >1,000 |
+| `ring size chart in inches` | — | >1,000 |
+| **`actual ring size chart on screen`** | **Easy** | **>1,000** |
+| `actual size ring size chart` | — | >1,000 |
+| `ring size chart online` | **Hard** | >1,000 |
+| `oura ring size chart` | Easy | >1,000 |
+| `pandora ring size chart` | — | >1,000 |
+| `men ring size chart` · `ring size chart men` · `men's ring size chart` | — | >100–1,000 |
+| `nose ring size chart` | — | >100 |
+| `ring size chart in mm` | — | >100 |
+| ~~`o ring size chart`~~ | — | >100 |
+
+The 45 "Questions" results are all under 100 volume and mostly restate
+`how to measure ring size chart`. Low priority; they fold into the FAQ.
+
+---
+
+## What this changes — five things
+
+### 1. 🔴 `/ring-size-chart` is now the highest-value page on the site after the homepage
+
+**`ring size chart` is Easy at >100,000** — roughly four times `ring sizer` at 26,000. And recall
+what `ringssizechart.com` does with it: **they rank #1 for `ring size chart online` while their
+comprehensive chart is a PNG image Google cannot read.**
+
+A large, correct, indexable HTML chart is the single biggest opening in this whole project.
+
+*Caveat: ">100K" is a bucket, so the true figure could be anywhere from 100K to several hundred
+thousand. Even at the floor it dwarfs everything else here.*
+
+### 2. The chart needs a unit toggle — five keyword variants demand it
+
+`ring size chart in cm` · `ring size chart cm` · `ring size chart inches` ·
+`ring size chart in inches` · `ring size chart in mm`
+
+One chart with mm / cm / inches switchable. `ringSizes.ts` already returns all of them; this is a
+render decision, not new maths. `ringssizechart.com` has a separate 7-row table for this — ours
+should be one complete table that switches.
+
+### 3. **`actual ring size chart on screen` — Easy, >1,000, and our calibration already solves it**
+
+People want a chart rendered at **true physical size** so they can lay a ring directly on the
+screen. This is exactly what the bank-card calibration enables.
+
+No competitor can do this properly. `ringssizechart.com`'s chart is a fixed-width PNG — displayed
+at whatever size the browser happens to pick, which is the wrong size on every device.
+
+**Build it: circles drawn at real diameter using the stored px/mm, with a warning when the device is
+not yet calibrated.** It is a genuine capability, traced to a real query, that the leader
+structurally cannot match.
+
+### 4. A men's section is worth building — four variants ask for it
+
+`mens ring size chart` · `men ring size chart` · `ring size chart men` · `men's ring size chart`
+
+`AVERAGE_US_SIZE.men = 9` is already defined in `ringSizes.ts` and never used. Plan item **A8**
+(the men's/women's context toggle) was scored as a nice-to-have; this data promotes it.
+
+### 5. ⚠️ Skip `o ring size chart` — it is a different product entirely
+
+An **O-ring** is a rubber sealing washer for machinery, sized by cross-section and internal
+diameter in an unrelated system. Nothing to do with jewellery.
+
+The phrase looks like a near-match to our target and is not. Chasing it would attract traffic that
+bounces instantly and dilute the topic. This is the same intent trap as `ring sizer` returning
+Amazon listings — the words match, the need does not.
+
+### Brand and niche pages — confirmed as a real, if small, tier
+
+`oura ring size chart` (Easy, >1,000) and `nose ring size chart` (>100) both have volume, and the
+traffic data shows `ringssizechart.com` actually earns from them: `/nose-ring-size/` 196 visits,
+`/oura-ring-size-chart/` 178. `pandora ring size chart` (>1,000) is untested by them.
+
+Worth doing **after** the main chart page, hand-checked, a few at a time. Not twenty generated pages.
