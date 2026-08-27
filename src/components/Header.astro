@@ -4,33 +4,47 @@ import { SITE_NAME, NAV } from '../config';
 
 const path = Astro.url.pathname;
 ---
-<header class="border-b border-border">
+<header class="sticky top-0 z-40 border-b border-border bg-bg/80 backdrop-blur-md backdrop-saturate-150">
   <!-- Tight on purpose: at 375px the wordmark plus two nav labels plus the
        toggle only just fit. Everything is nowrap so a second nav item can
        never silently wrap the header into two lines. -->
-  <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-2 px-4 py-4 sm:gap-4 sm:px-5">
-    <a href="/" class="flex shrink-0 items-center gap-2.5 text-text no-underline">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.5" aria-hidden="true" class="text-accent">
-        <circle cx="12" cy="12" r="8.5" />
-      </svg>
-      <span class="font-medium tracking-tight whitespace-nowrap">{SITE_NAME}</span>
+  <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-3.5 sm:px-8">
+    <a href="/" class="flex shrink-0 items-center gap-2.5 text-text no-underline group">
+      <span class="flex h-9 w-9 items-center justify-center rounded-full border border-accent/30 bg-accent-sunk transition-colors duration-200 group-hover:border-accent/60">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" aria-hidden="true" class="text-accent">
+          <circle cx="12" cy="12" r="7.5" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      </span>
+      <span class="font-semibold tracking-tight text-base whitespace-nowrap">{SITE_NAME}</span>
     </a>
 
-    <nav aria-label="Main" class="flex shrink-0 items-center gap-0.5 sm:gap-1">
+    <nav aria-label="Main" class="hidden md:flex items-center gap-1 sm:gap-2">
       {NAV.map((item) => (
         <a
           href={item.href}
           aria-current={path === item.href ? 'page' : undefined}
           class:list={[
-            'whitespace-nowrap rounded-lg px-2 py-2 text-sm no-underline transition-colors duration-150 sm:px-3',
-            path === item.href ? 'text-text' : 'text-text-muted hover:text-text',
+            'relative whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium no-underline transition-colors duration-150',
+            path === item.href
+              ? 'text-text after:absolute after:bottom-0.5 after:left-3 after:right-3 after:h-0.5 after:bg-accent after:rounded-full'
+              : 'text-text-muted hover:text-text',
           ]}
         >
           {item.label}
         </a>
       ))}
-      <ThemeToggle />
     </nav>
+
+    <div class="flex items-center gap-3">
+      <ThemeToggle />
+      <a
+        href="#tool-heading"
+        class="hidden sm:inline-flex h-9 items-center justify-center rounded-full bg-accent px-4 text-xs font-semibold text-on-accent no-underline transition-all hover:bg-accent-hover shadow-xs"
+      >
+        Get Started
+      </a>
+    </div>
   </div>
 </header>

@@ -15,48 +15,26 @@
  * than ship that, dark mode keeps the clean original artwork.
  */
 ---
-<div class="hero-art w-full max-w-sm">
+<div class="hero-art w-full max-w-md lg:max-w-lg">
   <img
     src="/images/hero-ring-hand.webp"
     alt="Line drawing of a hand wearing a ring"
     width="681"
     height="583"
-    class="hero-art-photo h-auto w-full"
+    class="hero-art-photo h-auto w-full transition-all duration-300"
     loading="eager"
     fetchpriority="high"
   />
-
-  <svg
-    class="hero-art-diagram h-auto w-full"
-    viewBox="0 0 320 320"
-    fill="none"
-    role="img"
-    aria-label="Diagram of a ring measured against a calibrated guide circle"
-  >
-    <circle cx="160" cy="160" r="130" stroke="var(--border-strong)" stroke-width="1.5" stroke-dasharray="2 7" stroke-linecap="round" />
-    <g stroke="var(--text-faint)" stroke-width="1.5" stroke-linecap="round">
-      <path d="M160 22v16M160 282v16M22 160h16M282 160h16" />
-      <path d="M65 65l11 11M244 65l-11 11M65 255l11-11M244 255l-11-11" opacity="0.6" />
-    </g>
-    <path d="M160 96v128M96 160h128" stroke="var(--border-strong)" stroke-width="1" />
-    <circle cx="160" cy="160" r="66" stroke="var(--accent-bright)" stroke-width="2" opacity="0.2" />
-    <circle cx="160" cy="160" r="62" stroke="var(--accent-bright)" stroke-width="4" />
-    <line x1="160" y1="160" x2="222" y2="160" stroke="var(--accent-bright)" stroke-width="1.5" stroke-dasharray="3 4" />
-    <circle cx="160" cy="160" r="2.5" fill="var(--accent-bright)" />
-    <circle cx="222" cy="160" r="2.5" fill="var(--accent-bright)" />
-    <text x="176" y="152" font-family="var(--font-mono)" font-size="13" fill="var(--text-muted)">16.5&#160;mm</text>
-  </svg>
 </div>
 
 <style>
-  /* Default (light): photo shown, diagram hidden. Mirrors the three-way
-     theme pattern already used in global.css. */
-  .hero-art-diagram { display: none; }
-
+  /* In dark mode, ensure the line-art hand glows subtly on dark background */
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .hero-art-photo { display: none; }
-    :root:not([data-theme="light"]) .hero-art-diagram { display: block; }
+    :root:not([data-theme="light"]) .hero-art-photo {
+      filter: brightness(1.1) drop-shadow(0 8px 32px rgba(233, 195, 73, 0.2));
+    }
   }
-  :root[data-theme="dark"] .hero-art-photo { display: none; }
-  :root[data-theme="dark"] .hero-art-diagram { display: block; }
+  :root[data-theme="dark"] .hero-art-photo {
+    filter: brightness(1.1) drop-shadow(0 8px 32px rgba(233, 195, 73, 0.2));
+  }
 </style>

@@ -3,14 +3,28 @@ import { SITE_NAME, FOOTER_LINKS } from '../config';
 const year = new Date().getFullYear();
 ---
 <footer class="mt-24 border-t border-border">
-  <div class="mx-auto w-full max-w-5xl px-5 py-10">
-    <nav aria-label="Footer" class="flex flex-wrap gap-x-6 gap-y-2">
-      {FOOTER_LINKS.map((l) => (
-        <a href={l.href} class="text-sm text-text-muted no-underline transition-colors duration-150 hover:text-text">
-          {l.label}
+  <div class="mx-auto w-full max-w-6xl px-6 py-12 sm:px-8">
+    <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+      <div>
+        <a href="/" class="flex items-center gap-2 text-text no-underline group w-fit">
+          <span class="flex h-7 w-7 items-center justify-center rounded-full border border-accent/25 bg-accent-sunk text-accent transition-colors duration-200 group-hover:border-accent/50">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="7.5" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </span>
+          <span class="text-sm font-semibold tracking-tight">{SITE_NAME}</span>
         </a>
-      ))}
-    </nav>
-    <p class="mt-6 text-sm text-text-faint">© {year} {SITE_NAME}</p>
+        <p class="mt-2 text-xs text-text-faint max-w-[26ch]">Accurate ring sizing from your screen — no printer needed.</p>
+      </div>
+      <nav aria-label="Footer" class="flex flex-wrap gap-x-5 gap-y-2">
+        {FOOTER_LINKS.map((l) => (
+          <a href={l.href} class="text-sm text-text-muted no-underline transition-colors duration-150 hover:text-text">
+            {l.label}
+          </a>
+        ))}
+      </nav>
+    </div>
+    <p class="mt-8 text-xs text-text-faint border-t border-border pt-6">© {year} {SITE_NAME}</p>
   </div>
 </footer>

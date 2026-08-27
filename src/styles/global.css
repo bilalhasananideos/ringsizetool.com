@@ -155,7 +155,7 @@ h1, h2 {
   font-family: var(--font-display);
   font-weight: 600;
   line-height: 1.05;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   text-wrap: balance;
 }
 
@@ -169,6 +169,27 @@ h3, h4 {
 }
 
 p { text-wrap: pretty; }
+
+/* ---- Premium section headings ---- */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  margin-bottom: 1rem;
+}
+.section-label::before {
+  content: '';
+  display: block;
+  width: 1.5rem;
+  height: 1.5px;
+  background: var(--accent);
+  flex-shrink: 0;
+}
 
 /* Measurements must never shift the layout as they update. */
 .tabular, [data-readout] {
@@ -208,6 +229,45 @@ button, a, label, summary, input, select {
 .table-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+/* ---- Premium table rows ---- */
+.table-scroll table tbody tr {
+  transition: background-color 120ms ease-out;
+}
+.table-scroll table tbody tr:hover {
+  background: var(--accent-sunk);
+}
+
+/* ---- Divider between major sections ---- */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--border) 20%,
+    var(--border-strong) 50%,
+    var(--border) 80%,
+    transparent
+  );
+  margin: 0 auto;
+}
+
+/* ---- FAQ accordion animation ---- */
+details[open] summary ~ * {
+  animation: fade-in-down 200ms ease-out;
+}
+@keyframes fade-in-down {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Highlight box ---- */
+.highlight-box {
+  border-left: 2px solid var(--accent);
+  padding: 0.85rem 1.25rem;
+  background: var(--accent-sunk);
+  border-radius: 0 0.5rem 0.5rem 0;
 }
 
 /* Skip link — visible only when focused. */

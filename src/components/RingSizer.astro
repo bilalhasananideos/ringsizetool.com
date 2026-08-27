@@ -1,331 +1,284 @@
 ---
 /**
- * The tool. Everything runs in the browser — nothing is uploaded.
- *
- * Two steps: calibrate the screen against a bank card, then measure.
- * Calibration is stored per-device so repeat visits skip step 1.
- *
- * The calibration outline is PORTRAIT (card held upright). A landscape card
- * outline is 85.6 mm across, which is ~324 px at the CSS default and wider
- * than the content column on a 375 px phone — the right-hand edge gets clipped
- * and the user cannot match it. Upright, the constrained dimension is 53.98 mm
- * (~204 px) and it fits. The wrapper is also full-bleed and scrollable, because
- * on a narrow phone the card legitimately occupies most of the screen width.
+ * Interactive Ring Size Instrument.
+ * Real-time measurement in MM, CM, and Inches, multi-region size conversions, and screen calibration.
  */
-import { INDIA_NOTE, UK_NOTE } from '../data/ringSizes';
 ---
 
-<section class="ring-sizer" aria-labelledby="tool-heading">
-  <h2 id="tool-heading" class="sr-only">Ring size tool</h2>
+<section class="ring-sizer w-full" aria-labelledby="tool-heading">
+  <h2 id="tool-heading" class="sr-only">Interactive Ring Sizer</h2>
 
-  <!-- ── Step 1: calibrate ───────────────────────────────────────────── -->
-  <div data-step="calibrate" class="card-elevated rounded-xl border border-border bg-surface p-6 md:p-10">
-    <h3 class="text-lg font-semibold">Step 1 · Calibrate your screen</h3>
-
-    <p class="mt-3 max-w-[62ch] text-text-muted">
-      Hold any bank card <strong class="text-text">upright</strong> against the screen — short edge
-      at the top — and drag the slider until the outline matches it exactly. Every card is
-      85.60&nbsp;×&nbsp;53.98&nbsp;mm (ISO/IEC&nbsp;7810&nbsp;ID-1), so this tells us how many
-      pixels your screen puts in a millimetre.
-    </p>
-
-    <!-- Full-bleed on mobile: the card is ~84% of a phone's physical width, which
-         is wider than the padded column. Scrolls rather than clips, as a backstop. -->
-    <div class="mt-6 -mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
-      <div
-        data-card
-        class="rounded-lg border-2 border-dashed border-accent bg-accent-sunk/40"
-        style="width:204px;aspect-ratio:53.98/85.6"
-      >
-        <span class="sr-only">
-          Calibration outline for a bank card held upright, 53.98 millimetres wide
-          by 85.6 millimetres tall.
-        </span>
+  <!-- ── Step 1: Calibrate Drawer (Collapsible) ────────────────────────── -->
+  <div data-step="calibrate" hidden class="card-elevated mb-6 rounded-2xl border border-border bg-surface p-6 sm:p-8 transition-all">
+    <div class="flex items-center justify-between gap-3 mb-4">
+      <div class="flex items-center gap-3">
+        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-on-accent text-xs font-bold">1</span>
+        <h3 class="text-lg font-semibold text-text">Calibrate Screen Scale</h3>
       </div>
-    </div>
-
-    <div class="mt-6 max-w-md">
-      <label for="cal-range" class="block text-sm font-medium">Match the outline to your card</label>
-      <input
-        id="cal-range" data-cal-range type="range"
-        min="2.5" max="7" step="0.01" value="3.78"
-        class="mt-2 h-11 w-full accent-[var(--accent)]"
-        aria-describedby="cal-hint"
-      />
-      <div class="mt-2 flex flex-wrap items-center gap-3">
-        <label for="cal-num" class="text-sm text-text-muted">Pixels per mm</label>
-        <input
-          id="cal-num" data-cal-num type="number" inputmode="decimal" autocomplete="off"
-          min="2.5" max="7" step="0.01" value="3.78"
-          class="h-11 w-28 rounded-lg border border-border bg-surface px-3 text-text"
-        />
-      </div>
-      <p id="cal-hint" class="mt-2 text-sm text-text-faint">
-        Type a value if you already know your screen's scale.
-      </p>
-    </div>
-
-    <div class="mt-5 flex flex-wrap gap-3">
-      <button data-cal-save type="button"
-        class="h-11 rounded-xl bg-accent px-5 font-medium text-on-accent transition-colors duration-150 hover:bg-accent-hover">
-        The outline matches
-      </button>
-      <button data-cal-skip type="button"
-        class="h-11 rounded-xl border border-border-strong px-5 transition-colors duration-150 hover:border-accent">
-        Skip — I know my diameter
+      <button data-cal-close type="button" class="cursor-pointer text-xs text-text-muted hover:text-text underline">
+        Close ✕
       </button>
     </div>
 
-    <p class="mt-4 text-sm text-text-faint">
-      Keep your browser zoom at 100%. Zooming after calibrating will make the result wrong.
-    </p>
+    <div class="grid gap-6 md:grid-cols-[1.1fr_0.9fr] md:items-center">
+      <div>
+        <p class="text-sm text-text-muted leading-relaxed">
+          Hold any standard bank card upright against your screen and adjust the slider until the outline matches its exact width (53.98 mm).
+        </p>
+
+        <div class="mt-5 rounded-xl border border-border bg-surface-sunk/50 p-4">
+          <div class="flex items-center justify-between text-xs text-text-muted mb-2 font-medium">
+            <span>Match outline to card</span>
+            <span class="font-mono"><span data-readout data-cal-val>3.78</span> px/mm</span>
+          </div>
+          <input
+            id="cal-range" data-cal-range type="range"
+            min="2.5" max="7" step="0.01" value="3.78"
+            class="h-2 w-full cursor-pointer appearance-none rounded-full bg-border-strong/40 accent-[#D4AF37] focus:outline-none"
+          />
+        </div>
+
+        <div class="mt-5 flex flex-wrap items-center gap-3">
+          <button data-cal-save type="button" class="h-10 cursor-pointer rounded-xl bg-accent px-5 text-xs font-semibold text-on-accent hover:bg-accent-hover transition-all shadow-xs">
+            Save Scale
+          </button>
+          <button data-cal-reset type="button" class="h-10 cursor-pointer rounded-xl border border-border px-4 text-xs font-medium text-text-muted hover:text-text transition-colors">
+            Reset Default (96 DPI)
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface-sunk/50 p-6">
+        <div
+          data-card
+          class="flex items-center justify-center rounded-lg border-2 border-dashed border-accent bg-accent-sunk/30 transition-all shadow-xs"
+          style="width:204px;aspect-ratio:53.98/85.6"
+        >
+          <span class="text-xs font-medium text-accent-text text-center px-2 pointer-events-none select-none">
+            Standard Bank Card<br/><span class="text-[10px] text-text-faint font-mono">53.98 mm</span>
+          </span>
+        </div>
+        <p class="mt-3 text-[11px] text-text-faint font-mono">1:1 Physical Scale Outline</p>
+      </div>
+    </div>
   </div>
 
-  <!-- ── Step 2: measure ─────────────────────────────────────────────── -->
-  <div data-step="measure" hidden class="card-elevated mt-5 rounded-xl border border-border bg-surface p-6 md:p-10">
-    <h3 class="text-lg font-semibold">Step 2 · Measure</h3>
-
-    <!-- The saved calibration must stay visible. Someone who calibrated on a
-         phone and returns on a laptop would otherwise get a silently wrong
-         answer with no cue that a stale scale is in use. -->
-    <p class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-      <span class="text-text-muted">
-        Using <span data-readout data-cal-status>3.78</span> px/mm on this device.
-      </span>
-      <button data-recal type="button" class="text-accent-text underline underline-offset-2">
-        Re-calibrate
-      </button>
-    </p>
-
-    <fieldset class="mt-5">
-      <legend class="text-sm font-medium">How do you want to measure?</legend>
-      <div class="mt-2 flex flex-wrap gap-2">
-        <label class="method-chip">
-          <input type="radio" name="method" value="ring" checked class="sr-only" />
-          <span>I have a ring</span>
-        </label>
-        <label class="method-chip">
-          <input type="radio" name="method" value="finger" class="sr-only" />
-          <span>Measure my finger</span>
-        </label>
-        <label class="method-chip">
-          <input type="radio" name="method" value="known" class="sr-only" />
-          <span>I know the size</span>
-        </label>
+  <!-- ── Main Interactive Instrument Card ──────────────────────────────── -->
+  <div data-step="measure" class="card-elevated rounded-2xl border border-border bg-surface p-6 sm:p-10 md:p-12 shadow-sm">
+    <!-- Top Pill Switcher: MM, CM, Inches, Circumference -->
+    <div class="flex justify-center">
+      <div class="inline-flex flex-wrap justify-center rounded-full bg-surface-sunk p-1 border border-border/80 shadow-inner gap-1">
+        <button
+          type="button"
+          data-mode-btn="mm"
+          class="cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-150 bg-surface text-text shadow-xs"
+        >
+          MM
+        </button>
+        <button
+          type="button"
+          data-mode-btn="cm"
+          class="cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text"
+        >
+          CM
+        </button>
+        <button
+          type="button"
+          data-mode-btn="inches"
+          class="cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text"
+        >
+          Inches
+        </button>
+        <button
+          type="button"
+          data-mode-btn="circumference"
+          class="cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text"
+        >
+          Circumference
+        </button>
       </div>
-    </fieldset>
+    </div>
 
-    <!-- Ring on screen -->
-    <div data-panel="ring" class="mt-6">
-      <p class="max-w-[62ch] text-text-muted">
-        Place a ring that already fits on the screen and adjust the circle until it sits exactly
-        inside the ring's <strong class="text-text">inner</strong> edge.
-      </p>
-      <div class="mt-6 grid place-items-center rounded-lg bg-surface-sunk py-8">
-        <div data-ring-circle class="rounded-full border-2 border-accent" style="width:62px;height:62px"></div>
-      </div>
-      <div class="mt-6 flex flex-wrap items-end gap-4">
-        <div class="min-w-[12rem] flex-1">
-          <label for="ring-range" class="block text-sm font-medium">Circle size</label>
-          <input id="ring-range" data-ring-range type="range" min="11" max="25" step="0.05" value="16.5"
-            class="mt-2 h-11 w-full accent-[var(--accent)]" />
+    <!-- 2-Column Main Instrument Grid -->
+    <div class="mt-10 grid gap-10 md:grid-cols-[1fr_1.15fr] md:items-center">
+
+      <!-- Left Column: Interactive Ring Circle Guide & Live Readout -->
+      <div class="flex flex-col items-center justify-center">
+        <div class="relative flex h-64 w-64 sm:h-72 sm:w-72 items-center justify-center">
+          <!-- Outer dashed guide circle with crosshair ticks -->
+          <div class="absolute inset-3 rounded-full border border-dashed border-border-strong/70 pointer-events-none"></div>
+
+          <!-- Crosshair tick marks -->
+          <div class="absolute left-1 top-1/2 -translate-y-1/2 w-4 h-px bg-border-strong"></div>
+          <div class="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-px bg-border-strong"></div>
+          <div class="absolute top-1 left-1/2 -translate-x-1/2 h-4 w-px bg-border-strong"></div>
+          <div class="absolute bottom-1 left-1/2 -translate-x-1/2 h-4 w-px bg-border-strong"></div>
+
+          <!-- Center Crosshair tick indicator -->
+          <div class="absolute left-3 top-1/2 -translate-y-1/2 h-2 w-px bg-border-strong"></div>
+          <div class="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-px bg-border-strong"></div>
+
+          <!-- Scalable Golden Ring Circle -->
+          <div
+            data-ring-circle
+            class="rounded-full border-[3px] border-[#D4AF37] shadow-[0_0_20px_rgba(212,175,55,0.25)] transition-all duration-75"
+            style="width:62.4px;height:62.4px"
+          ></div>
         </div>
+
+        <!-- Big Readout Underneath -->
+        <div class="mt-4 text-center">
+          <div class="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-accent">
+            <span data-readout data-main-val>16.50</span> <span data-main-unit class="text-2xl font-normal text-text-muted">mm</span>
+          </div>
+          <p data-main-label class="mt-1 text-xs uppercase tracking-wider text-text-faint font-medium">
+            Inside Diameter
+          </p>
+        </div>
+      </div>
+
+      <!-- Right Column: Slider with Step Buttons & 2x2 Country Size Grid -->
+      <div class="flex flex-col justify-center">
+        <!-- Slider Control Area -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between text-xs font-mono text-text-muted mb-2 font-medium">
+            <span data-min-label>11.00 mm</span>
+            <span data-max-label>25.00 mm</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              data-step-btn="minus"
+              class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface-sunk text-text-muted hover:border-accent hover:text-text active:scale-95 transition-all text-base font-bold select-none"
+              title="Decrease size"
+            >
+              −
+            </button>
+
+            <div class="relative flex-1">
+              <input
+                id="ring-range"
+                data-ring-range
+                type="range"
+                min="11"
+                max="25"
+                step="0.01"
+                value="16.51"
+                class="h-2 w-full cursor-pointer appearance-none rounded-full bg-border-strong/40 accent-[#D4AF37] focus:outline-none"
+              />
+            </div>
+
+            <button
+              type="button"
+              data-step-btn="plus"
+              class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface-sunk text-text-muted hover:border-accent hover:text-text active:scale-95 transition-all text-base font-bold select-none"
+              title="Increase size"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        <!-- 2x2 Country Size Grid Cards -->
         <div>
-          <label for="ring-num" class="block text-sm font-medium">Diameter</label>
-          <div class="mt-2 flex items-center gap-2">
-            <input id="ring-num" data-ring-num type="number" inputmode="decimal" autocomplete="off" min="11" max="25" step="0.05" value="16.5"
-              class="h-11 w-24 rounded-lg border border-border bg-surface px-3 text-text" />
-            <span class="text-sm text-text-muted">mm</span>
+          <p class="text-xs font-semibold uppercase tracking-wider text-text-faint mb-2">Your Size Is</p>
+          <div class="grid grid-cols-2 gap-3 sm:gap-4">
+            <!-- US & Canada -->
+            <div class="rounded-xl border border-border bg-surface-sunk/40 p-4 sm:p-5 text-center transition-all hover:border-accent/40 hover:shadow-xs">
+              <dt class="text-xs font-medium text-text-muted">US / CA</dt>
+              <dd data-readout data-out-us class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">6</dd>
+            </div>
+
+            <!-- UK & Australia -->
+            <div class="rounded-xl border border-border bg-surface-sunk/40 p-4 sm:p-5 text-center transition-all hover:border-accent/40 hover:shadow-xs">
+              <dt class="text-xs font-medium text-text-muted">UK / AU</dt>
+              <dd data-out-uk class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">L ½</dd>
+            </div>
+
+            <!-- Europe -->
+            <div class="rounded-xl border border-border bg-surface-sunk/40 p-4 sm:p-5 text-center transition-all hover:border-accent/40 hover:shadow-xs">
+              <dt class="text-xs font-medium text-text-muted">EU / ISO</dt>
+              <dd data-readout data-out-eu class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">52</dd>
+            </div>
+
+            <!-- Japan -->
+            <div class="rounded-xl border border-border bg-surface-sunk/40 p-4 sm:p-5 text-center transition-all hover:border-accent/40 hover:shadow-xs">
+              <dt class="text-xs font-medium text-text-muted">Japan (JP)</dt>
+              <dd data-readout data-out-jp class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">12</dd>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Row: Show Size Chart & Calibration -->
+        <div class="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4 text-xs">
+          <a
+            href="#chart"
+            class="inline-flex items-center gap-1.5 font-semibold text-accent-text hover:opacity-80 transition-opacity underline underline-offset-2"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <path d="M3 3h18v18H3z"></path>
+              <path d="M3 9h18M3 15h18M9 3v18M15 3v18"></path>
+            </svg>
+            Show Size Chart ↓
+          </a>
+
+          <div class="flex items-center gap-3 text-text-faint">
+            <span>India: <strong data-readout data-out-in class="font-semibold text-text font-mono">12</strong></span>
+            <span>FR/IT/ES: <strong data-readout data-out-fr class="font-semibold text-text font-mono">12</strong></span>
+            <button data-recal type="button" class="cursor-pointer text-accent-text underline underline-offset-2 hover:opacity-80 font-medium">
+              Calibrate
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Paper strip -->
-    <div data-panel="finger" hidden class="mt-6">
-      <p class="max-w-[62ch] text-text-muted">
-        Wrap a strip of paper snugly around the base of your finger, mark where it overlaps, then
-        measure the flat strip.
-      </p>
-      <div class="mt-5 flex flex-wrap items-end gap-3">
-        <div>
-          <label for="circ-input" class="block text-sm font-medium">Strip length</label>
-          <input id="circ-input" data-circ-input type="number" inputmode="decimal" autocomplete="off" min="30" max="90" step="0.1" value="51.9"
-            class="mt-2 h-11 w-40 rounded-lg border border-border bg-surface px-3 text-text" />
-        </div>
-        <div>
-          <label for="circ-unit" class="block text-sm font-medium">Unit</label>
-          <select id="circ-unit" data-circ-unit class="mt-2 h-11 rounded-lg border border-border bg-surface px-3 text-text">
-            <option value="mm">millimetres</option>
-            <option value="cm">centimetres</option>
-            <option value="in">inches</option>
-          </select>
-        </div>
-      </div>
+    <!-- Hidden data points for schema and accessibility -->
+    <div class="sr-only">
+      <span data-readout data-cal-status>3.78</span>
+      <span data-readout data-out-dia-mm>16.51 mm</span>
+      <span data-readout data-out-dia-in>0.650 in</span>
+      <span data-readout data-out-circ-mm>51.87 mm</span>
+      <span data-readout data-out-circ-in>2.042 in</span>
+      <p data-live aria-live="polite"></p>
     </div>
-
-    <!-- Known diameter -->
-    <div data-panel="known" hidden class="mt-6">
-      <p class="max-w-[62ch] text-text-muted">
-        Measure straight across the inside of a ring you own, from inner edge to inner edge.
-      </p>
-      <div class="mt-5 flex flex-wrap items-end gap-3">
-        <div>
-          <label for="dia-input" class="block text-sm font-medium">Inner diameter</label>
-          <input id="dia-input" data-dia-input type="number" inputmode="decimal" autocomplete="off" min="11" max="25" step="0.01" value="16.51"
-            class="mt-2 h-11 w-40 rounded-lg border border-border bg-surface px-3 text-text" />
-        </div>
-        <div>
-          <label for="dia-unit" class="block text-sm font-medium">Unit</label>
-          <select id="dia-unit" data-dia-unit class="mt-2 h-11 rounded-lg border border-border bg-surface px-3 text-text">
-            <option value="mm">millimetres</option>
-            <option value="in">inches</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Result ──────────────────────────────────────────────────────── -->
-  <div data-step="result" hidden class="card-elevated mt-5 rounded-xl border border-border bg-surface p-6 md:p-10">
-    <h3 class="text-sm font-medium tracking-wide text-text-muted uppercase">Your ring size</h3>
-
-    <!-- Out-of-range input must not leave the previous, now-wrong, numbers up. -->
-    <p data-error hidden class="mt-3 rounded-lg border border-danger px-4 py-3 text-danger">
-      That measurement is outside the range this tool covers (11–25&nbsp;mm inner diameter).
-      Check the number and the unit.
-    </p>
-
-    <div data-results>
-      <p class="mt-2 flex items-baseline gap-3">
-        <span data-readout data-out-us class="text-[clamp(2.5rem,8vw,4rem)] leading-none text-accent">6</span>
-        <span class="text-lg text-text-muted">US / Canada</span>
-      </p>
-
-      <p data-out-context class="mt-3 max-w-[60ch] text-text-muted"></p>
-
-      <!-- Reachable: the slider bottoms out at 11 mm, below the smallest size
-           any of the seven systems defines (US 0 is 11.63 mm). Every cell is an
-           em dash there, which needs saying rather than just looking broken. -->
-      <p data-below-range hidden class="mt-3 max-w-[60ch] text-text-muted">
-        That is smaller than the smallest size any of these systems defines — the US scale starts
-        at 11.63&nbsp;mm. The diameter and circumference below are still exact.
-      </p>
-
-      <fieldset class="mt-3">
-        <legend class="sr-only">Compare against the average for</legend>
-        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-          <span class="text-text-faint">Compare with the average for</span>
-          <label class="flex items-center gap-2">
-            <input type="radio" name="who" value="women" checked class="accent-[var(--accent)]" />
-            <span>women</span>
-          </label>
-          <label class="flex items-center gap-2">
-            <input type="radio" name="who" value="men" class="accent-[var(--accent)]" />
-            <span>men</span>
-          </label>
-        </div>
-      </fieldset>
-
-      <!-- Result figures. Six bordered cards rather than a table row: at 375px a
-           six-column table forces a horizontal scroll to read your own size,
-           and these read as figures rather than data. A <dl> keeps the
-           label/value pairing for assistive technology. -->
-      <dl class="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div class="rounded-lg border border-border bg-surface-sunk px-4 py-4 text-center">
-          <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">UK / AU</dt>
-          <dd data-out-uk class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
-        </div>
-        <div class="rounded-lg border border-border bg-surface-sunk px-4 py-4 text-center">
-          <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">EU / ISO</dt>
-          <dd data-readout data-out-eu class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
-        </div>
-        <div class="rounded-lg border border-border bg-surface-sunk px-4 py-4 text-center">
-          <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">Japan</dt>
-          <dd data-readout data-out-jp class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
-        </div>
-        <div class="rounded-lg border border-border bg-surface-sunk px-4 py-4 text-center">
-          <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">India</dt>
-          <dd data-readout data-out-in class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
-        </div>
-        <div class="rounded-lg border border-border bg-surface-sunk px-4 py-4 text-center">
-          <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">FR / IT / ES</dt>
-          <dd data-readout data-out-fr class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
-        </div>
-        <div class="rounded-lg border border-border bg-surface-sunk px-4 py-4 text-center">
-          <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">Brazil</dt>
-          <dd data-readout data-out-br class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
-        </div>
-      </dl>
-
-      <dl class="mt-7 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
-        <div>
-          <dt class="text-sm text-text-muted">Diameter</dt>
-          <dd data-readout data-out-dia-mm class="mt-0.5">—</dd>
-        </div>
-        <div>
-          <dt class="text-sm text-text-muted">Diameter (in)</dt>
-          <dd data-readout data-out-dia-in class="mt-0.5">—</dd>
-        </div>
-        <div>
-          <dt class="text-sm text-text-muted">Circumference</dt>
-          <dd data-readout data-out-circ-mm class="mt-0.5">—</dd>
-        </div>
-        <div>
-          <dt class="text-sm text-text-muted">Circumference (in)</dt>
-          <dd data-readout data-out-circ-in class="mt-0.5">—</dd>
-        </div>
-      </dl>
-    </div>
-
-    <!-- Announced instead of the live-updating cells, which would spam a
-         screen reader on every slider step. -->
-    <p data-live aria-live="polite" class="sr-only"></p>
-
-    <p class="mt-7 rounded-lg border border-border bg-surface-sunk p-4 text-sm text-text-muted">
-      <strong class="text-text">This is an estimate.</strong> Accuracy depends on your screen,
-      browser zoom and how carefully you align things. For an engagement ring or anything that
-      cannot be resized, confirm with a jeweller before buying.
-      <span class="mt-2 block" data-uk-note hidden>
-        <strong class="text-text">On the UK letter:</strong> {UK_NOTE}
-      </span>
-      <span class="mt-2 block" data-india-note hidden>
-        <strong class="text-text">On the Indian size:</strong> {INDIA_NOTE}
-      </span>
-    </p>
   </div>
 </section>
 
 <style>
-  /* Method chooser. A radio group rather than an ARIA tablist: arrow-key
-     navigation, focus and checked state all come from the browser, and the
-     selected state is correct before JavaScript runs. */
-  .method-chip span {
-    display: block;
-    min-height: 2.75rem;
-    padding: 0 1rem;
-    line-height: 2.75rem;
-    font-size: 0.875rem;
-    border: 1px solid var(--border);
-    border-radius: 9999px;
-    color: var(--text-muted);
+  /* Custom stylish slider thumb */
+  input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    height: 22px;
+    width: 22px;
+    border-radius: 50%;
+    background: #D4AF37;
+    cursor: grab;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  input[type="range"]:active::-webkit-slider-thumb {
+    cursor: grabbing;
+    transform: scale(1.15);
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(212,175,55,0.45);
+  }
+  input[type="range"]::-moz-range-thumb {
+    height: 22px;
+    width: 22px;
+    border-radius: 50%;
+    background: #D4AF37;
     cursor: pointer;
-    transition: border-color 120ms ease-out, background-color 120ms ease-out;
+    border: none;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.3);
   }
-  .method-chip input:checked + span {
-    border-color: var(--accent);
-    background: var(--accent-sunk);
-    color: var(--text);
-  }
-  .method-chip input:focus-visible + span {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-  .method-chip span:hover { border-color: var(--border-strong); }
 </style>
 
 <script>
-  import { fromDiameter, sizeContext, MM_PER_INCH } from '../data/ringSizes';
+  import { fromDiameter } from '../data/ringSizes';
 
   const root = document.querySelector<HTMLElement>('.ring-sizer');
   if (root) {
@@ -339,153 +292,195 @@ import { INDIA_NOTE, UK_NOTE } from '../data/ringSizes';
     const DIA_MAX = 25;
 
     const stepCal = $('[data-step="calibrate"]');
-    const stepMeasure = $('[data-step="measure"]');
-    const stepResult = $('[data-step="result"]');
     const card = $<HTMLElement>('[data-card]');
     const calRange = $<HTMLInputElement>('[data-cal-range]');
-    const calNum = $<HTMLInputElement>('[data-cal-num]');
+    const calVal = $('[data-cal-val]');
     const ringRange = $<HTMLInputElement>('[data-ring-range]');
-    const ringNum = $<HTMLInputElement>('[data-ring-num]');
     const ringCircle = $<HTMLElement>('[data-ring-circle]');
-    const errorBox = $('[data-error]');
-    const resultsBox = $('[data-results]');
-    const liveBox = $('[data-live]');
+    const mainVal = $('[data-main-val]');
+    const mainUnit = $('[data-main-unit]');
+    const mainLabel = $('[data-main-label]');
+    const minLabel = $('[data-min-label]');
+    const maxLabel = $('[data-max-label]');
+    
+    const modeButtons = {
+      mm: $<HTMLButtonElement>('[data-mode-btn="mm"]'),
+      cm: $<HTMLButtonElement>('[data-mode-btn="cm"]'),
+      inches: $<HTMLButtonElement>('[data-mode-btn="inches"]'),
+      circumference: $<HTMLButtonElement>('[data-mode-btn="circumference"]'),
+    };
+    
+    const btnMinus = $<HTMLButtonElement>('[data-step-btn="minus"]');
+    const btnPlus = $<HTMLButtonElement>('[data-step-btn="plus"]');
 
-    let pxPerMm = 3.78;                       // 96 CSS DPI, the usual default
-    let mode: 'ring' | 'finger' | 'known' = 'ring';
-    let who: 'women' | 'men' = 'women';
+    let pxPerMm = 3.78;                       // default 96 CSS DPI
+    let activeMode: 'mm' | 'cm' | 'inches' | 'circumference' = 'mm';
+    let currentDia = 16.51;                   // default US 6 inner diameter (mm)
 
     const store = {
       get(): number | null {
         try {
           const v = parseFloat(localStorage.getItem(STORE) ?? '');
-          // Anything outside the slider's own range is corrupt or came from a
-          // different build. Reject it rather than letting the slider clamp
-          // while pxPerMm silently keeps the bad value.
           return Number.isFinite(v) && v >= PPM_MIN && v <= PPM_MAX ? v : null;
         } catch { return null; }
       },
       set(v: number) { try { localStorage.setItem(STORE, String(v)); } catch { /* blocked */ } },
     };
 
-    /* ── calibration ── */
+    /* ── calibration controls ── */
     function setPxPerMm(v: number) {
       pxPerMm = Math.min(PPM_MAX, Math.max(PPM_MIN, v));
       card.style.width = `${CARD_SHORT_MM * pxPerMm}px`;
       const s = pxPerMm.toFixed(2);
       if (calRange.value !== s) calRange.value = s;
-      if (document.activeElement !== calNum) calNum.value = s;
+      if (calVal) calVal.textContent = s;
       $('[data-cal-status]').textContent = s;
+      updateDisplay();
     }
 
     calRange.addEventListener('input', () => setPxPerMm(parseFloat(calRange.value)));
-    calNum.addEventListener('input', () => {
-      const v = parseFloat(calNum.value);
-      if (Number.isFinite(v)) setPxPerMm(v);
-    });
-
-    function showMeasure() {
-      stepCal.hidden = true;
-      stepMeasure.hidden = false;
-      stepResult.hidden = false;
-      update();
-    }
 
     $('[data-cal-save]').addEventListener('click', () => {
       store.set(pxPerMm);
-      showMeasure();
+      stepCal.hidden = true;
     });
 
-    $('[data-cal-skip]').addEventListener('click', () => {
-      showMeasure();
-      selectMode('known');
+    $('[data-cal-close]').addEventListener('click', () => {
+      stepCal.hidden = true;
+    });
+
+    $('[data-cal-reset]').addEventListener('click', () => {
+      setPxPerMm(3.78);
+      store.set(3.78);
     });
 
     $('[data-recal]').addEventListener('click', () => {
-      stepCal.hidden = false;
-      stepMeasure.hidden = true;
-      stepResult.hidden = true;
-      stepCal.scrollIntoView({ block: 'start' });
+      stepCal.hidden = !stepCal.hidden;
+      if (!stepCal.hidden) {
+        stepCal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     });
 
-    /* ── method chooser ── */
-    function selectMode(next: typeof mode) {
-      mode = next;
-      const radio = root.querySelector<HTMLInputElement>(`input[name="method"][value="${next}"]`);
-      if (radio) radio.checked = true;
-      root.querySelectorAll<HTMLElement>('[data-panel]').forEach((p) => {
-        p.hidden = p.dataset.panel !== next;
+    /* ── Switch modes: MM, CM, Inches, Circumference ── */
+    function setMode(mode: typeof activeMode) {
+      activeMode = mode;
+      
+      // Update active pill classes
+      Object.entries(modeButtons).forEach(([k, btn]) => {
+        if (k === mode) {
+          btn.className = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-150 bg-surface text-text shadow-xs';
+        } else {
+          btn.className = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text';
+        }
       });
-      update();
+
+      if (mode === 'mm') {
+        mainLabel.textContent = 'Inside Diameter';
+        mainUnit.textContent = 'mm';
+        minLabel.textContent = '11.00 mm';
+        maxLabel.textContent = '25.00 mm';
+        ringRange.min = '11';
+        ringRange.max = '25';
+        ringRange.step = '0.01';
+        ringRange.value = currentDia.toFixed(2);
+      } else if (mode === 'cm') {
+        mainLabel.textContent = 'Inside Diameter';
+        mainUnit.textContent = 'cm';
+        minLabel.textContent = '1.10 cm';
+        maxLabel.textContent = '2.50 cm';
+        ringRange.min = '1.1';
+        ringRange.max = '2.5';
+        ringRange.step = '0.01';
+        ringRange.value = (currentDia / 10).toFixed(2);
+      } else if (mode === 'inches') {
+        mainLabel.textContent = 'Inside Diameter';
+        mainUnit.textContent = 'in';
+        minLabel.textContent = '0.43 in';
+        maxLabel.textContent = '0.98 in';
+        ringRange.min = '0.433';
+        ringRange.max = '0.984';
+        ringRange.step = '0.005';
+        ringRange.value = (currentDia / 25.4).toFixed(3);
+      } else {
+        mainLabel.textContent = 'Circumference';
+        mainUnit.textContent = 'mm';
+        minLabel.textContent = '34.50 mm';
+        maxLabel.textContent = '78.50 mm';
+        ringRange.min = '34.5';
+        ringRange.max = '78.5';
+        ringRange.step = '0.05';
+        ringRange.value = (currentDia * Math.PI).toFixed(2);
+      }
+      
+      updateDisplay();
     }
 
-    root.querySelectorAll<HTMLInputElement>('input[name="method"]').forEach((r) =>
-      r.addEventListener('change', () => selectMode(r.value as typeof mode)),
-    );
+    Object.entries(modeButtons).forEach(([k, btn]) => {
+      btn.addEventListener('click', () => setMode(k as typeof activeMode));
+    });
 
-    root.querySelectorAll<HTMLInputElement>('input[name="who"]').forEach((r) =>
-      r.addEventListener('change', () => { who = r.value as typeof who; update(); }),
-    );
-
-    /* ── keep the ring slider and its number field in step ── */
-    function setRingDiameter(v: number, from: 'range' | 'num') {
-      const s = v.toFixed(2).replace(/\.?0+$/, '');
-      if (from !== 'range') ringRange.value = String(v);
-      if (from !== 'num') ringNum.value = s;
+    /* ── slider & step buttons handlers ── */
+    function handleValueChange(val: number) {
+      if (activeMode === 'mm') {
+        currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, val));
+      } else if (activeMode === 'cm') {
+        currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, val * 10));
+      } else if (activeMode === 'inches') {
+        currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, val * 25.4));
+      } else {
+        currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, val / Math.PI));
+      }
+      updateDisplay();
     }
 
     ringRange.addEventListener('input', () => {
-      setRingDiameter(parseFloat(ringRange.value), 'range');
-      update();
-    });
-    ringNum.addEventListener('input', () => {
-      const v = parseFloat(ringNum.value);
-      if (Number.isFinite(v)) setRingDiameter(v, 'num');
-      update();
+      handleValueChange(parseFloat(ringRange.value));
     });
 
-    /* ── measurement ── */
-    function currentDiameterMm(): number {
-      if (mode === 'ring') return parseFloat(ringNum.value);
+    btnMinus.addEventListener('click', () => {
+      const step = activeMode === 'mm' ? 0.1 : activeMode === 'cm' ? 0.01 : activeMode === 'inches' ? 0.005 : 0.25;
+      const current = parseFloat(ringRange.value);
+      const next = Math.max(parseFloat(ringRange.min), current - step);
+      ringRange.value = String(next);
+      handleValueChange(next);
+    });
 
-      if (mode === 'finger') {
-        const raw = parseFloat($<HTMLInputElement>('[data-circ-input]').value);
-        const unit = $<HTMLSelectElement>('[data-circ-unit]').value;
-        const mm = unit === 'cm' ? raw * 10 : unit === 'in' ? raw * MM_PER_INCH : raw;
-        return mm / Math.PI;
-      }
-
-      const raw = parseFloat($<HTMLInputElement>('[data-dia-input]').value);
-      return $<HTMLSelectElement>('[data-dia-unit]').value === 'in' ? raw * MM_PER_INCH : raw;
-    }
-
-    let liveTimer: ReturnType<typeof setTimeout> | undefined;
-    function announce(text: string) {
-      clearTimeout(liveTimer);
-      liveTimer = setTimeout(() => { liveBox.textContent = text; }, 500);
-    }
+    btnPlus.addEventListener('click', () => {
+      const step = activeMode === 'mm' ? 0.1 : activeMode === 'cm' ? 0.01 : activeMode === 'inches' ? 0.005 : 0.25;
+      const current = parseFloat(ringRange.value);
+      const next = Math.min(parseFloat(ringRange.max), current + step);
+      ringRange.value = String(next);
+      handleValueChange(next);
+    });
 
     const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 
-    function update() {
-      const d = currentDiameterMm();
-      const valid = Number.isFinite(d) && d >= DIA_MIN && d <= DIA_MAX;
+    /* ── update all visuals & country size cards ── */
+    function updateDisplay() {
+      const d = Math.min(DIA_MAX, Math.max(DIA_MIN, currentDia));
+      
+      // Update dynamic golden ring scale
+      const px = d * pxPerMm;
+      ringCircle.style.width = `${px}px`;
+      ringCircle.style.height = `${px}px`;
 
-      errorBox.hidden = valid;
-      resultsBox.hidden = !valid;
-      if (!valid) {
-        announce('That measurement is outside the range this tool covers.');
-        return;
+      // Update main numeric readout based on active mode
+      if (activeMode === 'mm') {
+        mainVal.textContent = d.toFixed(2);
+      } else if (activeMode === 'cm') {
+        mainVal.textContent = (d / 10).toFixed(2);
+      } else if (activeMode === 'inches') {
+        mainVal.textContent = (d / 25.4).toFixed(2);
+      } else {
+        mainVal.textContent = (d * Math.PI).toFixed(2);
       }
 
-      if (mode === 'ring') {
-        const px = d * pxPerMm;
-        ringCircle.style.width = `${px}px`;
-        ringCircle.style.height = `${px}px`;
-      }
-
+      // Convert diameter to official standards
       const r = fromDiameter(d);
-      const set = (sel: string, v: string) => { $(sel).textContent = v; };
+      const set = (sel: string, v: string) => { 
+        const el = root.querySelector(sel);
+        if (el) el.textContent = v;
+      };
 
       set('[data-out-us]', dash(r.us));
       set('[data-out-uk]', dash(r.uk));
@@ -498,25 +493,15 @@ import { INDIA_NOTE, UK_NOTE } from '../data/ringSizes';
       set('[data-out-dia-in]', `${r.diameterIn.toFixed(3)} in`);
       set('[data-out-circ-mm]', `${r.circumferenceMm.toFixed(2)} mm`);
       set('[data-out-circ-in]', `${r.circumferenceIn.toFixed(3)} in`);
-      set('[data-out-context]', sizeContext(r.usNumeric, who));
-
-      $('[data-below-range]').hidden = !(r.us === null && r.uk === null && r.eu === null);
-      $('[data-uk-note]').hidden = r.uk === null;
-      $('[data-india-note]').hidden = r.in === null;
-
-      announce(
-        `US size ${dash(r.us)}. UK ${dash(r.uk)}, EU ${dash(r.eu)}, Japan ${dash(r.jp)}, ` +
-        `India ${dash(r.in)}. Inner diameter ${r.diameterMm.toFixed(2)} millimetres.`,
-      );
     }
 
-    root.querySelectorAll('[data-circ-input],[data-circ-unit],[data-dia-input],[data-dia-unit]')
-      .forEach((el) => el.addEventListener('input', update));
-
-    /* ── boot ── */
+    /* ── boot initialization ── */
     const saved = store.get();
-    setPxPerMm(saved ?? pxPerMm);
-    selectMode('ring');
-    if (saved) showMeasure();
+    if (saved) {
+      setPxPerMm(saved);
+    } else {
+      setPxPerMm(3.78);
+    }
+    updateDisplay();
   }
 </script>
