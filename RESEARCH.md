@@ -180,3 +180,80 @@ typography reads premium. A name is not cheap; a cheap treatment of it is.
 
 Per-page titles are keyword-led and set during the SEO pass (`playbook/03-seo.md`); the brand goes
 after the pipe, never in front of the keyword.
+
+---
+
+## Collected questions — verbatim, for the FAQ and JSON-LD
+
+These were collected from Google "People also ask" and the Ahrefs Free Keyword Generator
+"Questions" tab for `ring sizer` (which returns 173 in total). **Use this wording exactly.**
+Never invent an FAQ question — the whole point is that a real person searched for it.
+
+### Google "People also ask" — 21, verbatim
+
+```
+How can I measure my ring size at home?
+Can I measure my ring size on my phone?
+Is there a virtual ring sizer?
+Is size 7 a large ring?
+How can I find out my ring size?
+Can I size my ring at home?
+Does ring size vary by finger?
+How can I tell my ring size without measuring?
+Can I measure my ring online?
+Is there an app to check your ring size?
+What is the most common ring size?
+What is the best ring sizer to use?
+Can I size my ring on my phone?
+How do I know my correct ring size?
+Is a ring sizer universal?
+Is a size 7 ring big for a girl?
+How do I convert my finger diameter to ring size?
+How to size a ring with a sizer?
+Can I size a ring at home?
+Which rings cannot be resized?
+What is 7 inches in ring size?
+```
+
+**Four of these became tool features rather than FAQ answers** — see the feature table above:
+`is size 7 a large ring` + `is a size 7 ring big for a girl` + `what is the most common ring size`
+(size context after the result), `what is 7 inches in ring size` (inches input),
+`does ring size vary by finger` (per-finger results).
+
+They still get FAQ entries. A feature answers it for the person using the tool; the FAQ answers it
+for the person scanning the SERP.
+
+### Ahrefs "Questions" — with volume and difficulty
+
+| Question | KD | Volume (US) |
+|---|---|---|
+| how to use a ring sizer | Easy | >100 |
+| how to read a ring sizer | Easy | >100 |
+| how to use ring sizer | Easy | >100 |
+| **how to measure ring size without a ring sizer** | N/A | **>100** |
+| where can i buy a ring sizer | Easy | >100 |
+| where to buy a ring sizer | Easy | >100 |
+| where to buy a ring sizer in store | Easy | >100 |
+| how to size a ring without a sizer | N/A | <100 |
+| how to read ring sizer | Easy | <100 |
+| how to find ring size without sizer | — | <100 |
+| how to measure your ring size without a ring sizer | — | <100 |
+| how to size a ring without a ring sizer | — | <100 |
+| how to know your ring size without a ring sizer | — | <100 |
+| how to find your ring size without a ring sizer | — | <100 |
+| how to tell your ring size without a ring sizer | — | <100 |
+| how to determine ring size without a sizer | — | <100 |
+| how to use ring sizer mandrel | — | <100 |
+| how to read a ring sizer mandrel | — | <100 |
+| where to buy ring sizer | — | <100 |
+| does target have oura ring sizer | — | <100 |
+
+**The "without a ring sizer" cluster is 9 of those 20 rows.** That is the largest single cluster in
+the whole keyword set, it is exactly what this tool does, and no competitor leads with it. It gets
+its own page and the homepage hero line.
+
+**Skip the "where to buy" rows** (4 of them, Easy, >100) — that is product intent, not tool intent.
+A possible Amazon-affiliate page much later; it would dilute the tool pages now.
+
+**The mandrel questions are a different audience** — jewellers and hobbyists, not shoppers. They
+belong on `/how-to-use-a-ring-sizer`, not the homepage.
