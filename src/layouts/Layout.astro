@@ -60,13 +60,9 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
       ))
     }
 
-    <link
-      rel="preload"
-      href="/fonts/instrument-serif-400-latin.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    {/* Both faces are used above the fold — Playfair for the h1, Inter for body. */}
+    <link rel="preload" href="/fonts/playfair-var-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin />
     {/* Must match --bg. Kept in sync by setThemeColor() below, because the
         toggle can override the system preference at runtime. */}
     <meta name="theme-color" content="#FBFAF8" />

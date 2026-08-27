@@ -3,11 +3,22 @@
 /* Self-hosted: no third-party request, no Google Fonts privacy problem.
    Latin regular only — 15KB. Add more subsets only if a locale needs them. */
 @font-face {
-  font-family: 'Instrument Serif';
+  font-family: 'Playfair Display';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 400 700;
   font-display: swap;
-  src: url('/fonts/instrument-serif-400-latin.woff2') format('woff2');
+  src: url('/fonts/playfair-var-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('/fonts/inter-var-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
     U+2212, U+2215, U+FEFF, U+FFFD;
@@ -26,14 +37,17 @@
   --color-border:        var(--border);
   --color-border-strong: var(--border-strong);
   --color-accent:        var(--accent);
+  --color-accent-bright: var(--accent-bright);
+  --color-on-accent:     var(--on-accent);
+  --color-on-accent-bright: var(--on-accent-bright);
   --color-accent-text:   var(--accent-text);
   --color-accent-hover:  var(--accent-hover);
   --color-accent-sunk:   var(--accent-sunk);
   --color-danger:        var(--danger);
   --color-success:       var(--success);
 
-  --font-display: 'Instrument Serif', ui-serif, Georgia, serif;
-  --font-body:    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Playfair Display', ui-serif, Georgia, serif;
+  --font-body:    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono:    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
 }
 
@@ -43,24 +57,22 @@
    The previous #8A857A was 3.29:1 on --surface-sunk. Verified on all three
    light surfaces: bg 5.17, surface 5.39, sunk 4.82. Do not lighten it. */
 :root {
-  --bg:            #FBFAF8;
+  --bg:            #F9F9F9;
   --surface:       #FFFFFF;
-  --surface-sunk:  #F4F2EE;
-  --text:          #16150F;
-  --text-muted:    #5C584E;
-  --text-faint:    #6F6A5D;
-  --border:        #E4E0D8;
-  --border-strong: #C9C3B7;
-  --accent:        #8A6D3B;
-  /* Small accent TEXT only. #8A6D3B is 4.09:1 on --accent-sunk and 4.34:1 on
-     --surface-sunk — both under the 4.5 that 14px text needs. The brand accent
-     stays as-is for marks, borders, fills and large display type (which only
-     needs 3:1). DESIGN.md already forbids accent "anywhere it would cost
-     contrast"; this is how that rule is kept. */
-  --accent-text:   #7A6034;
-  --accent-hover:  #6F5730;
-  --accent-sunk:   #F2EBDD;
-  --danger:        #9B2C22;
+  --surface-sunk:  #F3F3F3;
+  --text:          #1A1C1C;
+  --text-muted:    #4D4635;
+  --text-faint:    #6E6656;
+  --border:        #E5E5E5;
+  --border-strong: #D0C5AF;
+  --accent:        #735C00;
+  --accent-text:   #735C00;
+  --accent-bright: #D4AF37;
+  --accent-hover:  #5A4800;
+  --accent-sunk:   #FBF3DC;
+  --on-accent:        #FFFFFF;
+  --on-accent-bright: #241A00;
+  --danger:        #BA1A1A;
   --success:       #3A6B45;
 
   color-scheme: light;
@@ -69,19 +81,22 @@
 /* ---- Dark: system preference, unless the user explicitly chose light ---- */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg:            #100F0D;
-    --surface:       #1A1815;
-    --surface-sunk:  #0A0908;
-    --text:          #F5F3EE;
-    --text-muted:    #A9A398;
-    --text-faint:    #8A8578;
+    --bg:            #141311;
+    --surface:       #1C1A17;
+    --surface-sunk:  #0E0D0C;
+    --text:          #F2EFE9;
+    --text-muted:    #B3ADA0;
+    --text-faint:    #8A8375;
     --border:        #2C2924;
     --border-strong: #423E36;
-    --accent:        #D9B77E;
-    --accent-text:   #D9B77E;   /* 8.6:1 at worst in dark — no darker variant needed */
-    --accent-hover:  #E8CB9A;
-    --accent-sunk:   #241F16;
-    --danger:        #E0796C;
+    --accent:        #E9C349;
+    --accent-text:   #E9C349;
+    --accent-bright: #E9C349;
+    --accent-hover:  #F5D66B;
+    --accent-sunk:   #241A00;
+    --on-accent:        #241A00;
+    --on-accent-bright: #241A00;
+    --danger:        #FFB4AB;
     --success:       #7FB68C;
 
     color-scheme: dark;
@@ -90,19 +105,22 @@
 
 /* ---- Dark: explicit choice. Must win in both directions. ---- */
 :root[data-theme="dark"] {
-  --bg:            #100F0D;
-  --surface:       #1A1815;
-  --surface-sunk:  #0A0908;
-  --text:          #F5F3EE;
-  --text-muted:    #A9A398;
-  --text-faint:    #8A8578;
+  --bg:            #141311;
+  --surface:       #1C1A17;
+  --surface-sunk:  #0E0D0C;
+  --text:          #F2EFE9;
+  --text-muted:    #B3ADA0;
+  --text-faint:    #8A8375;
   --border:        #2C2924;
   --border-strong: #423E36;
-  --accent:        #D9B77E;
-  --accent-text:   #D9B77E;   /* 8.6:1 at worst in dark — no darker variant needed */
-  --accent-hover:  #E8CB9A;
-  --accent-sunk:   #241F16;
-  --danger:        #E0796C;
+  --accent:        #E9C349;
+  --accent-text:   #E9C349;
+  --accent-bright: #E9C349;
+  --accent-hover:  #F5D66B;
+  --accent-sunk:   #241A00;
+  --on-accent:        #241A00;
+  --on-accent-bright: #241A00;
+  --danger:        #FFB4AB;
   --success:       #7FB68C;
 
   color-scheme: dark;
@@ -126,7 +144,7 @@ body {
 
 h1, h2 {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.05;
   letter-spacing: -0.01em;
   text-wrap: balance;
