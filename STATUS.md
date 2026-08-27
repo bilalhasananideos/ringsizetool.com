@@ -52,6 +52,16 @@ Nobody currently has both.
 - **`--accent-text` token added.** `--accent` (#8A6D3B) is only 4.09:1 on `--accent-sunk` and
   4.34:1 on `--surface-sunk` — both under AA for 14px text. Small accent text now uses
   `#7A6034`; the brand accent stays for marks, borders, fills and large display type (3:1).
+- **Hero illustration added** (28 Aug) — the owner's Stitch-generated hand+ring line art
+  (gold + charcoal ink), background removed and self-hosted at `public/images/hero-ring-hand.webp`
+  (135KB). Shown in **light mode only**: background removal left a faint grainy halo on the darker
+  charcoal strokes, invisible on paper-cream but visible as noise on black — rather than ship that,
+  dark mode keeps the geometric diagram (clean, theme-aware, already built). No JS: the swap is
+  pure CSS using the same `[data-theme]` pattern as the rest of the theme system.
+  Provenance for the record: user-confirmed generated via Google Stitch. Google's generative-AI
+  terms (policies.google.com/terms/generative-ai) grant usage rights including commercial use;
+  self-hosted rather than hotlinked to Google's CDN, which was the actual technical risk (a
+  temporary URL we don't control) beyond the licence question itself.
 - **Three concrete gaps closed after the owner said the UI still didn't match the reference (28 Aug):**
   `rounded-xl` was never registered in the Tailwind theme, so it silently rendered at Tailwind's
   stock 12px instead of DESIGN.md's spec'd 24px — every card corner was half as round as intended.
