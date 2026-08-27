@@ -403,3 +403,53 @@ This is defensible, it is true, and it is more useful than any competitor — al
 a single letter as though it were certain. Recall the measured disagreement for US 6 alone:
 **L (ringsize.app) · L½ (measureringsize, and ours) · M (brite.co and ringssizechart).**
 Four sites, three answers.
+
+
+---
+
+## Correction: the #1's comprehensive chart is an image, not HTML
+
+I previously recorded that `ringssizechart.com` gates its full chart behind a PDF download. **That
+was wrong** — I inferred it from a text extraction that showed the heading followed by a download
+button, with no table rows between them. The rows were missing for a different reason.
+
+Verified in the browser, 27 Aug 2026:
+
+```
+HTML tables on the page — only three, all small:
+  7 rows x 4 cols   Circumference | Diameter | US Size | UK Size
+  7 rows x 4 cols   Circumference | mm | cm | inches
+  9 rows x 3 cols   US Size | Diameter | Circumference
+
+Also present, three times: ring-size-chart.png   alt="ring size chart"
+```
+
+The comprehensive chart — 9 columns (US, British, European, German, Brazilian, Japanese, Swiss,
+inside diameter, circumference) by roughly 55 rows — is none of those three tables. **It is the
+PNG.**
+
+### Why this is a larger opening than gating would have been
+
+| Consequence | Effect |
+|---|---|
+| **Google cannot read a single value in it** | Their entire 9-system conversion table is invisible to search as text, yet they rank **#1** for `ring size chart online`. The chart is doing none of that work. |
+| Nobody can copy a value | A visitor cannot select their size to send to a jeweller. |
+| Screen readers get nothing | `alt="ring size chart"` in place of 55 rows of data. |
+| No dark mode | A white PNG glares in a dark theme. They have no dark mode; we do. |
+| **Unreadable at 375px** | A wide table as a fixed image cannot reflow. Mobile is the majority of this traffic. |
+| Page weight | Adds to a page already carrying 10 iframes and 20 images. |
+
+### What we do
+
+Real HTML, generated from `CHART_ROWS` — selectable, indexable, theme-aware, inside
+`.table-scroll` so it scrolls itself on a phone, with every quarter size rather than a subset.
+
+They reached #1 while making their best asset unreadable to both Google and assistive technology.
+That is the gap.
+
+### Note on my own error
+
+The text-extraction tool returned the heading and the download button with nothing between them,
+and I read that as "gated". The correct inference was "the content is not text" — which a single
+check of the DOM would have shown. When an extraction comes back empty, the question to ask is
+whether the content is really absent or merely not text.
