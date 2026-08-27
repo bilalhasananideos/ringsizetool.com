@@ -34,91 +34,50 @@ const jsonLd = [
   noindex={NOINDEX_SITE}
   jsonLd={jsonLd}
 >
-  <div class="mx-auto w-full max-w-3xl px-5 py-12 sm:py-16">
+  <div class="mx-auto w-full max-w-3xl px-5 py-10 sm:py-14">
 
     <!-- ── Hero ───────────────────────────────────────────────────────────
-         Centred and warmer than the rest of the site. The h1 wording is the
-         "without a ring sizer" cluster — 9 keyword variants, the largest in
-         the set, and no competitor leads with it. -->
-    <div class="text-center">
-      <span
-        class="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-accent/40 bg-accent-sunk"
-        aria-hidden="true"
-      >
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="1.25" class="text-accent">
-          <circle cx="12" cy="14" r="6.5" />
-          <path d="M9.4 6.2 12 2.6l2.6 3.6M12 2.6v4.9" stroke-linejoin="round" />
-        </svg>
-      </span>
+         Left-aligned and deliberately short. This is an instrument, not a
+         pitch: the calibration card has to be reachable without scrolling.
 
-      <p class="mt-6 text-sm font-medium tracking-[0.18em] text-accent uppercase">
-        Free ring size tool
-      </p>
+         Removed on purpose (27 Aug) — the page had become the standard
+         AI-landing-page template: a circular icon badge, an uppercase
+         letterspaced eyebrow used twice, a centred subhead and a symmetric
+         two-card "what you'll need" grid with pill badges. Seven interchangeable
+         parts that appear on every generated site this year. The brass word in
+         the h1 stays; that is a deliberate DESIGN.md decision, not a template tic.
 
-      <h1 class="mt-3 text-[clamp(2.25rem,5.5vw,3.5rem)]">
+         The h1 wording is the "without a ring sizer" cluster — 9 keyword
+         variants, the largest in the set, and no competitor leads with it. -->
+    <header>
+      <h1 class="max-w-[18ch] text-[clamp(2.25rem,5.5vw,3.5rem)]">
         Find your ring size <span class="text-accent">without a ring sizer</span>
       </h1>
 
-      <p class="mx-auto mt-5 max-w-[54ch] text-lg text-text-muted">
+      <p class="mt-5 max-w-[58ch] text-lg text-text-muted">
         Hold a bank card against your screen to calibrate, then measure a ring you already own —
-        or your finger with a strip of paper. No printer, nothing to install.
-      </p>
-    </div>
-
-    <!-- ── What you'll need ───────────────────────────────────────────────
-         Telling people what to fetch before they start is the single most
-         useful thing measureringsize.com does. Ours adds the exact standard
-         the card is measured against, which theirs does not. -->
-    <div class="mt-12">
-      <p class="text-center text-xs font-medium tracking-[0.18em] text-text-faint uppercase">
-        What you&rsquo;ll need
+        or your finger with a strip of paper. Nothing is uploaded.
       </p>
 
-      <ul class="mt-5 grid gap-3 sm:grid-cols-2">
-        <li class="flex items-start gap-3 rounded-xl border border-border bg-surface p-4">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.5" class="mt-0.5 shrink-0 text-accent" aria-hidden="true">
-            <rect x="2.5" y="5.5" width="19" height="13" rx="2" />
-            <path d="M2.5 9.5h19" />
-          </svg>
-          <div class="min-w-0">
-            <p class="flex flex-wrap items-center gap-2 font-medium">
-              Any bank card
-              <span class="rounded-full bg-accent-sunk px-2 py-0.5 text-xs font-medium text-accent">
-                Required
-              </span>
-            </p>
-            <p class="mt-1 text-sm text-text-muted">
-              Every card is exactly 85.60&nbsp;mm wide (ISO/IEC&nbsp;7810), so it tells us your
-              screen&rsquo;s scale. A ruler works too.
-            </p>
-          </div>
-        </li>
+      <!-- The one claim no competitor can copy, because it is what we found
+           rather than what we assert. Links to the section that proves it. -->
+      <p class="mt-6 border-l-2 border-accent py-1 pl-4 text-sm text-text-muted">
+        Four ring size sites give <strong class="text-text">three different UK answers</strong> for
+        US&nbsp;6. Every number here is computed from the published standard instead.{' '}
+        <a href="#disagree" class="whitespace-nowrap text-accent underline underline-offset-2"
+          >See the arithmetic</a
+        >
+      </p>
 
-        <li class="flex items-start gap-3 rounded-xl border border-border bg-surface p-4">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.5" class="mt-0.5 shrink-0 text-accent" aria-hidden="true">
-            <circle cx="12" cy="12" r="7.5" />
-            <circle cx="12" cy="12" r="3.5" />
-          </svg>
-          <div class="min-w-0">
-            <p class="flex flex-wrap items-center gap-2 font-medium">
-              A ring that fits
-              <span class="rounded-full border border-border px-2 py-0.5 text-xs font-medium text-text-muted">
-                Optional
-              </span>
-            </p>
-            <p class="mt-1 text-sm text-text-muted">
-              One that already fits the finger you&rsquo;re measuring. No ring? Use a strip of
-              paper instead.
-            </p>
-          </div>
-        </li>
-      </ul>
-    </div>
+      <!-- Was a two-card grid. It is a prerequisites line; it reads as one. -->
+      <p class="mt-6 text-sm text-text-faint">
+        <span class="text-text-muted">You need</span> any bank card — every one is
+        85.60&nbsp;×&nbsp;53.98&nbsp;mm (ISO/IEC&nbsp;7810), which is what makes this accurate.
+        A ring that already fits helps; a strip of paper works just as well.
+      </p>
+    </header>
 
-    <div class="mt-8">
+    <div class="mt-10">
       <RingSizer />
     </div>
 
