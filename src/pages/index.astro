@@ -83,16 +83,17 @@ const jsonLd = [
       <div class="hidden justify-self-center md:flex">
         <HeroIllustration />
       </div>
-
-      <!-- Was a two-card grid. It is a prerequisites line; it reads as one. -->
-      <p class="mt-6 text-sm text-text-faint">
-        <span class="text-text-muted">You need</span> any bank card — every one is
-        85.60&nbsp;×&nbsp;53.98&nbsp;mm (ISO/IEC&nbsp;7810), which is what makes this accurate.
-        A ring that already fits helps; a strip of paper works just as well.
-      </p>
     </header>
 
-    <div class="mt-10">
+    <!-- Removed (28 Aug): a "You need a bank card, 85.60x53.98mm..." line that
+         duplicated the calibrate card's own opening paragraph word-for-word.
+         The tool now appears one block sooner — the owner's complaint,
+         comparing against the reference, was too much reading before any
+         visual payoff. Real duplication was the fixable part of that; the
+         other part (the reference shows a number on first paint, we cannot,
+         because ours is a real device calibration and theirs is not) is a
+         deliberate trade-off, not a bug — see RingSizer.astro. -->
+    <div class="mt-8">
       <RingSizer />
     </div>
 

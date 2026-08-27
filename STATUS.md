@@ -52,6 +52,21 @@ Nobody currently has both.
 - **`--accent-text` token added.** `--accent` (#8A6D3B) is only 4.09:1 on `--accent-sunk` and
   4.34:1 on `--surface-sunk` — both under AA for 14px text. Small accent text now uses
   `#7A6034`; the brand accent stays for marks, borders, fills and large display type (3:1).
+- **Trimmed a duplicated paragraph from the hero, tightened the gap before the tool** (28 Aug).
+  The owner compared against the reference again and said ours still felt gappy/wordy. Real
+  finding: "You need any bank card, 85.60x53.98mm..." appeared in the hero **and again**,
+  word-for-word, as the calibrate card's own opening line — one full text block was pure
+  duplication. Removed from the hero.
+  **Verified, not a bug:** the owner's screenshot showed no visible result number, but that was the
+  screenshot's scroll position — the result panel (`data-step="result"`) is not gated behind an
+  interaction; `showMeasure()` calls `update()` immediately, so a number is on screen as soon as
+  calibration completes. Confirmed live: result appears within the same viewport as the calibrate
+  slider at 1100px.
+  **Named, not fixed:** the reference shows a number on first paint with zero interaction, because
+  its "calculator" is an abstract slider with no real device calibration — it never promises
+  accuracy tied to your actual screen. Ours does real calibration, which is the whole point, so it
+  cannot show a number before that happens without the number being a lie. Flagged to the owner
+  rather than faking a pre-calibration result.
 - **Hero illustration added** (28 Aug) — the owner's Stitch-generated hand+ring line art
   (gold + charcoal ink), background removed and self-hosted at `public/images/hero-ring-hand.webp`
   (135KB). Shown in **light mode only**: background removal left a faint grainy halo on the darker
