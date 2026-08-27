@@ -15,7 +15,7 @@ Last updated: 27 Aug 2026 · **Stage: homepage + /ring-size-chart done — await
 | Domain | `ringsizetool.com` — **not bought yet, user has no funds** |
 | Backups if taken | virtualringsizer · accurateringsizer · realringsizer · ringsizerhub · realringsize (all `.com`) |
 | Brand | **Ring Size Tool** · brand goes AFTER the pipe in titles, never before the keyword |
-| Design | Vercel DESIGN.md + PROJECT OVERRIDES: brass accent, Instrument Serif, no Vercel blue/gradients/Geist |
+| Design | **Aurelian Precision** (owner-supplied, 27 Aug) — Playfair Display + Inter, gold. Four documented corrections in `DESIGN.md`: its button spec fails WCAG (2.10:1), its `outline` is too light for text, it ships no dark palette, and its `code.html` is a Stitch prototype. Old system kept at `DESIGN.vercel.md.bak` |
 | Hosting | Cloudflare Pages, static, free |
 | Language | English only at launch; i18n routing already configured, locales added later one at a time |
 | User is in | **Pakistan** — currency USD/PKR. UPI, BigRock, PAN are India-only and do not apply |
@@ -52,6 +52,11 @@ Nobody currently has both.
 - **`--accent-text` token added.** `--accent` (#8A6D3B) is only 4.09:1 on `--accent-sunk` and
   4.34:1 on `--surface-sunk` — both under AA for 14px text. Small accent text now uses
   `#7A6034`; the brand accent stays for marks, borders, fills and large display type (3:1).
+- **Aurelian design system adopted** — Playfair Display 600 headings + Inter body, both
+  self-hosted variable latin subsets (38KB + 47KB), preloaded. Result figures became six bordered
+  cards instead of a six-column table (which forced a horizontal scroll at 375px to read your own
+  size), and the three methods became cards with an identity panel and numbered steps.
+  ⚠️ The hero photograph from the mockup is **not** implemented — we hold no licence for it.
 - **`--text-faint` was failing WCAG AA** (3.29:1 on `--surface-sunk`). Fixed in both themes;
   all 27 uses now pass. Do not lighten it back.
   **⬜ The owner has not read it yet. Nothing ships until that happens.**

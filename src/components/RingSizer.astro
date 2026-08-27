@@ -227,31 +227,36 @@ import { INDIA_NOTE, UK_NOTE } from '../data/ringSizes';
         </div>
       </fieldset>
 
-      <div class="table-scroll mt-7">
-        <table class="w-full min-w-[34rem] text-left text-sm">
-          <caption class="sr-only">Your size in every international system</caption>
-          <thead>
-            <tr class="bg-surface-sunk">
-              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">UK / AU</th>
-              <th scope="col" class="px-3 py-2 font-medium">EU / ISO</th>
-              <th scope="col" class="px-3 py-2 font-medium">Japan</th>
-              <th scope="col" class="px-3 py-2 font-medium">India</th>
-              <th scope="col" class="px-3 py-2 font-medium">FR / IT / ES</th>
-              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Brazil</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="border-t border-border" data-readout>
-              <td class="px-3 py-3" data-out-uk>—</td>
-              <td class="px-3 py-3" data-out-eu>—</td>
-              <td class="px-3 py-3" data-out-jp>—</td>
-              <td class="px-3 py-3" data-out-in>—</td>
-              <td class="px-3 py-3" data-out-fr>—</td>
-              <td class="px-3 py-3" data-out-br>—</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <!-- Result figures. Six bordered cards rather than a table row: at 375px a
+           six-column table forces a horizontal scroll to read your own size,
+           and these read as figures rather than data. A <dl> keeps the
+           label/value pairing for assistive technology. -->
+      <dl class="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div class="rounded-lg border border-border bg-surface-sunk px-3 py-3 text-center">
+          <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">UK / AU</dt>
+          <dd data-out-uk class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
+        </div>
+        <div class="rounded-lg border border-border bg-surface-sunk px-3 py-3 text-center">
+          <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">EU / ISO</dt>
+          <dd data-readout data-out-eu class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
+        </div>
+        <div class="rounded-lg border border-border bg-surface-sunk px-3 py-3 text-center">
+          <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">Japan</dt>
+          <dd data-readout data-out-jp class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
+        </div>
+        <div class="rounded-lg border border-border bg-surface-sunk px-3 py-3 text-center">
+          <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">India</dt>
+          <dd data-readout data-out-in class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
+        </div>
+        <div class="rounded-lg border border-border bg-surface-sunk px-3 py-3 text-center">
+          <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">FR / IT / ES</dt>
+          <dd data-readout data-out-fr class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
+        </div>
+        <div class="rounded-lg border border-border bg-surface-sunk px-3 py-3 text-center">
+          <dt class="text-xs font-semibold tracking-[0.08em] text-text-muted uppercase">Brazil</dt>
+          <dd data-readout data-out-br class="mt-1.5 font-display text-3xl leading-none text-text">&mdash;</dd>
+        </div>
+      </dl>
 
       <dl class="mt-7 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
         <div>

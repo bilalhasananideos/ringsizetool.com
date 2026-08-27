@@ -147,40 +147,99 @@ const jsonLd = [
         Get the millimetres right and the rest cannot be wrong.
       </p>
 
-      <h3 class="mt-10 text-lg">Method 1 — a ring that already fits (most accurate)</h3>
-      <ol class="mt-4 max-w-[62ch] list-decimal space-y-2 pl-6 text-text-muted">
-        <li>Calibrate the screen above with a bank card. Every card is 85.60 mm wide worldwide
-          (ISO/IEC 7810 ID-1), so it doubles as a ruler you already own.</li>
-        <li>Lay the ring flat on the screen over the circle.</li>
-        <li>Grow the circle until it just touches the ring's <strong class="text-text">inner</strong>
-          edge — the hole, not the outside of the band.</li>
-      </ol>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        Matching the outer edge instead is the single most common mistake, and on a 2 mm band it
-        makes you two full sizes too big.
-      </p>
+      <!-- Card layout adopted from the Aurelian system: an identity panel on the
+           left, materials and numbered steps on the right. Clearer than prose
+           for a procedure someone follows with their hands busy. -->
+      <ol class="mt-10 space-y-4" role="list">
 
-      <h3 class="mt-10 text-lg">Method 2 — a strip of paper</h3>
-      <ol class="mt-4 max-w-[62ch] list-decimal space-y-2 pl-6 text-text-muted">
-        <li>Cut a strip about 5 mm wide and 100 mm long. Paper only — not thread, not string.</li>
-        <li>Wrap it around the base of the finger. Snug enough that it will not slide off, loose
-          enough to turn.</li>
-        <li>Mark where the end overlaps, unwrap, and measure the flat strip to the mark.</li>
-        <li>Enter that length under <strong class="text-text">Measure my finger</strong>. It is the
-          circumference; the tool divides by π to get the diameter.</li>
-      </ol>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        Check the number before you trust it. A finger measures roughly {inRange(smallest)} to
-        {' '}{inRange(largest)} inches around ({smallest.circumferenceMm.toFixed(0)}–{largest.circumferenceMm.toFixed(0)} mm).
-        If you got 7 inches, you have measured a wrist.
-      </p>
+        <li class="overflow-hidden rounded-xl border border-border bg-surface sm:flex">
+          <div class="flex shrink-0 flex-col items-center justify-center gap-2 border-border bg-surface-sunk px-6 py-6 sm:w-56 sm:border-r">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.25" class="text-accent-bright" aria-hidden="true">
+              <circle cx="12" cy="14" r="7" /><circle cx="12" cy="14" r="3.5" />
+              <path d="M9.5 5.5 12 2.5l2.5 3" stroke-linejoin="round" />
+            </svg>
+            <p class="text-xs font-semibold tracking-[0.1em] text-text-faint uppercase">Method 1</p>
+            <p class="text-center font-display text-xl leading-tight">A ring that fits</p>
+            <p class="text-xs text-accent-text">Most accurate</p>
+          </div>
 
-      <h3 class="mt-10 text-lg">Method 3 — you already know the diameter</h3>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        A jeweller's measurement, a listing that gives millimetres, or a caliper reading all go
-        straight into <strong class="text-text">I know the size</strong>. No calibration needed —
-        skip step 1 entirely.
-      </p>
+          <div class="flex-1 px-5 py-5 sm:px-6">
+            <p class="text-xs font-semibold tracking-[0.1em] text-text-faint uppercase">Materials needed</p>
+            <p class="mt-1.5 text-text-muted">A ring that already fits the finger you are measuring, and any bank card.</p>
+
+            <p class="mt-5 text-xs font-semibold tracking-[0.1em] text-text-faint uppercase">Steps</p>
+            <ol class="mt-2 list-decimal space-y-2 pl-5 text-text-muted">
+              <li>Calibrate the screen above with a bank card. Every card is 85.60 mm wide worldwide
+                (ISO/IEC 7810 ID-1), so it doubles as a ruler you already own.</li>
+              <li>Lay the ring flat on the screen over the circle.</li>
+              <li>Grow the circle until it just touches the ring's <strong class="text-text">inner</strong>
+                edge — the hole, not the outside of the band.</li>
+            </ol>
+            <p class="mt-4 text-text-muted">
+              Matching the outer edge instead is the single most common mistake, and on a 2 mm band it
+              makes you two full sizes too big.
+            </p>
+          </div>
+        </li>
+
+        <li class="overflow-hidden rounded-xl border border-border bg-surface sm:flex">
+          <div class="flex shrink-0 flex-col items-center justify-center gap-2 border-border bg-surface-sunk px-6 py-6 sm:w-56 sm:border-r">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.25" class="text-accent-bright" aria-hidden="true">
+              <path d="M3 8.5h18v7H3z" /><path d="M7 8.5v7M11 8.5v7M15 8.5v7M19 8.5v7" opacity="0.5" />
+            </svg>
+            <p class="text-xs font-semibold tracking-[0.1em] text-text-faint uppercase">Method 2</p>
+            <p class="text-center font-display text-xl leading-tight">A strip of paper</p>
+            <p class="text-xs text-text-faint">No ring needed</p>
+          </div>
+
+          <div class="flex-1 px-5 py-5 sm:px-6">
+            <p class="text-xs font-semibold tracking-[0.1em] text-text-faint uppercase">Materials needed</p>
+            <p class="mt-1.5 text-text-muted">A strip of paper about 5 &times; 100 mm, a pen, and a ruler with millimetre markings.</p>
+
+            <p class="mt-5 text-xs font-semibold tracking-[0.1em] text-text-faint uppercase">Steps</p>
+            <ol class="mt-2 list-decimal space-y-2 pl-5 text-text-muted">
+              <li>Cut a strip about 5 mm wide and 100 mm long. Paper only — not thread, not string.</li>
+              <li>Wrap it around the base of the finger. Snug enough that it will not slide off, loose
+                enough to turn.</li>
+              <li>Mark where the end overlaps, unwrap, and measure the flat strip to the mark.</li>
+              <li>Enter that length under <strong class="text-text">Measure my finger</strong>. It is the
+                circumference; the tool divides by π to get the diameter.</li>
+            </ol>
+            <p class="mt-4 text-text-muted">
+              Check the number before you trust it. A finger measures roughly {inRange(smallest)} to
+              {' '}{inRange(largest)} inches around ({smallest.circumferenceMm.toFixed(0)}–{largest.circumferenceMm.toFixed(0)} mm).
+              If you got 7 inches, you have measured a wrist.
+            </p>
+          </div>
+        </li>
+
+        <li class="overflow-hidden rounded-xl border border-border bg-surface sm:flex">
+          <div class="flex shrink-0 flex-col items-center justify-center gap-2 border-border bg-surface-sunk px-6 py-6 sm:w-56 sm:border-r">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.25" class="text-accent-bright" aria-hidden="true">
+              <path d="M8 3.5v13M16 3.5v13" /><path d="M8 20.5h8" />
+              <path d="M8 10h8" stroke-dasharray="1 2" />
+            </svg>
+            <p class="text-xs font-semibold tracking-[0.1em] text-text-faint uppercase">Method 3</p>
+            <p class="text-center font-display text-xl leading-tight">You know the diameter</p>
+            <p class="text-xs text-text-faint">No calibration</p>
+          </div>
+
+          <div class="flex-1 px-5 py-5 sm:px-6">
+            <p class="text-xs font-semibold tracking-[0.1em] text-text-faint uppercase">Materials needed</p>
+            <p class="mt-1.5 text-text-muted">A diameter in millimetres — from a jeweller, a product listing, or a caliper.</p>
+
+            <p class="mt-5 text-xs font-semibold tracking-[0.1em] text-text-faint uppercase">Steps</p>
+            <ol class="mt-2 list-decimal space-y-2 pl-5 text-text-muted">
+              <li>Enter it under <strong class="text-text">I know the size</strong>.</li>
+              <li>Skip step 1 entirely — no calibration is needed when the millimetres already exist.</li>
+            </ol>
+          </div>
+        </li>
+
+      </ol>
 
       <h3 class="mt-10 text-lg">What not to do</h3>
       <ul class="mt-4 max-w-[62ch] list-disc space-y-2 pl-6 text-text-muted">
