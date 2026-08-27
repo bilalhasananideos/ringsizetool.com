@@ -37,6 +37,16 @@ Nobody currently has both.
   Checked at 375px: no page overflow, wide tables scroll inside `.table-scroll`.
   **⬜ The owner has not read it yet. Nothing ships until that happens.**
 
+## ⚠️ Build order revised 27 Aug 2026 — read RESEARCH.md "What this data changes"
+
+Ahrefs traffic data shows the #1 competitor earns **95% of its traffic on the homepage alone**
+(8,800 of 9,200 US visits). Its best sub-page manages 196. So depth on the homepage is worth
+roughly 20x any single sub-page.
+
+Also: `ring sizer` is **26,000/month**, not ">10,000" — and the leading tool site sits at position
+**16** for it. And `online ring sizer` / `ring sizer online` are **not** out of reach: a 6.8K-traffic
+site holds #1 for both, so the earlier "skip these, KD says Hard" call was wrong.
+
 ## Next, in order ⬜
 
 1. **Owner reads the homepage** — `npm run build && npm run preview`, then edit or approve.

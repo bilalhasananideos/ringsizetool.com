@@ -257,3 +257,106 @@ A possible Amazon-affiliate page much later; it would dilute the tool pages now.
 
 **The mandrel questions are a different audience** — jewellers and hobbyists, not shoppers. They
 belong on `/how-to-use-a-ring-sizer`, not the homepage.
+
+---
+
+## Competitor traffic data — Ahrefs, 27 Aug 2026
+
+Store this. It changed the plan.
+
+### ringssizechart.com — the site ranking #1
+
+| | |
+|---|---|
+| Organic traffic | **17.2K/month** |
+| Traffic value | **$4.7K/month** |
+| Countries | US 53% · **India 10%** · Indonesia 6% · UK 6% · Canada 3% |
+
+| Keyword | Position | Volume |
+|---|---|---|
+| ring size calculator | **1** | 5,000 |
+| ring size chart online | **1** | 2,100 |
+| ring size finder | **1** | 450 |
+| ring size online | **1** | 400 |
+| calculate ring size | 2 | 300 |
+
+| Page | US traffic | Share |
+|---|---|---|
+| `/` | **8,800** | **95%** |
+| `/nose-ring-size/` | 196 | 2% |
+| `/oura-ring-size-chart/` | 178 | 2% |
+| `/oura-ring-size-chart` *(no slash — duplicate)* | 22 | 0% |
+| `/are-men-and-women-ring-sizes-the-same/` | 13 | 0% |
+
+### measureringsize.com
+
+| | |
+|---|---|
+| Organic traffic | **6.8K/month** |
+| Traffic value | **$2K/month** |
+| Countries | US 60% · Brazil 6% · Ukraine 5% · UK 3% · Saudi 3% |
+
+| Keyword | Position | Volume |
+|---|---|---|
+| ring sizer online | **1** | 1,500 |
+| online ring sizer | **1** | 1,500 |
+| ring sizer tool online | 2 | 700 |
+| **ring sizer** | **16** | **26,000** |
+| measure ring size | 9 | 4,300 |
+
+| Page | US traffic |
+|---|---|
+| `/` | **4,200 (100%)** |
+| `/es` | 6 |
+| `/ar` | 5 |
+| `/pt` | 4 |
+
+---
+
+## What this data changes — five corrections
+
+### 1. `ring sizer` is 26,000/month, not ">10,000"
+
+The Ahrefs free tool only reports buckets. The real figure is **26K**, and the #1 competitor for the
+tool-intent queries sits at **position 16** for it. This is a far bigger prize than the earlier
+estimate, and it is barely defended.
+
+### 2. ⚠️ My advice to skip `online ring sizer` / `ring sizer online` was wrong
+
+I marked both **Hard** from the free KD tool and said do not target them. But
+`measureringsize.com` — a 6.8K-traffic site with no brand — ranks **#1 for both**, at 1,500 volume
+each. If a site that small holds #1, the keyword is not out of reach.
+
+**Corrected position:** target them. KD estimates backlinks needed for the top ten; it says nothing
+about whether a small, genuinely better page can win. The SERP is the evidence, not the score.
+
+### 3. 🔴 The homepage is 95% of the traffic. The long-tail pages barely work.
+
+`ringssizechart.com` gets **8,800 of its 9,200 US visits on the homepage alone.** Its best sub-page
+manages 196. Its whole long-tail strategy is worth roughly 400 visits — under 5%.
+
+**This inverts the build order.** The plan had eight pages queued. The data says depth on the
+homepage is worth roughly 20× any single sub-page. Build the homepage until it is unarguably the
+best page on the internet for this query, *then* add sub-pages.
+
+### 4. Multilingual is close to worthless here — the "English only" call was right
+
+`measureringsize.com` runs `/es`, `/ar` and `/pt`. Combined: **15 visits/month.** Against 4,200 on
+the English homepage.
+
+That is the whole return on maintaining three translated versions. Keep i18n routing configured and
+add nothing until Search Console shows real demand.
+
+### 5. India is 10% of the #1's traffic — and it does not show Indian sizes
+
+Ten percent of 17.2K is roughly **1,700 visits a month from India** landing on a page that offers
+US, UK, EU and Japan and no India at all. We compute Indian sizes and state honestly that no
+standard exists.
+
+Note the RPM caveat: Indian traffic monetises far below US traffic. This is a **quality and
+differentiation** win, not a revenue one. Worth doing; not worth reordering priorities for.
+
+### Also: they have a trailing-slash duplicate
+
+`/oura-ring-size-chart/` and `/oura-ring-size-chart` are both indexed — the same page competing with
+itself. Our `trailingSlash: 'never'` plus canonical handling already prevents this.
