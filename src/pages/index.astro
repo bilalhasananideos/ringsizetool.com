@@ -1,7 +1,19 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import RingSizer from '../components/RingSizer.astro';
-import { SITE_NAME, NOINDEX_SITE } from '../config';
+import { NOINDEX_SITE } from '../config';
+import { CHART_ROWS, AVERAGE_US_SIZE, diameterFromUs, fromDiameter } from '../data/ringSizes';
+
+/* The chart below is generated, never typed. Half-size steps from US 3 to 13 —
+   the range actually sold. Quarter steps live on /ring-size-chart when it ships. */
+const chart = CHART_ROWS.filter((r) => r.usNumeric % 0.5 === 0 && r.usNumeric <= 13);
+
+/* Used in prose so the numbers can never drift from the conversion engine. */
+const six = fromDiameter(diameterFromUs(6));
+const smallest = fromDiameter(diameterFromUs(3));
+const largest = fromDiameter(diameterFromUs(13));
+
+const inRange = (r: typeof six) => r.circumferenceIn.toFixed(1);
 ---
 <Layout
   title="Ring Sizer — Measure Your Ring Size on Screen | Ring Size Tool"
@@ -20,5 +32,316 @@ import { SITE_NAME, NOINDEX_SITE } from '../config';
     <div class="mt-10">
       <RingSizer />
     </div>
+
+    <!-- ── Is this number normal? ──────────────────────────────────────────
+         Queries: "is size 7 a large ring" · "is a size 7 ring big for a girl"
+                  "what is the most common ring size" · "average ring size"
+         Three separate PAA entries ask this. No audited competitor answers it. -->
+    <section class="mt-20" aria-labelledby="normal">
+      <h2 id="normal" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Is your size normal?</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Almost certainly. Rings are sold from about US {smallest.us} to US {largest.us}, and most
+        adults land in a narrow band inside that.
+      </p>
+
+      <div class="table-scroll mt-6">
+        <table class="w-full min-w-[30rem] text-left text-sm">
+          <caption class="sr-only">Most common and typical ring sizes</caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">&nbsp;</th>
+              <th scope="col" class="px-3 py-2 font-medium">Most common</th>
+              <th scope="col" class="px-3 py-2 font-medium">Typical range</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Inner diameter</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">Women</th>
+              <td class="px-3 py-3 tabular">US {AVERAGE_US_SIZE.women}</td>
+              <td class="px-3 py-3 tabular">US 4 – 8½</td>
+              <td class="px-3 py-3 tabular">{`${fromDiameter(diameterFromUs(4)).diameterMm.toFixed(1)} – ${fromDiameter(diameterFromUs(8.5)).diameterMm.toFixed(1)} mm`}</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">Men</th>
+              <td class="px-3 py-3 tabular">US {AVERAGE_US_SIZE.men}</td>
+              <td class="px-3 py-3 tabular">US 8 – 13</td>
+              <td class="px-3 py-3 tabular">{`${fromDiameter(diameterFromUs(8)).diameterMm.toFixed(1)} – ${largest.diameterMm.toFixed(1)} mm`}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-6 max-w-[62ch] text-text-muted">
+        One caveat worth stating plainly: there is no census of finger sizes. These figures come from
+        what jewellers stock and sell, so they describe ring <em>buyers</em>, not people. Treat them
+        as a sanity check, not a verdict. A size 4 and a size 12 are both ordinary.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        So <strong class="text-text">US 7 is not a large ring.</strong> It is one size above the
+        commonest women's size and two below the commonest men's — squarely in the middle of what
+        every jeweller keeps in stock.
+      </p>
+    </section>
+
+    <!-- ── Methods ─────────────────────────────────────────────────────────
+         Query cluster: "how to measure ring size without a ring sizer" and its
+         9 variants — the largest cluster in the research, and the site's pitch. -->
+    <section class="mt-20" aria-labelledby="methods">
+      <h2 id="methods" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">
+        Three ways to measure without a ring sizer
+      </h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        All three end at the same number: the <strong class="text-text">inner diameter</strong> of the
+        ring, in millimetres. Everything else — US, UK, EU, Japan — is arithmetic on that one figure.
+        Get the millimetres right and the rest cannot be wrong.
+      </p>
+
+      <h3 class="mt-10 text-lg">Method 1 — a ring that already fits (most accurate)</h3>
+      <ol class="mt-4 max-w-[62ch] list-decimal space-y-2 pl-6 text-text-muted">
+        <li>Calibrate the screen above with a bank card. Every card is 85.60 mm wide worldwide
+          (ISO/IEC 7810 ID-1), so it doubles as a ruler you already own.</li>
+        <li>Lay the ring flat on the screen over the circle.</li>
+        <li>Grow the circle until it just touches the ring's <strong class="text-text">inner</strong>
+          edge — the hole, not the outside of the band.</li>
+      </ol>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Matching the outer edge instead is the single most common mistake, and on a 2 mm band it
+        makes you two full sizes too big.
+      </p>
+
+      <h3 class="mt-10 text-lg">Method 2 — a strip of paper</h3>
+      <ol class="mt-4 max-w-[62ch] list-decimal space-y-2 pl-6 text-text-muted">
+        <li>Cut a strip about 5 mm wide and 100 mm long. Paper only — not thread, not string.</li>
+        <li>Wrap it around the base of the finger. Snug enough that it will not slide off, loose
+          enough to turn.</li>
+        <li>Mark where the end overlaps, unwrap, and measure the flat strip to the mark.</li>
+        <li>Enter that length under <strong class="text-text">Measure my finger</strong>. It is the
+          circumference; the tool divides by π to get the diameter.</li>
+      </ol>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Check the number before you trust it. A finger measures roughly {inRange(smallest)} to
+        {' '}{inRange(largest)} inches around ({smallest.circumferenceMm.toFixed(0)}–{largest.circumferenceMm.toFixed(0)} mm).
+        If you got 7 inches, you have measured a wrist.
+      </p>
+
+      <h3 class="mt-10 text-lg">Method 3 — you already know the diameter</h3>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        A jeweller's measurement, a listing that gives millimetres, or a caliper reading all go
+        straight into <strong class="text-text">I know the size</strong>. No calibration needed —
+        skip step 1 entirely.
+      </p>
+
+      <h3 class="mt-10 text-lg">What not to do</h3>
+      <ul class="mt-4 max-w-[62ch] list-disc space-y-2 pl-6 text-text-muted">
+        <li><strong class="text-text">String or thread.</strong> It stretches, and it tightens as you
+          pull. Both errors push the same way, so you land small.</li>
+        <li><strong class="text-text">A printed chart at the wrong scale.</strong> Browsers and
+          printers rescale by default. If the page has no check square you can measure, the chart
+          is decoration.</li>
+        <li><strong class="text-text">Measuring at the end of a hot day.</strong> See the section
+          below.</li>
+        <li><strong class="text-text">Zooming after calibrating.</strong> The tool sizes the circle
+          in pixels. Change the zoom and every result shifts.</li>
+      </ul>
+    </section>
+
+    <!-- ── The chart ───────────────────────────────────────────────────────
+         Queries: "ring size chart" · "ring size in mm" · "uk to us ring size"
+         The #1 competitor gates its full chart behind a PDF download. Ours is
+         on the page, and generated from the same engine as the tool. -->
+    <section class="mt-20" aria-labelledby="chart">
+      <h2 id="chart" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Ring size chart</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Half sizes from US {smallest.us} to US {largest.us}, computed from the standards listed
+        below — not copied from another chart. Nothing here is behind a download.
+      </p>
+
+      <div class="table-scroll mt-6">
+        <table class="w-full min-w-[42rem] text-left text-sm">
+          <caption class="sr-only">
+            Ring size conversion chart: US, UK, EU, Japan and India with diameter and circumference
+          </caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">US / CA</th>
+              <th scope="col" class="px-3 py-2 font-medium">UK / AU</th>
+              <th scope="col" class="px-3 py-2 font-medium">EU / ISO</th>
+              <th scope="col" class="px-3 py-2 font-medium">Japan</th>
+              <th scope="col" class="px-3 py-2 font-medium">India</th>
+              <th scope="col" class="px-3 py-2 font-medium">Diameter</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Circumference</th>
+            </tr>
+          </thead>
+          <tbody class="tabular">
+            {chart.map((r) => (
+              <tr class="border-t border-border">
+                <th scope="row" class="px-3 py-2.5 font-medium text-text">{r.us}</th>
+                <td class="px-3 py-2.5">{r.uk}</td>
+                <td class="px-3 py-2.5">{r.eu}</td>
+                <td class="px-3 py-2.5">{r.jp}</td>
+                <td class="px-3 py-2.5">{r.in === null ? '—' : r.in}</td>
+                <td class="px-3 py-2.5">{r.diameterMm.toFixed(2)} mm</td>
+                <td class="px-3 py-2.5">{r.circumferenceMm.toFixed(2)} mm</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-5 max-w-[62ch] text-sm text-text-faint">
+        UK sizes run as long stretches of half sizes. That is correct, not a bug: a US step is
+        2.55 mm of circumference and a UK step is 1.25 mm, so the two scales never line up.
+      </p>
+    </section>
+
+    <!-- ── The thing only we know ──────────────────────────────────────────
+         Queries: "ring size conversion" · "uk to us ring size" · "ring size in mm"
+         This is the page's original contribution — the discrepancy we verified. -->
+    <section class="mt-20" aria-labelledby="disagree">
+      <h2 id="disagree" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">
+        Why two ring size charts give you different answers
+      </h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Because most of them are copies of copies. We checked the sites currently ranking for this
+        search, and they contradict each other — and in one case themselves.
+      </p>
+
+      <ul class="mt-6 max-w-[62ch] list-disc space-y-3 pl-6 text-text-muted">
+        <li>For a {six.diameterMm.toFixed(2)} mm inner diameter, three ranking sites give three
+          different UK sizes: L, L½ and M.</li>
+        <li>The page ranking first for <em>ring size calculator</em> reports 16.50 mm as EU 52 on its
+          millimetre slider and the same 1.65 cm as EU 51.8 on its centimetre slider.</li>
+        <li>Its two on-page charts disagree with each other about US 5 — one says 16.2 mm, the other
+          15.7 mm — and the first one skips sizes 6 and 8 altogether.</li>
+      </ul>
+
+      <p class="mt-6 max-w-[62ch] text-text-muted">
+        So we do not keep a chart. We keep one number — inner diameter in millimetres — and derive
+        everything else from it with the published formula. Two of our numbers cannot disagree,
+        because there is only ever one number.
+      </p>
+
+      <h3 class="mt-10 text-lg">The arithmetic, in full</h3>
+
+      <div class="table-scroll mt-4">
+        <table class="w-full min-w-[36rem] text-left text-sm">
+          <caption class="sr-only">Conversion rules and their sources</caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">System</th>
+              <th scope="col" class="px-3 py-2 font-medium">Rule</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">US / Canada</th>
+              <td class="px-3 py-3 tabular">diameter = 0.8128 n + 11.633 mm</td>
+              <td class="px-3 py-3 text-text-muted">de facto — no standards body</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">UK / Australia</th>
+              <td class="px-3 py-3 tabular">A = 37.5 mm circumference, +1.25 mm a letter</td>
+              <td class="px-3 py-3 text-text-muted">BS EN 28653:1993</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">EU</th>
+              <td class="px-3 py-3 tabular">size = inner circumference in mm</td>
+              <td class="px-3 py-3 text-text-muted">ISO 8653:2016</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">FR / IT / ES / CH</th>
+              <td class="px-3 py-3 tabular">circumference − 40</td>
+              <td class="px-3 py-3 text-text-muted">same scale as ISO, renumbered</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">Japan</th>
+              <td class="px-3 py-3 tabular">size 1 = 13 mm diameter, +⅓ mm a size</td>
+              <td class="px-3 py-3 text-text-muted">JIS S 4700:2022</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-3 font-medium">India</th>
+              <td class="px-3 py-3">no formula — lookup table</td>
+              <td class="px-3 py-3 text-text-muted">no standard exists</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-6 max-w-[62ch] text-text-muted">
+        You will often see the US rule written as
+        <span class="tabular">circumference = 2.55 n + 36.5 mm</span>. That is the same rule, rounded:
+        multiply the diameter formula by π and you get 2.5535 n + 36.549. We use the unrounded form,
+        which is why our millimetres carry two decimals rather than one.
+      </p>
+
+      <h3 class="mt-10 text-lg">Where we are genuinely unsure: India</h3>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        India has no sizing standard. Tanishq publishes size 10 as 15.90 mm; other widely used charts
+        publish 15.80 mm for the same size. Neither is wrong, because there is nothing to be wrong
+        about. Every competitor we audited prints one Indian number as if it were settled. We print
+        ours next to the diameter in millimetres, and that millimetre figure is the one to give your
+        jeweller — it is the only unambiguous answer.
+      </p>
+    </section>
+
+    <!-- ── Edge cases ──────────────────────────────────────────────────────
+         Queries: "ring size knuckle bigger than finger" · "does ring size change"
+                  "wide band ring size" · "how to find someone's ring size secretly"
+                  "which rings cannot be resized" -->
+    <section class="mt-20" aria-labelledby="cases">
+      <h2 id="cases" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Cases the number alone won't cover</h2>
+
+      <h3 class="mt-8 text-lg">Your knuckle is wider than the base of your finger</h3>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Measure both, and take the size that clears the knuckle. A ring that fits the base perfectly
+        but will not pass the knuckle is not wearable; a ring that clears the knuckle and sits a
+        little loose is. If the gap between the two is more than about a full size, a jeweller can
+        fit sizing beads inside the band — that solves it properly, and no calculator can.
+      </p>
+
+      <h3 class="mt-8 text-lg">The band is wide</h3>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        A wide band covers more of the finger and feels tighter at the same diameter. The usual
+        advice is to add a quarter to a half size above roughly 6 mm of width.
+      </p>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        We will not dress that up as a calculation. There is no formula for it — the correction
+        depends on how soft the finger is and how rounded the inside edge of the band is, and no
+        standard covers either. Anyone giving you an exact figure for this has invented it. Try the
+        half size up if the band is wide and the fit is borderline.
+      </p>
+
+      <h3 class="mt-8 text-lg">Fingers change size during the day</h3>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Warmth, salt, exercise and altitude all swell fingers; cold shrinks them. The swing is real
+        enough to cross a half size, which is why a ring can spin in the morning and stick by
+        evening. Measure at room temperature, in the middle of the day, and if you get two different
+        answers, take the larger.
+      </p>
+
+      <h3 class="mt-8 text-lg">You are sizing someone else's finger, secretly</h3>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Borrow a ring they already wear on the right finger and measure it with method 1 above. The
+        finger matters: a ring worn on the right hand is usually a quarter to a half size different
+        from the same finger on the left, and non-ring fingers are not comparable at all. If you can
+        only get a ring from the wrong finger, buy the ring resizable and size it after.
+      </p>
+
+      <h3 class="mt-8 text-lg">Some rings cannot be resized at all</h3>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Eternity rings set with stones the whole way round, tension settings, and rings in tungsten,
+        titanium, ceramic or stainless steel are effectively fixed — there is no plain metal to cut
+        and no safe way to work the material. For any of those, and for an engagement ring, confirm
+        with a jeweller before you buy. An on-screen measurement is a good estimate; it is not a
+        fitting.
+      </p>
+    </section>
   </div>
 </Layout>

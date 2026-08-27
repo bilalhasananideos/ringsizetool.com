@@ -1,6 +1,6 @@
 # ringsizetool.com — status
 
-Last updated: 27 Aug 2026 · **Stage: tool works, content not written**
+Last updated: 27 Aug 2026 · **Stage: homepage drafted — awaiting the owner's read**
 
 ---
 
@@ -31,12 +31,19 @@ Nobody currently has both.
 - **`scripts/verify-sizes.ts`** — 22 assertions against the published tables. `npm run verify`
 - **`src/components/RingSizer.astro`** — calibration + 3 measuring modes + full result
 - Verified in-browser: 16.51mm → US 6 / L½ / EU 52 / JP 12 / IN 12
+- **Homepage content drafted** — 5 sections after the tool, every one traced to a named query:
+  size context · 3 methods + what not to do · the chart (half sizes, generated from `CHART_ROWS`)
+  · why charts disagree + the formulas + the India admission · 5 edge cases.
+  Checked at 375px: no page overflow, wide tables scroll inside `.table-scroll`.
+  **⬜ The owner has not read it yet. Nothing ships until that happens.**
 
 ## Next, in order ⬜
 
-1. **Homepage content** — the main ranking factor. Use the `tool-site-content` skill.
-   Every section must trace to a real query. User reads it before it ships.
-2. **FAQ + JSON-LD** — 21 PAA questions are listed in `RESEARCH.md`
+1. **Owner reads the homepage** — `npm run build && npm run preview`, then edit or approve.
+2. **FAQ + JSON-LD** — ⚠️ **blocked.** `RESEARCH.md` says 21 PAA questions were collected but
+   only names four; `prompts/faq-jsonld.md` still has its `<paste one question per line>`
+   placeholder. The list has to be re-collected from Google PAA / Ahrefs and pasted into
+   `RESEARCH.md` before the FAQ can be written — inventing questions breaks the skill's one rule.
 3. **`/ring-size-chart`** — the complete chart, on the page, never gated behind a download
    (`CHART_ROWS` in `ringSizes.ts` already generates it)
 4. **`/printable-ring-sizer`** — print CSS with real `mm` units + a print-scale check square.
@@ -48,6 +55,14 @@ Nobody currently has both.
 Add each new page to `NAV` in `config.ts` only once it exists.
 
 ## Gotchas found the hard way
+
+- **`CLAUDE.md` is a broken symlink** — it points at `AGENTS.md`, which does not exist. The site's
+  house rules are unwritten. Either write `AGENTS.md` or delete the symlink.
+- **The homepage now carries the chart.** When `/ring-size-chart` ships it must not repeat it —
+  give that page quarter steps, men's/women's splits and brand charts, and keep the homepage at
+  half sizes. Two near-identical tables on one site is self-inflicted duplicate content.
+- **Astro eats a newline inside `{}` interpolation.** `roughly\n{value}` renders as `roughly1.7`.
+  Use a template literal or `{' '}` when an expression starts or ends a line.
 
 - **`build.format: 'file'`** makes `Astro.url.pathname` `/index.html`. The canonical is normalised in
   `Layout.astro` — do not "simplify" that back.
