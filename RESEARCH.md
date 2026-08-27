@@ -64,8 +64,22 @@ field.**
 
 ### The decisive finding
 
-**The #1 ranker has the worst tool.** It wins on content depth — ~3× the written content, 18 FAQs,
-both "calculator" and "chart" intent on one page.
+**The #1 ranker has the worst tool.** It wins on content breadth — 18 FAQs, both "calculator" and
+"chart" intent on one page, six embedded jeweller videos with `VideoObject` schema.
+
+**⚠️ Correction (27 Aug 2026, measured in-browser).** This file previously said the #1 has "~3× the
+written content". That was wrong. Actual word counts:
+
+| Site | Words | JSON-LD |
+|---|---|---|
+| ringssizechart.com (#1) | **1,585** | Article, WebPage, WebSite, Person, Org, ImageObject, VideoObject ×6 — **no FAQPage despite 18 FAQs**, and one block is a parse error |
+| **ours (after the FAQ pass)** | **~3,100** | WebApplication, HowTo, FAQPage (21 Q) |
+| ringsize.app | 903 | WebSite, WebApplication, FAQPage, HowTo, BreadcrumbList, Organization, Service |
+| brite.co | 878 | BreadcrumbList, FAQPage |
+| measureringsize.com | 762 | WebApplication, FAQPage |
+
+Word count was never the gap — **structured data was.** We shipped with zero JSON-LD while all four
+competitors had some. That is fixed.
 
 **A better tool alone will not win this SERP. We need the best tool *and* the deepest content.
 Nobody currently has both.**
@@ -79,9 +93,16 @@ Nobody currently has both.**
 
 1. **Calibrated tool + deep content together** — nobody has both
 2. **India sizes absent from all five competitors**
-3. **The #1 ships contradictory numbers** — its mm slider says 16.50 mm → EU 52, its cm slider says
-   1.65 cm → EU 51.8; its two on-page charts disagree (US 5 = 16.2 mm vs 15.7 mm); its first chart
-   skips sizes 6 and 8
+3. **The #1 ships contradictory numbers** — re-verified in-browser 27 Aug 2026:
+   - mm slider says 16.50 mm → EU 52; cm slider says 1.65 cm → EU 51.8; inch slider → EU 51.8
+   - its two on-page charts disagree: US 5 = 16.2 mm in one, 15.7 mm in the other (0.5 mm apart)
+   - its first chart **skips sizes 6 and 8** entirely
+   - **its downloadable PDF contradicts its own web page**: the page says US 6 → UK L / JP 11, the
+     PDF says UK M / JP 12
+   - circumference ≠ π × diameter on several rows (19.3 mm → it prints 60.8; π×19.3 = 60.63)
+   - its footnoted "Conversion Fact" — "a ¼ US size = 0.4 mm diameter and 1.26 mm circumference" —
+     is **the half-size figures mislabelled**. A quarter size is 0.2032 mm and 0.6383 mm.
+     Both are asserted in `scripts/verify-sizes.ts` so we can never drift into the same error.
 4. **It gates the full chart behind a PDF download**
 5. **No competitor has dark mode**
 6. **Wide-band adjustment** — everyone writes about it, nobody calculates it
@@ -98,11 +119,26 @@ Nobody currently has both.**
 | EU / ISO 8653:2016 | size = inner circumference in mm (49–72) |
 | Italy/Spain/Switzerland | circumference − 40 |
 | Germany/Netherlands | diameter in mm |
-| **Japan / India / China** | ⚠️ **non-linear — hand-verified lookup table, not a formula** |
+| Brazil (ABNT NBR 16058) | circumference − 40 — the standard is aligned to ISO 8653 |
+| **India** | circumference − 40 — **no standard exists**, but four jewellers agree on this rule |
+| Japan (JIS S 4700:2022) | size 1 = 13 mm diameter, +1/3 mm per size — **linear in diameter** |
 
-Japan ≈ 13 mm at size 1, ~0.33 mm steps. India ~0.3–0.4 mm steps.
-**Both must be cross-checked against 2–3 independent sources during build.** The #1 competitor
-already ships contradictory numbers — correctness is our main quality claim.
+**Resolved during the 27 Aug build pass:**
+
+- **Japan is linear**, not the non-linear scale Wikipedia implies. Verified against the published
+  table at sizes 7, 10, 13, 19 and 35.
+- **Brazil is not a separate scale.** The old `(mm − 13.05)/0.325` formula in `ringSizes.ts` was
+  invented, not NBR 16058, and drifted a full size at 19 mm. NBR 16058 is aligned to ISO 8653; the
+  Brazilian trade rule is "size + 40 = perimeter", and the published worked example (aro 19 →
+  59 mm → 18.78 mm) reproduces exactly.
+- **India uses the same rule.** Compared the published tables of four Indian jewellers — Jewelove,
+  RishiRich Jewels, Gems Mart Jewellers and Sukkhi. All four fit circumference − 40 on every row
+  they publish; Sukkhi's runs 1–37 and fits exactly. The old lookup table was taken from
+  ringsize.online (a competitor) and carried two 0.6 mm transcription errors at sizes 18 and 32.
+- **So India, France, Italy, Spain, Switzerland and Brazil are one physical scale under five
+  names.** No competitor page states this. It is now on the homepage.
+- **The remaining Indian uncertainty is Tanishq**, whose chart runs ~1 size smaller. Their full
+  table could not be verified — `tanishq.co.in` blocks Pakistani IPs.
 
 ## Question data
 

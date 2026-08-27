@@ -1,12 +1,15 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import RingSizer from '../components/RingSizer.astro';
-import { NOINDEX_SITE } from '../config';
+import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
 import { CHART_ROWS, AVERAGE_US_SIZE, diameterFromUs, fromDiameter } from '../data/ringSizes';
+import { FAQS, faqPageSchema, howToSchema, webAppSchema } from '../data/faq';
 
 /* The chart below is generated, never typed. Half-size steps from US 3 to 13 —
    the range actually sold. Quarter steps live on /ring-size-chart when it ships. */
-const chart = CHART_ROWS.filter((r) => r.usNumeric % 0.5 === 0 && r.usNumeric <= 13);
+const chart = CHART_ROWS.filter(
+  (r) => r.usNumeric !== null && r.usNumeric % 0.5 === 0 && r.usNumeric <= 13,
+);
 
 /* Used in prose so the numbers can never drift from the conversion engine. */
 const six = fromDiameter(diameterFromUs(6));
@@ -14,11 +17,22 @@ const smallest = fromDiameter(diameterFromUs(3));
 const largest = fromDiameter(diameterFromUs(13));
 
 const inRange = (r: typeof six) => r.circumferenceIn.toFixed(1);
+
+/* Structured data. Built from the same modules the page renders from, so the
+   visible answer and the schema answer can never disagree.
+   No BreadcrumbList yet — a one-item breadcrumb on a single-level site says
+   nothing. Add it when /ring-size-chart and the others ship. */
+const jsonLd = [
+  webAppSchema(SITE_URL, SITE_NAME),
+  howToSchema(SITE_URL),
+  faqPageSchema(),
+];
 ---
 <Layout
   title="Ring Sizer — Measure Your Ring Size on Screen | Ring Size Tool"
   description="Free ring sizer. Measure your ring size at home with a bank card and your screen — no printer, no ring sizer needed. US, UK, EU, Japan and India sizes instantly."
   noindex={NOINDEX_SITE}
+  jsonLd={jsonLd}
 >
   <div class="mx-auto w-full max-w-3xl px-5 py-12 sm:py-16">
 
@@ -356,13 +370,33 @@ const inRange = (r: typeof six) => r.circumferenceIn.toFixed(1);
         which is why our millimetres carry two decimals rather than one.
       </p>
 
+      <h3 class="mt-10 text-lg">India, France, Italy, Spain and Brazil are one scale</h3>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        This is the part no other ring size page seems to say out loud. France, Italy, Spain,
+        Switzerland and Brazil all number rings the same way: take the inner circumference in
+        millimetres and subtract 40. Brazil&rsquo;s standard, ABNT NBR 16058, is aligned to
+        ISO&nbsp;8653 and gives the same answer — the Brazilian trade rule is literally &ldquo;add 40
+        to the size to get the perimeter&rdquo;. So a French size 12, an Italian 12 and a Brazilian
+        aro 12 are the same physical ring. Our table shows them in separate columns because that is
+        what people search for, but the number will always match.
+      </p>
+
       <h3 class="mt-10 text-lg">Where we are genuinely unsure: India</h3>
       <p class="mt-4 max-w-[62ch] text-text-muted">
-        India has no sizing standard. Tanishq publishes size 10 as 15.90 mm; other widely used charts
-        publish 15.80 mm for the same size. Neither is wrong, because there is nothing to be wrong
-        about. Every competitor we audited prints one Indian number as if it were settled. We print
-        ours next to the diameter in millimetres, and that millimetre figure is the one to give your
-        jeweller — it is the only unambiguous answer.
+        India has no sizing standard — there is no BIS specification for ring sizes, so there is
+        nothing to be wrong about. What we did instead of copying somebody&rsquo;s chart was compare
+        the published tables of four Indian jewellers: Jewelove, RishiRich Jewels, Gems Mart
+        Jewellers and Sukkhi. All four turn out to use the same &ldquo;circumference minus 40&rdquo;
+        rule as France and Brazil, and they agree on every row they publish — Sukkhi&rsquo;s table
+        runs from size 1 to 37 and fits the rule exactly. That is what we compute.
+      </p>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        The catch is Tanishq, the largest jeweller in India, whose published chart runs roughly one
+        size smaller than that convention. We could not confirm the offset across their full range,
+        because Tanishq blocks requests from Pakistan, where this site is built — so we are telling
+        you what we know rather than papering over it. Every competitor we audited prints one Indian
+        number as though it were settled. We print ours next to the diameter in millimetres, and
+        that millimetre figure is the one to give your jeweller. It is the only unambiguous answer.
       </p>
     </section>
 
@@ -417,6 +451,46 @@ const inRange = (r: typeof six) => r.circumferenceIn.toFixed(1);
         with a jeweller before you buy. An on-screen measurement is a good estimate; it is not a
         fitting.
       </p>
+    </section>
+
+    <!-- ── FAQ ────────────────────────────────────────────────────────────
+         Every question below is VERBATIM from Google "People also ask" for
+         `ring sizer`, recorded in RESEARCH.md. Never reword one and never add
+         an invented question. The same array feeds the FAQPage schema, so the
+         visible answer and the structured answer cannot drift apart.
+
+         The #1 ranking competitor has 18 FAQs and no FAQPage schema at all. -->
+    <section class="mt-16 border-t border-border pt-12" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" class="text-[clamp(1.75rem,4vw,2.5rem)]">
+        Questions people <span class="text-accent">actually ask</span>
+      </h2>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Taken word for word from Google&rsquo;s &ldquo;People also ask&rdquo;. Nothing here is
+        invented to pad the page.
+      </p>
+
+      <div class="mt-8 divide-y divide-border border-y border-border">
+        {FAQS.map((f) => (
+          <details class="group">
+            <summary
+              class="flex cursor-pointer items-start justify-between gap-4 py-4 font-medium
+                     transition-colors duration-150 hover:text-accent"
+            >
+              <span>{f.q}</span>
+              <svg
+                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="1.75" stroke-linecap="round"
+                class="mt-1.5 shrink-0 text-text-faint transition-transform duration-200
+                       group-open:rotate-45"
+                aria-hidden="true"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </summary>
+            <p class="max-w-[68ch] pb-5 text-text-muted">{f.a}</p>
+          </details>
+        ))}
+      </div>
     </section>
   </div>
 </Layout>

@@ -1,6 +1,6 @@
 # ringsizetool.com — status
 
-Last updated: 27 Aug 2026 · **Stage: homepage drafted — awaiting the owner's read**
+Last updated: 27 Aug 2026 · **Stage: tool + FAQ + schema done — awaiting the owner's read**
 
 ---
 
@@ -35,6 +35,17 @@ Nobody currently has both.
   size context · 3 methods + what not to do · the chart (half sizes, generated from `CHART_ROWS`)
   · why charts disagree + the formulas + the India admission · 5 edge cases.
   Checked at 375px: no page overflow, wide tables scroll inside `.table-scroll`.
+- **Tool rebuilt for correctness (27 Aug):** calibration outline is now PORTRAIT — the landscape
+  card was 324px wide and got clipped on a 375px phone, so the core feature was broken on mobile.
+  Also: no system can emit a negative size any more, a stale/corrupt saved calibration is rejected
+  and the live one is always visible, out-of-range input shows an error instead of leaving the old
+  numbers up, both sliders have paired number inputs, and the ARIA tablist became a real radio
+  group. Verified in-browser at 375px.
+- **`src/data/faq.ts`** — all 21 verbatim PAA questions, answers computed from the engine
+- **JSON-LD: WebApplication + HowTo + FAQPage** via a `jsonLd` prop on `Layout.astro`.
+  We had zero; all four competitors have schema. The #1 has no FAQPage despite 18 FAQs.
+- **`--text-faint` was failing WCAG AA** (3.29:1 on `--surface-sunk`). Fixed in both themes;
+  all 27 uses now pass. Do not lighten it back.
   **⬜ The owner has not read it yet. Nothing ships until that happens.**
 
 ## ⚠️ Build order revised 27 Aug 2026 — read RESEARCH.md "What this data changes"
@@ -50,24 +61,24 @@ site holds #1 for both, so the earlier "skip these, KD says Hard" call was wrong
 ## Next, in order ⬜
 
 1. **Owner reads the homepage** — `npm run build && npm run preview`, then edit or approve.
-2. **FAQ + JSON-LD** — ⚠️ **blocked.** `RESEARCH.md` says 21 PAA questions were collected but
-   only names four; `prompts/faq-jsonld.md` still has its `<paste one question per line>`
-   placeholder. The list has to be re-collected from Google PAA / Ahrefs and pasted into
-   `RESEARCH.md` before the FAQ can be written — inventing questions breaks the skill's one rule.
-3. **`/ring-size-chart`** — the complete chart, on the page, never gated behind a download
-   (`CHART_ROWS` in `ringSizes.ts` already generates it)
-4. **`/printable-ring-sizer`** — print CSS with real `mm` units + a print-scale check square.
+   The page is now ~3,100 words with 21 FAQs. Nothing ships until this happens.
+2. **`/ring-size-chart`** — the complete chart, on the page, never gated behind a download
+   (`CHART_ROWS` in `ringSizes.ts` already generates it). Add `BreadcrumbList` schema once this
+   and the other subpages exist — a one-item breadcrumb on a single-level site says nothing.
+3. **`/printable-ring-sizer`** — print CSS with real `mm` units + a print-scale check square.
    Not a PDF library. `printable ring sizer` is Easy at >1,000 volume and this is a real gap.
-5. **`/how-to-measure-ring-size-without-a-ring-sizer`** — the 9-variant cluster, highest intent
-6. SVG diagrams · logo + favicon (SVG, hand-drawn) · Lighthouse · `web-design-guidelines` audit
-7. Deploy to Cloudflare Pages — **site stays `noindex`, submit nothing** until the domain is bought
+   Note brite.co already has one *with* a check line — match that, then beat it on the chart.
+4. **`/how-to-measure-ring-size-without-a-ring-sizer`** — the 9-variant cluster, highest intent
+5. SVG diagrams · logo + favicon (SVG, hand-drawn) · Lighthouse
+6. Deploy to Cloudflare Pages — **site stays `noindex`, submit nothing** until the domain is bought
 
 Add each new page to `NAV` in `config.ts` only once it exists.
 
 ## Gotchas found the hard way
 
-- **`CLAUDE.md` is a broken symlink** — it points at `AGENTS.md`, which does not exist. The site's
-  house rules are unwritten. Either write `AGENTS.md` or delete the symlink.
+- ~~`CLAUDE.md` is a broken symlink~~ — **fixed** in commit `38c9448`; it is a real file now.
+- ~~"FAQ blocked, RESEARCH.md names only four questions"~~ — **wrong.** All 21 verbatim PAA
+  questions are in `RESEARCH.md` (commit `313eb4a`). The FAQ shipped from them.
 - **The homepage now carries the chart.** When `/ring-size-chart` ships it must not repeat it —
   give that page quarter steps, men's/women's splits and brand charts, and keep the homepage at
   half sizes. Two near-identical tables on one site is self-inflicted duplicate content.
@@ -80,13 +91,21 @@ Add each new page to `NAV` in `config.ts` only once it exists.
 - UK sizes come out as long runs of half-sizes (L½, N½, P½). **This is correct** — US steps are
   2.55mm of circumference, UK steps are 1.25mm, so they never align. Three ranking competitors give
   three different UK answers for the same diameter. Ours matches the standard.
-- **India has no sizing standard.** Published charts differ by up to 0.2mm. The UI says so. Do not
-  "fix" this by picking one chart and presenting it as certain.
+- **India, France, Italy, Spain and Brazil are the same scale**: circumference in mm minus 40.
+  Four Indian jewellers (Jewelove, RishiRich, GMJ, Sukkhi) all fit that rule on every published row;
+  Brazil's NBR 16058 is aligned to ISO 8653 and gives the same number. The old India lookup table
+  was copied from a competitor and had two 0.6mm transcription errors — it is gone. Do not
+  reintroduce a lookup table for any of these.
+- **India still has no standard**, and Tanishq runs ~1 size smaller than the common convention.
+  The UI says so. Do not "fix" it by presenting one number as certain.
+- **tanishq.co.in blocks Pakistani IPs**, so their full table could not be verified from here.
+- **The old Brazil formula `(mm-13.05)/0.325` was invented**, not NBR 16058, and drifted by one
+  size at 19mm. Replaced with circumference − 40.
 
 ## Commands
 
 ```bash
-npm run verify    # 22 conversion assertions
+npm run verify    # 58 conversion assertions
 npm run build     # sitemap and robots exist only after this
 npm run preview   # test against this, not dev
 npm run deploy    # Cloudflare Pages

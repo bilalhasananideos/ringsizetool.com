@@ -36,14 +36,18 @@
   --font-mono:    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
 }
 
-/* ---- Light (default) ---- */
+/* ---- Light (default) ----
+   --text-faint is deliberately darker than it looks like it should be. It
+   carries 14px hint text, which WCAG counts as normal size and so needs 4.5:1.
+   The previous #8A857A was 3.29:1 on --surface-sunk. Verified on all three
+   light surfaces: bg 5.17, surface 5.39, sunk 4.82. Do not lighten it. */
 :root {
   --bg:            #FBFAF8;
   --surface:       #FFFFFF;
   --surface-sunk:  #F4F2EE;
   --text:          #16150F;
   --text-muted:    #5C584E;
-  --text-faint:    #8A857A;
+  --text-faint:    #6F6A5D;
   --border:        #E4E0D8;
   --border-strong: #C9C3B7;
   --accent:        #8A6D3B;
@@ -63,7 +67,7 @@
     --surface-sunk:  #0A0908;
     --text:          #F5F3EE;
     --text-muted:    #A9A398;
-    --text-faint:    #757065;
+    --text-faint:    #8A8578;
     --border:        #2C2924;
     --border-strong: #423E36;
     --accent:        #D9B77E;
@@ -83,7 +87,7 @@
   --surface-sunk:  #0A0908;
   --text:          #F5F3EE;
   --text-muted:    #A9A398;
-  --text-faint:    #757065;
+  --text-faint:    #8A8578;
   --border:        #2C2924;
   --border-strong: #423E36;
   --accent:        #D9B77E;
