@@ -10,7 +10,14 @@
  * The alt text is empty on purpose. This mark always appears immediately
  * beside the site name in text (Header and Footer both), so naming it again
  * makes a screen reader read the brand twice. It is decorative here.
+ *
+ * Uses Astro's <Image> component so the build pipeline can emit the correct
+ * srcset, width/height, and format hints — fixes the "Use the Image component"
+ * dev-toolbar audit hint.
  */
+import { Image } from 'astro:assets';
+import logoSrc from '../../public/images/logo-128.webp';
+
 interface Props {
   size?: number;
   class?: string;
@@ -18,8 +25,8 @@ interface Props {
 
 const { size = 54, class: className = '' } = Astro.props;
 ---
-<img
-  src="/images/logo-128.webp"
+<Image
+  src={logoSrc}
   alt=""
   aria-hidden="true"
   width={size}
@@ -27,4 +34,5 @@ const { size = 54, class: className = '' } = Astro.props;
   class:list={['aspect-square object-contain shrink-0', className]}
   loading="eager"
   decoding="async"
+  quality={90}
 />

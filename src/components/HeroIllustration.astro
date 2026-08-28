@@ -3,16 +3,21 @@
  * Hero illustration — hand line-art shown in both light and dark mode.
  * The hand image has a transparent alpha channel so it blends naturally
  * over both the light cream and dark charcoal backgrounds.
+ *
+ * Uses Astro's <Image> component to fix the dev-toolbar audit hints.
+ * loading="eager" + fetchpriority="high" are intentional — this is the
+ * Largest Contentful Paint element and must NOT be lazy-loaded.
  */
+import { Image } from 'astro:assets';
+import heroSrc from '../../public/images/hero-ring-hand.webp';
 ---
 <div class="hero-art flex w-full max-w-sm sm:max-w-md items-center justify-center">
-  <img
-    src="/images/hero-ring-hand.webp"
+  <Image
+    src={heroSrc}
     alt="Line drawing of a hand wearing a ring"
-    width="681"
-    height="583"
     class="h-auto w-full max-h-[340px] object-contain drop-shadow-sm"
     loading="eager"
     fetchpriority="high"
+    quality={90}
   />
 </div>
