@@ -169,18 +169,17 @@ All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the a
 
 ---
 
-## Open questions for the owner ❓
+## Open questions — resolved 28 Aug 2026
 
-These are real decisions, not oversights. Each one was left alone deliberately rather than
-changed unilaterally.
+Five of seven answered by the owner directly; one required research first.
 
-| Question | Detail |
+| Question | Resolution |
 |---|---|
-| **Touch targets** | The switcher pills are now 44 px tall (`src/components/pillClasses.ts`) — raised while the switcher was being rebuilt, since the row was being rewritten anyway. **The rest is unchanged and still under the minimum**: step buttons 32×32, the "Calibrate" link 16 px. Owner should confirm the taller pills look right against the Aurelian Precision look, and say whether the remaining controls follow. |
-| **Should US have a ceiling?** | At 25 mm the tool reports US 16½. US has no governing standard, so there is no published ceiling to cite — but `CHART_ROWS` stops at US 14 ("the range actually sold"), so 16½ is past our own chart. Capping it would be a judgement, not a standard. |
-| **The bottom of the slider answers nothing** | `DIA_MIN` is 11 mm and US 0 is 11.6332 mm, so between 11 and 11.63 mm every system correctly shows "—". Six em dashes at the slider's own minimum reads like a broken tool even though it is the honest answer. Raising `DIA_MIN` to 11.64 would fix the optics. |
-| **Pills have no arrow-key nav** | The two switchers are `role="radiogroup"` with `role="radio"` children, but there is no roving tabindex and arrow keys do nothing — every pill is its own tab stop. Operable via Tab+Enter, so not a blocker, but it is not the ARIA pattern the markup claims. Fixing it is ~15 lines in `RingSizer.astro`. |
-| **cm mode is 10× coarser than the comment claims** | `PRECISION` in `ringModes.ts` says "~0.01 mm of diameter per slider step in every mode". True for mm and in; in cm the 2 dp display grid is 0.01 cm = **0.1 mm** of diameter, so switching to cm quietly rounds the measurement. Either raise cm to 3 dp or correct the comment — a behaviour change either way, so left alone. |
-| **Dead asset files** | `public/images/logo.png` (353 KB) and `logo.svg` are referenced by nothing, and `favicon.svg` lost its `<link>` when the raster favicon went in. They deploy but are never requested. Left in place rather than deleted without asking. |
-| **The logo is now a raster** | It was a 107-line inline SVG; it is now a WebP. That trades theme-awareness and resolution independence for whatever the new mark looks like. Worth a conscious yes. |
+| **Should US have a ceiling?** | **No cap. Researched, not guessed** — specialty "big & tall" jewellers (e.g. justmensrings.com) genuinely sell US 16–20; only `CHART_ROWS` (the buyable-range display chart) stops at 14, which is a display choice, not a standard. Unlike EU/JP/UK — which **do** have a governing standard and genuinely produce a fictional number past their range — US has none, so 16½ at the slider's max is a real, purchasable size, not an invented one. Capping it would have been the wrong fix. |
+| **Slider bottom showing all "—"** | ✅ Fixed. `DIA_MIN_MM` raised from 11 to **11.64** in `ringModes.ts` — the control's own minimum now always shows a real size on every system, instead of six correct-but-broken-looking em dashes. |
+| **Dead asset files** | ✅ Fixed. `public/images/logo.png` (353 KB) and `logo.svg` deleted — confirmed unreferenced by any file in `src/`. `favicon.svg` was already gone; that note was stale. |
+| **Logo as WebP vs SVG** | ✅ Confirmed — WebP is fine. Owner accepted the trade (theme-awareness/resolution-independence for a raster mark) at 48–56px display size. |
+| **Touch targets** | Not yet revisited — switcher pills are 44px, step buttons (32×32) and the "Calibrate" link (16px) are not. Still open if anyone picks this up. |
+| **Pills have no arrow-key nav** | Not yet revisited — `role=radiogroup`/`radio` present but no roving tabindex. Operable via Tab+Enter, not blocking. ~15 lines in `RingSizer.astro` if addressed. |
+| **cm mode 10× coarser than its own comment claims** | Not yet revisited — `ringModes.ts`'s `PRECISION` comment overstates cm's actual display precision (0.1mm, not 0.01mm). Either raise cm to 3dp or fix the comment. |
 

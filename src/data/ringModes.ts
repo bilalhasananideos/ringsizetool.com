@@ -17,7 +17,11 @@ export type Unit = 'mm' | 'cm' | 'in';
 export type ModeKey = `${Measure}-${Unit}`;
 
 /** Slider range, in millimetres of inner diameter. */
-export const DIA_MIN_MM = 11;
+/* 11.64, not 11 — the slider's own bottom used to sit below US 0 (11.6332 mm),
+   so every system correctly answered "—" across the first 0.6 mm of travel.
+   Six em dashes at the control's own minimum reads as broken, not honest.
+   Raised 28 Aug 2026 so the bottom of every mode always shows a real size. */
+export const DIA_MIN_MM = 11.64;
 export const DIA_MAX_MM = 25;
 
 /** Millimetres of the measured length per unit. */
