@@ -79,7 +79,9 @@ All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the a
   **light mode**: the owner's Stitch-generated hand+ring line art, background removed, self-hosted
   at `public/images/hero-ring-hand.webp` (provenance: Google Stitch, usable per Google's
   generative-AI terms, self-hosted rather than hotlinked to Google's CDN);
-  **dark mode**: an original geometric diagram (the hand art left a grainy halo on dark backgrounds)
+  **dark mode**: the SAME hand art — `HeroIllustration.astro` renders one image in both themes.
+  (This line used to claim a separate geometric diagram for dark mode; there isn't one. The grainy
+  halo it was meant to solve is still visible on the dark background — open decision, see below)
 - Homepage content (~3,000 words): size-context section, three measuring-method cards, the full
   ring size chart, "why charts disagree" (the site's actual differentiator), edge cases, 21-question
   FAQ with `FAQPage`/`HowTo`/`WebApplication`/`BreadcrumbList` JSON-LD
@@ -109,6 +111,18 @@ All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the a
   the file did not exist, so every page emitted a broken social card
 - **Logo weight** — `Logo.astro` now uses a 128 px derivative (13 KB) instead of the 581×574
   original (145 KB) that was loading on every page for a 48–56 px mark
+
+- **Browser test pass, 28 Aug 2026** — the tool was driven end-to-end in a real browser for the
+  first time (calibration, all 6 modes, slider, typed entry, ± buttons, clamps, live region,
+  dark mode, mobile, chart + printable pages). No console errors; every page 200. Three bugs found
+  and fixed in `RingSizer.astro`:
+  - **± buttons mutated the measurement.** They read `ringRange.value`, which the browser has
+    already snapped to the step grid, so one + followed by one − moved 16.51 mm to 16.48 and
+    flipped **Japan 12 → 11**. The same quantisation `setMode()` was written to avoid. They now
+    derive the current value from `currentDia`. `verify` gained 12 assertions for this (155 total)
+  - **The calibration number field overwrote itself mid-keystroke** — reaching for 2.9, your "2"
+    became "2.50" under the cursor. It now syncs on commit (blur/Enter), like the ring field
+  - dead `set('[data-out-br]', …)` — no Brazil element exists in the markup
 
 ## Next, in order ⬜
 

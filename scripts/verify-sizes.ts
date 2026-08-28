@@ -271,6 +271,32 @@ for (const m of ['dia', 'circ'] as const) {
   }
 }
 
+console.log('\n— sizer modes: the ± nudge must not mutate the measurement —');
+/* The ± buttons used to read the SLIDER's value, which the browser has already
+ * snapped to the step grid, so one + followed by one - quantised the
+ * measurement: in inches 16.51 mm became 16.48 and the Japanese size fell from
+ * 12 to 11. The fixed handler derives the current value from the diameter it
+ * is holding. This asserts the arithmetic that handler performs: + then - must
+ * land back on the same diameter, in every mode, to the mode's own precision. */
+for (const m of ['dia', 'circ'] as const) {
+  for (const u of ['mm', 'cm', 'in'] as const) {
+    const s2 = modeSpec(m, u);
+    const round = (v: number) => parseFloat(v.toFixed(s2.dp));
+    /* Start on the mode's own display grid. cm renders 2 dp, so 0.01 cm =
+     * 0.1 mm is the finest figure that mode can show at all; asserting a
+     * return to 16.51 mm there would be testing the display precision, not
+     * the nudge. */
+    const shown = round(toMode(16.51, m, u));
+    const start = toDia(shown, m, u);
+    const up = round(shown + s2.nudge);
+    const back = round(toMode(toDia(up, m, u), m, u) - s2.nudge);
+    eq(`${m}/${u} + then − returns the same diameter`, toDia(back, m, u), start, 5e-3);
+    /* And one click must actually move the size by its stated nudge, not by
+     * whatever the grid rounds it to. */
+    eq(`${m}/${u} one + moves exactly one nudge`, up - shown, s2.nudge, 5e-3);
+  }
+}
+
 console.log('\n— sizer modes: URL parsing —');
 const FB = { measure: 'dia', unit: 'mm' } as const;
 const parse = (q: string) => modeFromParams(new URLSearchParams(q), FB);

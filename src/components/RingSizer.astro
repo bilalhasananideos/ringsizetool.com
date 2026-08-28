@@ -480,7 +480,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     };
 
     /* ── calibration controls ── */
-    function setPxPerMm(v: number) {
+    function setPxPerMm(v: number, syncNum = true) {
       pxPerMm = Math.min(PPM_MAX, Math.max(PPM_MIN, v));
       card.style.width = `${CARD_SHORT_MM * pxPerMm}px`;
       /* The graph paper and its 10 mm legend are sized off this one variable,
@@ -489,7 +489,11 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       ringStage.style.setProperty('--mm', `${pxPerMm}px`);
       const s = pxPerMm.toFixed(2);
       if (calRange.value !== s) calRange.value = s;
-      if (calNum.value !== s) calNum.value = s;
+      /* Not while the visitor is typing into this very field: clamping writes
+       * the bound back on every keystroke, so someone reaching for 2.9 saw
+       * their "2" become "2.50" under the cursor. The ring field already
+       * follows this rule; this one did not. It is resynced on commit. */
+      if (syncNum && calNum.value !== s) calNum.value = s;
       if (calVal) calVal.textContent = s;
       $('[data-cal-status]').textContent = s;
       updateDisplay();
@@ -498,7 +502,13 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     calRange.addEventListener('input', () => setPxPerMm(parseFloat(calRange.value)));
     calNum.addEventListener('input', () => {
       const v = parseFloat(calNum.value);
-      if (Number.isFinite(v)) setPxPerMm(v);
+      if (Number.isFinite(v)) setPxPerMm(v, false);
+    });
+    /* Commit (blur or Enter): the field can never be left showing a number the
+     * tool is not actually using, including an empty or junk entry. */
+    calNum.addEventListener('change', () => {
+      const v = parseFloat(calNum.value);
+      setPxPerMm(Number.isFinite(v) ? v : pxPerMm);
     });
 
     $('[data-cal-save]').addEventListener('click', () => {
@@ -629,25 +639,31 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       handleValueChange(v);
     });
 
-    btnMinus.addEventListener('click', () => {
-      const step = bounds().nudge;
-      const current = parseFloat(ringRange.value);
-      const next = Math.max(parseFloat(ringRange.min), current - step);
-      const s = next.toFixed(bounds().dp);
+    /* The value a ± click starts from is derived from `currentDia`, NOT read
+     * back off ringRange.value. The slider snaps to its own step grid, so
+     * reading it back quantises the measurement on every click — exactly the
+     * mutation setMode() goes out of its way to avoid. In inches the grid is
+     * 0.434 + 0.005k, so one + followed by one − moved 16.51 mm to 16.48 and
+     * flipped the Japanese size from 12 to 11 without the visitor changing
+     * anything. Both ends are clamped to the mode's own rounded-inward bounds. */
+    function nudge(dir: 1 | -1) {
+      const b = bounds();
+      const current = toMode(currentDia, activeMeasure, activeUnit);
+      const next = Math.min(
+        parseFloat(ringRange.max),
+        Math.max(parseFloat(ringRange.min), current + dir * b.nudge),
+      );
+      const s = next.toFixed(b.dp);
       ringRange.value = s;
       ringNum.value = s;
-      handleValueChange(next);
-    });
+      /* parseFloat(s), not `next`: the field and the state must agree on the
+       * same rounded figure, or the next click starts from a value nothing
+       * on screen is showing. */
+      handleValueChange(parseFloat(s));
+    }
 
-    btnPlus.addEventListener('click', () => {
-      const step = bounds().nudge;
-      const current = parseFloat(ringRange.value);
-      const next = Math.min(parseFloat(ringRange.max), current + step);
-      const s = next.toFixed(bounds().dp);
-      ringRange.value = s;
-      ringNum.value = s;
-      handleValueChange(next);
-    });
+    btnMinus.addEventListener('click', () => nudge(-1));
+    btnPlus.addEventListener('click', () => nudge(1));
 
     const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 
@@ -680,7 +696,6 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       set('[data-out-jp]', dash(r.jp));
       set('[data-out-in]', dash(r.in));
       set('[data-out-fr]', dash(r.fr));
-      set('[data-out-br]', dash(r.br));
       set('[data-out-dia-mm]', `${r.diameterMm.toFixed(2)} mm`);
       set('[data-out-dia-in]', `${r.diameterIn.toFixed(3)} in`);
       set('[data-out-circ-mm]', `${r.circumferenceMm.toFixed(2)} mm`);
