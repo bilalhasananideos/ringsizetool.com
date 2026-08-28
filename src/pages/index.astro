@@ -84,10 +84,15 @@ const jsonLd = [
             </div>
 
             <!-- Main Heading with Luxury Typography -->
+            <!-- This heading targets `ring sizer` (>10,000/mo). It used to read "Find
+                 your ring size without a ring sizer", which aimed the site's single most
+                 important heading at a >100/mo keyword whose every variant is <100 —
+                 see RESEARCH.md, 28 Aug keyword pass. The phrase still earns its place
+                 in the lede below, where it describes what the tool does. -->
             <h1 class="text-[clamp(2.35rem,5.4vw,3.85rem)] font-display font-bold tracking-tight text-text leading-[1.12]">
-              Find your ring size <br class="hidden sm:inline" />
+              Free online ring sizer, <br class="hidden sm:inline" />
               <span class="relative inline-block mt-1">
-                <span class="bg-gradient-to-r from-accent via-[#E9C349] to-accent bg-clip-text text-transparent">without a ring sizer</span>
+                <span class="bg-gradient-to-r from-accent via-[#E9C349] to-accent bg-clip-text text-transparent">calibrated to your screen</span>
                 <svg class="absolute -bottom-1.5 left-0 w-full text-accent/50" height="6" viewBox="0 0 200 6" fill="none" preserveAspectRatio="none">
                   <path d="M0 3 Q 50 6, 100 3 T 200 3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
                 </svg>
@@ -95,8 +100,9 @@ const jsonLd = [
             </h1>
 
             <p class="mt-6 text-base sm:text-lg leading-relaxed text-text-muted max-w-[50ch]">
-              Hold a bank card against your screen to calibrate, then measure a ring you already own —
-              or your finger with a strip of paper. Nothing is uploaded.
+              Work out your ring size without a ring sizer: hold a bank card against your screen to
+              calibrate it to real millimetres, then measure a ring you already own — or your finger
+              with a strip of paper. Nothing is uploaded.
             </p>
 
             <!-- Action Buttons -->
@@ -174,10 +180,12 @@ const jsonLd = [
       <div class="text-center max-w-2xl mx-auto mb-8">
         <p class="section-label">Online Measurement</p>
         <h2 class="text-3xl sm:text-4xl font-display font-semibold text-text">
-          Interactive <span class="text-accent">Ring Sizer</span>
+          What is my <span class="text-accent">ring size?</span>
         </h2>
         <p class="mt-3 text-sm sm:text-base leading-relaxed text-text-muted">
-          Measure a ring directly on screen or convert between MM, CM, Inches, and all global ring sizes in real time.
+          Measure a ring on screen, or type a measurement you already have. The calculator converts
+          between diameter and circumference in millimetres, centimetres and inches, and gives you
+          every national size at once.
         </p>
       </div>
 
