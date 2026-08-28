@@ -1,8 +1,9 @@
 # ringsizetool.com — status
 
 Last updated: 28 Aug 2026 · **Stage: tool + homepage + chart page + printable page built.
-Size logic audited against the published standards and 106 assertions.
-Awaiting the owner's read before anything ships.**
+Size logic audited against the published standards and 155 assertions.
+The tool has now been driven end-to-end in a real browser (28 Aug) — two bugs found there
+and fixed. Awaiting the owner's read before anything ships.**
 
 ---
 
@@ -12,6 +13,11 @@ This project has been worked on from **two different chat sessions** (same perso
 conversations) without coordination, editing the same files. One session did a large visual
 rewrite of the tool (commit `c700f0f`) to match a reference design more closely; the other found
 and fixed 4 real regressions that rewrite silently introduced (commit `df09ce0`).
+
+**`npm run verify` passing is NOT the same as the tool working.** The maths module has 155
+assertions; the component script in `RingSizer.astro` has none, and both bugs found on 28 Aug
+lived there — the ± buttons and the calibration field, neither reachable from `verify`. If you
+change anything in that script, open the page and click it.
 
 **Before starting any work: `git log --oneline -10` and read the last few commit messages in
 full.** They are written to be self-contained — each one explains what changed and why, so you
@@ -153,6 +159,8 @@ changed unilaterally.
 | **Touch targets** | The switcher pills are now 44 px tall (`src/components/pillClasses.ts`) — raised while the switcher was being rebuilt, since the row was being rewritten anyway. **The rest is unchanged and still under the minimum**: step buttons 32×32, the "Calibrate" link 16 px. Owner should confirm the taller pills look right against the Aurelian Precision look, and say whether the remaining controls follow. |
 | **Should US have a ceiling?** | At 25 mm the tool reports US 16½. US has no governing standard, so there is no published ceiling to cite — but `CHART_ROWS` stops at US 14 ("the range actually sold"), so 16½ is past our own chart. Capping it would be a judgement, not a standard. |
 | **The bottom of the slider answers nothing** | `DIA_MIN` is 11 mm and US 0 is 11.6332 mm, so between 11 and 11.63 mm every system correctly shows "—". Six em dashes at the slider's own minimum reads like a broken tool even though it is the honest answer. Raising `DIA_MIN` to 11.64 would fix the optics. |
+| **Pills have no arrow-key nav** | The two switchers are `role="radiogroup"` with `role="radio"` children, but there is no roving tabindex and arrow keys do nothing — every pill is its own tab stop. Operable via Tab+Enter, so not a blocker, but it is not the ARIA pattern the markup claims. Fixing it is ~15 lines in `RingSizer.astro`. |
+| **cm mode is 10× coarser than the comment claims** | `PRECISION` in `ringModes.ts` says "~0.01 mm of diameter per slider step in every mode". True for mm and in; in cm the 2 dp display grid is 0.01 cm = **0.1 mm** of diameter, so switching to cm quietly rounds the measurement. Either raise cm to 3 dp or correct the comment — a behaviour change either way, so left alone. |
 | **Dead asset files** | `public/images/logo.png` (353 KB) and `logo.svg` are referenced by nothing, and `favicon.svg` lost its `<link>` when the raster favicon went in. They deploy but are never requested. Left in place rather than deleted without asking. |
 | **The logo is now a raster** | It was a 107-line inline SVG; it is now a WebP. That trades theme-awareness and resolution independence for whatever the new mark looks like. Worth a conscious yes. |
 
