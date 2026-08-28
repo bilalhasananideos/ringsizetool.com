@@ -10,6 +10,22 @@
  * visibly changed shape the moment the script booted.
  */
 import { fromDiameter, diameterFromUs, UK_NOTE, INDIA_NOTE } from '../data/ringSizes';
+import {
+  MEASURES, UNITS, modeSpec, toMode, ceilTo, floorTo,
+  DIA_MIN_MM, DIA_MAX_MM,
+  type Measure, type Unit,
+} from '../data/ringModes';
+
+/**
+ * Pages that exist to answer one query ("ring size in inches") mount the tool
+ * already showing that answer, rather than making the visitor find a toggle
+ * for the thing the page title promised. The toggle still works afterwards.
+ */
+interface Props {
+  measure?: Measure;
+  unit?: Unit;
+}
+const { measure: initMeasure = 'dia', unit: initUnit = 'mm' } = Astro.props;
 
 /** US 6 - the women's average, and the size the tool opens on. */
 const DEFAULT_DIA = diameterFromUs(6);
@@ -18,15 +34,26 @@ const d = fromDiameter(DEFAULT_DIA);
 /** The script's own default before any calibration: 96 CSS DPI. */
 const DEFAULT_PPM = 3.78;
 
-/* Slider range in mm of inner diameter. The client script reads these back off
- * the range input rather than redeclaring them, so there is one source. */
-const DIA_MIN_MM = 11;
-const DIA_MAX_MM = 25;
+/* Everything the server prints for the opening mode is derived from the same
+ * table the client script uses, so the pre-hydration markup and the first
+ * hydrated frame cannot show different numbers. */
+const spec = modeSpec(initMeasure, initUnit);
+const initValue = toMode(DEFAULT_DIA, initMeasure, initUnit).toFixed(spec.dp);
+const initMin = ceilTo(spec.min, spec.dp);
+const initMax = floorTo(spec.max, spec.dp);
 
 const dash = (v: string | number | null) => (v === null ? '—' : String(v));
+
+const pillOn = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-150 bg-surface text-text shadow-xs';
+const pillOff = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text';
 ---
 
-<section class="ring-sizer w-full" aria-labelledby="tool-heading">
+<section
+  class="ring-sizer w-full"
+  aria-labelledby="tool-heading"
+  data-init-measure={initMeasure}
+  data-init-unit={initUnit}
+>
   <h2 id="tool-heading" class="sr-only">Interactive Ring Sizer</h2>
 
   <!-- ── Step 1: Calibrate Drawer (Collapsible) ────────────────────────── -->
@@ -98,37 +125,34 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 
   <!-- ── Main Interactive Instrument Card ──────────────────────────────── -->
   <div data-step="measure" class="card-elevated rounded-2xl border border-border bg-surface p-6 sm:p-10 md:p-12 shadow-sm">
-    <!-- Top Pill Switcher: MM, CM, Inches, Circumference -->
-    <div class="flex justify-center">
+    <!-- Two switchers, because these are two independent questions: what you
+         measured, and what unit you want it in. One combined row of four made
+         circumference look like a unit and left it stuck in millimetres. -->
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      <div role="radiogroup" aria-label="What you measured" class="inline-flex flex-wrap justify-center rounded-full bg-surface-sunk p-1 border border-border/80 shadow-inner gap-1">
+        {MEASURES.map((m) => (
+          <button
+            type="button" role="radio"
+            aria-checked={m.key === initMeasure ? 'true' : 'false'}
+            data-measure-btn={m.key}
+            class={m.key === initMeasure ? pillOn : pillOff}
+          >
+            {m.short}
+          </button>
+        ))}
+      </div>
+
       <div role="radiogroup" aria-label="Units" class="inline-flex flex-wrap justify-center rounded-full bg-surface-sunk p-1 border border-border/80 shadow-inner gap-1">
-        <button
-          type="button" role="radio" aria-checked="true"
-          data-mode-btn="mm"
-          class="cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-150 bg-surface text-text shadow-xs"
-        >
-          MM
-        </button>
-        <button
-          type="button" role="radio" aria-checked="false"
-          data-mode-btn="cm"
-          class="cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text"
-        >
-          CM
-        </button>
-        <button
-          type="button" role="radio" aria-checked="false"
-          data-mode-btn="inches"
-          class="cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text"
-        >
-          Inches
-        </button>
-        <button
-          type="button" role="radio" aria-checked="false"
-          data-mode-btn="circumference"
-          class="cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text"
-        >
-          Circumference
-        </button>
+        {UNITS.map((u) => (
+          <button
+            type="button" role="radio"
+            aria-checked={u.key === initUnit ? 'true' : 'false'}
+            data-unit-btn={u.key}
+            class={u.key === initUnit ? pillOn : pillOff}
+          >
+            {u.short}
+          </button>
+        ))}
       </div>
     </div>
 
@@ -137,23 +161,13 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 
       <!-- Left Column: Interactive Ring Circle Guide & Live Readout -->
       <div class="flex flex-col items-center justify-center">
-        <div class="relative flex h-64 w-64 sm:h-72 sm:w-72 items-center justify-center overflow-hidden rounded-xl">
+        <div data-ring-stage class="ring-stage relative flex h-64 w-64 sm:h-72 sm:w-72 items-center justify-center overflow-hidden rounded-xl">
 
-          <!-- Graph Paper Grid Background (SVG pattern) -->
-          <svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <!-- Small cell: 11px -->
-              <pattern id="grid-small" x="0" y="0" width="11" height="11" patternUnits="userSpaceOnUse">
-                <path d="M 11 0 L 0 0 0 11" fill="none" stroke="currentColor" stroke-width="0.4" class="text-border/60"/>
-              </pattern>
-              <!-- Large cell: 55px (every 5 small cells) -->
-              <pattern id="grid-large" x="0" y="0" width="55" height="55" patternUnits="userSpaceOnUse">
-                <rect width="55" height="55" fill="url(#grid-small)"/>
-                <path d="M 55 0 L 0 0 0 55" fill="none" stroke="currentColor" stroke-width="1" class="text-border-strong/50"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid-large)"/>
-          </svg>
+          <!-- Graph paper at TRUE scale: 1 mm minor, 5 mm major. Cell size is
+               driven by the same calibration value that sizes the ring circle,
+               so counting squares gives the real measurement rather than a
+               decorative one. -->
+          <div class="ring-grid absolute inset-0 pointer-events-none" aria-hidden="true"></div>
 
           <!-- Outer dashed guide circle with crosshair ticks -->
           <div class="absolute inset-3 rounded-full border border-dashed border-border-strong/70 pointer-events-none"></div>
@@ -171,18 +185,24 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
           <!-- Scalable Golden Ring Circle -->
           <div
             data-ring-circle
-            class="rounded-full border-[3px] border-[#D4AF37] shadow-[0_0_20px_rgba(212,175,55,0.35)] transition-all duration-75"
+            class="ring-circle rounded-full border-accent transition-all duration-75"
             style="width:62.4px;height:62.4px"
           ></div>
+
+          <!-- Scale legend: proves the grid is real rather than decorative -->
+          <div class="absolute bottom-2 left-2 flex items-center gap-2">
+            <div class="ring-scale-bar h-1.5 border-x border-b border-border-strong"></div>
+            <span class="text-xs text-text-faint">10 mm</span>
+          </div>
         </div>
 
         <!-- Big Readout Underneath -->
         <div class="mt-4 text-center">
           <div class="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-accent">
-            <span data-readout data-main-val>16.50</span> <span data-main-unit class="text-2xl font-normal text-text-muted">mm</span>
+            <span data-readout data-main-val>{initValue}</span> <span data-main-unit class="text-2xl font-normal text-text-muted">{spec.unitLabel}</span>
           </div>
           <p data-main-label class="mt-1 text-xs uppercase tracking-wider text-text-faint font-medium">
-            Inside Diameter
+            {spec.label}
           </p>
         </div>
       </div>
@@ -192,8 +212,8 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
         <!-- Slider Control Area -->
         <div class="mb-8">
           <div class="flex items-center justify-between text-xs font-mono text-text-muted mb-2 font-medium">
-            <span data-min-label>{`${DIA_MIN_MM.toFixed(2)} mm`}</span>
-            <span data-max-label>{`${DIA_MAX_MM.toFixed(2)} mm`}</span>
+            <span data-min-label>{`${initMin} ${spec.unitLabel}`}</span>
+            <span data-max-label>{`${initMax} ${spec.unitLabel}`}</span>
           </div>
 
           <div class="flex items-center gap-3">
@@ -211,10 +231,10 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
                 id="ring-range"
                 data-ring-range
                 type="range"
-                min={DIA_MIN_MM}
-                max={DIA_MAX_MM}
-                step="0.01"
-                value={d.diameterMm.toFixed(2)}
+                min={initMin}
+                max={initMax}
+                step={spec.step}
+                value={initValue}
                 class="h-2 w-full cursor-pointer appearance-none rounded-full bg-border-strong/40 accent-[#D4AF37] focus:outline-none"
               />
             </div>
@@ -315,6 +335,42 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 </section>
 
 <style>
+  /* --mm is the calibrated CSS pixels per millimetre. The default matches the
+   * script's uncalibrated 96 DPI assumption; the calibration control overwrites
+   * it on the stage element so the grid, the ring and the readout can never
+   * disagree about what a millimetre is. */
+  .ring-stage {
+    --mm: 3.78px;
+  }
+
+  .ring-grid {
+    background-image:
+      linear-gradient(to right,  var(--border-strong) 0 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border-strong) 0 1px, transparent 1px),
+      linear-gradient(to right,  var(--border) 0 1px, transparent 1px),
+      linear-gradient(to bottom, var(--border) 0 1px, transparent 1px);
+    background-size:
+      calc(var(--mm) * 5) 100%,
+      100% calc(var(--mm) * 5),
+      var(--mm) 100%,
+      100% var(--mm);
+    /* 50% 50% puts a major line exactly on the centre, aligning the grid with
+     * the crosshair ticks and the ring circle. */
+    background-position: 50% 50%;
+    /* 1 mm lines are dense enough that full-strength borders read as a solid
+     * wash, especially in light mode. Fade the whole layer instead of picking
+     * new colours so the grid stays behind the ring, not next to it. */
+    opacity: 0.5;
+  }
+
+  .ring-scale-bar {
+    width: calc(var(--mm) * 10);
+  }
+
+  .ring-circle {
+    border-width: 3px;
+  }
+
   /* Custom stylish slider thumb */
   input[type="range"]::-webkit-slider-thumb {
     appearance: none;
@@ -347,6 +403,11 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 
 <script>
   import { fromDiameter, diameterFromUs } from '../data/ringSizes';
+  import {
+    modeSpec, toMode, toDia, ceilTo, floorTo, modeFromParams,
+    DIA_MIN_MM, DIA_MAX_MM,
+    type Measure, type Unit,
+  } from '../data/ringModes';
 
   const root = document.querySelector<HTMLElement>('.ring-sizer');
   if (root) {
@@ -365,65 +426,49 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     const ringNum = $<HTMLInputElement>('[data-ring-num]');
     const live = $('[data-live]');
     const ringCircle = $<HTMLElement>('[data-ring-circle]');
+    const ringStage = $<HTMLElement>('[data-ring-stage]');
     const mainVal = $('[data-main-val]');
     const mainUnit = $('[data-main-unit]');
     const mainLabel = $('[data-main-label]');
     const minLabel = $('[data-min-label]');
     const maxLabel = $('[data-max-label]');
     
-    const modeButtons = {
-      mm: $<HTMLButtonElement>('[data-mode-btn="mm"]'),
-      cm: $<HTMLButtonElement>('[data-mode-btn="cm"]'),
-      inches: $<HTMLButtonElement>('[data-mode-btn="inches"]'),
-      circumference: $<HTMLButtonElement>('[data-mode-btn="circumference"]'),
-    };
-    
+    const measureButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-measure-btn]')];
+    const unitButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-unit-btn]')];
+
+    const PILL_ON = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-150 bg-surface text-text shadow-xs';
+    const PILL_OFF = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text';
+
+
     const btnMinus = $<HTMLButtonElement>('[data-step-btn="minus"]');
     const btnPlus = $<HTMLButtonElement>('[data-step-btn="plus"]');
 
-    /* Read back from the markup so the server-rendered slider and the script
-     * cannot disagree about the range. */
-    const DIA_MIN = parseFloat(ringRange.min);
-    const DIA_MAX = parseFloat(ringRange.max);
-
-    /* Slider bounds per mode, all derived from DIA_MIN/DIA_MAX so no mode can
-     * offer travel that handleValueChange() will just clamp away. The old
-     * circumference min of 34.5 mm was 10.98 mm of diameter - below DIA_MIN -
-     * so the bottom sliver of the slider changed nothing while the label
-     * happily read "34.50 mm". */
-    const BOUNDS = {
-      mm:            { min: DIA_MIN,           max: DIA_MAX,           dp: 2, unit: 'mm', label: 'Inside Diameter', step: '0.01',  nudge: 0.1   },
-      cm:            { min: DIA_MIN / 10,      max: DIA_MAX / 10,      dp: 2, unit: 'cm', label: 'Inside Diameter', step: '0.01',  nudge: 0.01  },
-      inches:        { min: DIA_MIN / 25.4,    max: DIA_MAX / 25.4,    dp: 3, unit: 'in', label: 'Inside Diameter', step: '0.005', nudge: 0.005 },
-      circumference: { min: DIA_MIN * Math.PI, max: DIA_MAX * Math.PI, dp: 2, unit: 'mm', label: 'Circumference',   step: '0.05',  nudge: 0.25  },
-    } as const;
-
-    /** currentDia expressed in whatever unit the slider is currently showing. */
-    const toMode = (dia: number, mode: keyof typeof BOUNDS) =>
-      mode === 'mm' ? dia
-      : mode === 'cm' ? dia / 10
-      : mode === 'inches' ? dia / 25.4
-      : dia * Math.PI;
-
-    /** Same conversion the other way, used by handleValueChange(). */
-    const toDia = (val: number, mode: keyof typeof BOUNDS) =>
-      mode === 'mm' ? val
-      : mode === 'cm' ? val * 10
-      : mode === 'inches' ? val * 25.4
-      : val / Math.PI;
-
-    /* Round the *displayed* end labels inward, never outward: a label must
-     * never advertise a value the slider cannot reach. These are for the
-     * labels only - the input's own min/max stay exact. */
-    const ceilTo = (v: number, dp: number) => (Math.ceil(v * 10 ** dp) / 10 ** dp).toFixed(dp);
-    const floorTo = (v: number, dp: number) => (Math.floor(v * 10 ** dp) / 10 ** dp).toFixed(dp);
+    /* The diameter range no longer comes off the range input: that input now
+     * carries whatever unit the visitor is looking at, so in inches its `min`
+     * is 0.433, not 11. Both bounds come from the same module the markup used. */
+    const DIA_MIN = DIA_MIN_MM;
+    const DIA_MAX = DIA_MAX_MM;
 
     /* Both defaults are read from the DOM / data module rather than retyped, so
-     * the server-rendered markup and the hydrated state cannot disagree. */
+     * the server-rendered markup and the hydrated state cannot disagree. The
+     * URL wins over the page's own default, so /ring-size-in-inches?unit=mm
+     * shows millimetres and a shared link reopens the view it was copied from. */
     let pxPerMm = parseFloat($('[data-cal-status]').textContent ?? '3.78');
-    let activeMode: 'mm' | 'cm' | 'inches' | 'circumference' = 'mm';
+    const fallbackMode = {
+      measure: (root.dataset.initMeasure ?? 'dia') as Measure,
+      unit: (root.dataset.initUnit ?? 'mm') as Unit,
+    };
+    let { measure: activeMeasure, unit: activeUnit } =
+      modeFromParams(new URLSearchParams(location.search), fallbackMode);
     let currentDia = diameterFromUs(6);       // US 6 - the women's average
-    const NUM_STEP: Record<typeof activeMode, string> = { mm: '0.01', cm: '0.01', inches: '0.001', circumference: '0.01' };
+
+    /** The spec for whatever the tool is currently showing. */
+    const bounds = () => modeSpec(activeMeasure, activeUnit);
+
+    /* The typed field is allowed to be one decimal finer than the slider: a
+     * person reading "16.51" off a caliper should be able to type it even
+     * where the slider snaps to 0.05. */
+    const numStep = (dp: number) => (10 ** -dp).toFixed(dp);
 
     const store = {
       get(): number | null {
@@ -439,6 +484,10 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     function setPxPerMm(v: number) {
       pxPerMm = Math.min(PPM_MAX, Math.max(PPM_MIN, v));
       card.style.width = `${CARD_SHORT_MM * pxPerMm}px`;
+      /* The graph paper and its 10 mm legend are sized off this one variable,
+       * so a recalibration moves them with the ring instead of leaving a grid
+       * that looks precise while measuring nothing. */
+      ringStage.style.setProperty('--mm', `${pxPerMm}px`);
       const s = pxPerMm.toFixed(2);
       if (calRange.value !== s) calRange.value = s;
       if (calNum.value !== s) calNum.value = s;
@@ -474,24 +523,37 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       }
     });
 
-    /* ── Switch modes: MM, CM, Inches, Circumference ── */
-    function setMode(mode: typeof activeMode) {
-      activeMode = mode;
-      
-      // Update active pill classes
-      Object.entries(modeButtons).forEach(([k, btn]) => {
-        if (k === mode) {
-          btn.className = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-150 bg-surface text-text shadow-xs';
-        } else {
-          btn.className = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text';
-        }
-      });
+    /* ── Switch modes: (diameter | circumference) × (mm | cm | in) ── */
+    function setMode(m: Measure, u: Unit, pushUrl = true) {
+      activeMeasure = m;
+      activeUnit = u;
 
-      const b = BOUNDS[mode];
+      const paint = (btns: HTMLButtonElement[], attr: string, active: string) => {
+        btns.forEach((btn) => {
+          const on = btn.dataset[attr] === active;
+          btn.className = on ? PILL_ON : PILL_OFF;
+          btn.setAttribute('aria-checked', String(on));
+        });
+      };
+      paint(measureButtons, 'measureBtn', m);
+      paint(unitButtons, 'unitBtn', u);
+
+      /* The view lives in the URL so it can be shared, bookmarked and linked
+       * to from the pages that exist to answer one of these questions.
+       * replaceState, not pushState: flipping a unit is not a navigation, and
+       * filling the back button with unit changes would trap the visitor. */
+      if (pushUrl) {
+        const url = new URL(location.href);
+        url.searchParams.set('measure', m === 'circ' ? 'circumference' : 'diameter');
+        url.searchParams.set('unit', u === 'in' ? 'inches' : u);
+        history.replaceState(null, '', url);
+      }
+
+      const b = bounds();
       mainLabel.textContent = b.label;
-      mainUnit.textContent = b.unit;
-      minLabel.textContent = `${ceilTo(b.min, b.dp)} ${b.unit}`;
-      maxLabel.textContent = `${floorTo(b.max, b.dp)} ${b.unit}`;
+      mainUnit.textContent = b.unitLabel;
+      minLabel.textContent = `${ceilTo(b.min, b.dp)} ${b.unitLabel}`;
+      maxLabel.textContent = `${floorTo(b.max, b.dp)} ${b.unitLabel}`;
       /* Bounds are rounded INWARD to the mode's own decimal grid. Using the
        * exact converted bound instead (DIA_MIN in inches is 0.4330708...)
        * offsets the whole step grid by an irrational amount, and the slider
@@ -514,27 +576,27 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
        * 16.49, enough to flip the Japanese size from 12 to 11 without the
        * visitor touching the slider. Losing the measurement is worse than a
        * thumb that is a fraction of a step out. */
-      const exact = toMode(currentDia, mode).toFixed(b.dp);
+      const exact = toMode(currentDia, m, u).toFixed(b.dp);
       ringRange.value = exact;
-      
+
       ringNum.min = ringRange.min;
       ringNum.max = ringRange.max;
-      ringNum.step = NUM_STEP[mode];
+      ringNum.step = numStep(b.dp);
       ringNum.value = exact;          // exact, NOT ringRange.value post-snap
 
       updateDisplay();
     }
 
-    Object.entries(modeButtons).forEach(([k, btn]) => {
-      btn.addEventListener('click', () => {
-        setMode(k as typeof activeMode);
-        Object.entries(modeButtons).forEach(([bk, bbtn]) => bbtn.setAttribute('aria-checked', String(bk === k)));
-      });
+    measureButtons.forEach((btn) => {
+      btn.addEventListener('click', () => setMode(btn.dataset.measureBtn as Measure, activeUnit));
+    });
+    unitButtons.forEach((btn) => {
+      btn.addEventListener('click', () => setMode(activeMeasure, btn.dataset.unitBtn as Unit));
     });
 
     /* ── slider & step buttons handlers ── */
     function handleValueChange(val: number) {
-      currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, toDia(val, activeMode)));
+      currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, toDia(val, activeMeasure, activeUnit)));
 
       /* If the request was out of range we just clamped it, so the number field
        * and the slider are now showing something that is not what the tool is
@@ -543,8 +605,8 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
        *
        * Only on a genuine clamp: rewriting mid-drag or mid-keystroke would
        * fight the user's cursor. */
-      const b = BOUNDS[activeMode];
-      const clamped = toMode(currentDia, activeMode);
+      const b = bounds();
+      const clamped = toMode(currentDia, activeMeasure, activeUnit);
       if (Math.abs(clamped - val) > 10 ** -(b.dp + 1)) {
         const s = clamped.toFixed(b.dp);
         ringRange.value = s;
@@ -558,7 +620,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       // toFixed, not the raw string: the slider hands back "22.2" where the
       // readout beside it says "22.20".
       const v = parseFloat(ringRange.value);
-      ringNum.value = Number.isFinite(v) ? v.toFixed(BOUNDS[activeMode].dp) : ringRange.value;
+      ringNum.value = Number.isFinite(v) ? v.toFixed(bounds().dp) : ringRange.value;
       handleValueChange(v);
     });
     ringNum.addEventListener('input', () => {
@@ -569,20 +631,20 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     });
 
     btnMinus.addEventListener('click', () => {
-      const step = BOUNDS[activeMode].nudge;
+      const step = bounds().nudge;
       const current = parseFloat(ringRange.value);
       const next = Math.max(parseFloat(ringRange.min), current - step);
-      const s = next.toFixed(BOUNDS[activeMode].dp);
+      const s = next.toFixed(bounds().dp);
       ringRange.value = s;
       ringNum.value = s;
       handleValueChange(next);
     });
 
     btnPlus.addEventListener('click', () => {
-      const step = BOUNDS[activeMode].nudge;
+      const step = bounds().nudge;
       const current = parseFloat(ringRange.value);
       const next = Math.min(parseFloat(ringRange.max), current + step);
-      const s = next.toFixed(BOUNDS[activeMode].dp);
+      const s = next.toFixed(bounds().dp);
       ringRange.value = s;
       ringNum.value = s;
       handleValueChange(next);
@@ -603,8 +665,8 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
        * 2 dp against a 0.001 in step, so 0.01 in = 0.254 mm was the smallest
        * visible change - coarser than a US quarter size (0.2032 mm), and two
        * clicks of the step button appeared to do nothing. */
-      const bd = BOUNDS[activeMode];
-      mainVal.textContent = toMode(d, activeMode).toFixed(bd.dp);
+      const bd = bounds();
+      mainVal.textContent = toMode(d, activeMeasure, activeUnit).toFixed(bd.dp);
 
       // Convert diameter to official standards
       const r = fromDiameter(d);
@@ -655,7 +717,11 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
      * bounds and end labels. Boot used to call only updateDisplay(), so the
      * number field sat EMPTY until the visitor touched something, and the
      * bounds were whatever the markup happened to say. Run it once for the
-     * starting mode so every one of those comes from BOUNDS. */
-    setMode(activeMode);
+     * starting mode so every one of those comes from the mode table.
+     *
+     * pushUrl is false here: boot must not stamp ?measure=&unit= onto a clean
+     * URL the visitor never chose, which would turn every shared link into a
+     * parameterised one and give the canonical page a second address. */
+    setMode(activeMeasure, activeUnit, false);
   }
 </script>

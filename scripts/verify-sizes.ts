@@ -11,6 +11,10 @@ import {
   ISO_MIN, ISO_MAX, JP_MAX, UK_MAX_STEP, INDIA_MAX, CIRC_MINUS_40_MAX,
   AVERAGE_US_SIZE,
 } from '../src/data/ringSizes.ts';
+import {
+  toMode, toDia, modeSpec, modeFromParams, ceilTo, floorTo,
+  DIA_MIN_MM, DIA_MAX_MM,
+} from '../src/data/ringModes.ts';
 
 let pass = 0, fail = 0;
 
@@ -229,6 +233,54 @@ eq('+1.75 from avg drops out of band', sizeContext(wAvg + 1.75, 'women').include
 eq('-2 from avg reads as below', sizeContext(wAvg - 2, 'women').includes('below'), true);
 eq("men's average is 9", AVERAGE_US_SIZE.men, 9);
 eq('null size yields no sentence', sizeContext(null, 'women'), '');
+
+console.log('\n— sizer modes: measure x unit —');
+/* The tool can present the same measurement six ways. Each one is a number a
+ * visitor may write down and hand to a jeweller, so each is asserted against
+ * the definition rather than against the other five. US 6 = 16.51 mm. */
+const dia6 = diameterFromUs(6);
+eq('diameter, mm', toMode(dia6, 'dia', 'mm'), 16.51, 0.02);
+eq('diameter, cm', toMode(dia6, 'dia', 'cm'), 1.651, 0.002);
+eq('diameter, in', toMode(dia6, 'dia', 'in'), 0.65, 0.001);
+eq('circumference, mm  (pi x 16.51)', toMode(dia6, 'circ', 'mm'), 51.87, 0.06);
+eq('circumference, cm', toMode(dia6, 'circ', 'cm'), 5.187, 0.006);
+eq('circumference, in', toMode(dia6, 'circ', 'in'), 2.042, 0.003);
+
+/* Switching units must never mutate the measurement. The old four-button
+ * switcher lost 0.02 mm on a mm -> cm -> in -> circ -> mm round trip, enough
+ * to flip the Japanese size from 12 to 11 without the visitor touching
+ * anything. Round-tripping through every mode has to be exact. */
+for (const m of ['dia', 'circ'] as const) {
+  for (const u of ['mm', 'cm', 'in'] as const) {
+    eq(`${m}/${u} round-trips to the same diameter`, toDia(toMode(dia6, m, u), m, u), dia6, 1e-12);
+  }
+}
+
+/* Every mode's slider must span the same physical range, and its displayed
+ * end labels must sit INSIDE it - a label that advertises a value the slider
+ * cannot reach is a number this site printed and cannot honour. */
+for (const m of ['dia', 'circ'] as const) {
+  for (const u of ['mm', 'cm', 'in'] as const) {
+    const s = modeSpec(m, u);
+    eq(`${m}/${u} min label is reachable`, toDia(parseFloat(ceilTo(s.min, s.dp)), m, u) >= DIA_MIN_MM - 1e-9, true);
+    eq(`${m}/${u} max label is reachable`, toDia(parseFloat(floorTo(s.max, s.dp)), m, u) <= DIA_MAX_MM + 1e-9, true);
+    /* One slider step must be finer than a US quarter size (0.2032 mm of
+     * diameter), or the tool cannot express a size it prints. */
+    const stepMm = parseFloat(s.step) / (toMode(1, m, u));
+    eq(`${m}/${u} step is finer than a quarter size`, stepMm < 0.2032, true);
+  }
+}
+
+console.log('\n— sizer modes: URL parsing —');
+const FB = { measure: 'dia', unit: 'mm' } as const;
+const parse = (q: string) => modeFromParams(new URLSearchParams(q), FB);
+eq('?unit=inches', parse('unit=inches').unit, 'in');
+eq('?unit=in', parse('unit=in').unit, 'in');
+eq('?measure=circumference', parse('measure=circumference').measure, 'circ');
+eq('?measure=CIRCUMFERENCE is case-insensitive', parse('measure=CIRCUMFERENCE').measure, 'circ');
+eq('junk unit falls back, does not throw', parse('unit=furlong').unit, 'mm');
+eq('junk measure falls back', parse('measure=weight').measure, 'dia');
+eq('empty query falls back', parse('').unit, 'mm');
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
