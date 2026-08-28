@@ -15,6 +15,7 @@ import {
   DIA_MIN_MM, DIA_MAX_MM,
   type Measure, type Unit,
 } from '../data/ringModes';
+import { PILL_ON as pillOn, PILL_OFF as pillOff } from './pillClasses';
 
 /**
  * Pages that exist to answer one query ("ring size in inches") mount the tool
@@ -44,8 +45,7 @@ const initMax = floorTo(spec.max, spec.dp);
 
 const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 
-const pillOn = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-150 bg-surface text-text shadow-xs';
-const pillOff = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text';
+
 ---
 
 <section
@@ -408,6 +408,7 @@ const pillOff = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-s
     DIA_MIN_MM, DIA_MAX_MM,
     type Measure, type Unit,
   } from '../data/ringModes';
+  import { PILL_ON, PILL_OFF } from './pillClasses';
 
   const root = document.querySelector<HTMLElement>('.ring-sizer');
   if (root) {
@@ -436,8 +437,6 @@ const pillOff = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-s
     const measureButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-measure-btn]')];
     const unitButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-unit-btn]')];
 
-    const PILL_ON = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-150 bg-surface text-text shadow-xs';
-    const PILL_OFF = 'cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text';
 
 
     const btnMinus = $<HTMLButtonElement>('[data-step-btn="minus"]');

@@ -136,7 +136,7 @@ changed unilaterally.
 
 | Question | Detail |
 |---|---|
-| **Touch targets** | Most of the tool's controls are under the 44×44 px minimum CLAUDE.md sets: mode pills 32 px tall, step buttons 32×32, the "Calibrate" link 16 px. This is pre-existing and part of the approved Aurelian Precision look, so resizing it is a design call. It will be flagged by any accessibility audit. |
+| **Touch targets** | The switcher pills are now 44 px tall (`src/components/pillClasses.ts`) — raised while the switcher was being rebuilt, since the row was being rewritten anyway. **The rest is unchanged and still under the minimum**: step buttons 32×32, the "Calibrate" link 16 px. Owner should confirm the taller pills look right against the Aurelian Precision look, and say whether the remaining controls follow. |
 | **Should US have a ceiling?** | At 25 mm the tool reports US 16½. US has no governing standard, so there is no published ceiling to cite — but `CHART_ROWS` stops at US 14 ("the range actually sold"), so 16½ is past our own chart. Capping it would be a judgement, not a standard. |
 | **The bottom of the slider answers nothing** | `DIA_MIN` is 11 mm and US 0 is 11.6332 mm, so between 11 and 11.63 mm every system correctly shows "—". Six em dashes at the slider's own minimum reads like a broken tool even though it is the honest answer. Raising `DIA_MIN` to 11.64 would fix the optics. |
 | **Dead asset files** | `public/images/logo.png` (353 KB) and `logo.svg` are referenced by nothing, and `favicon.svg` lost its `<link>` when the raster favicon went in. They deploy but are never requested. Left in place rather than deleted without asking. |
