@@ -298,6 +298,21 @@ export const CHART_ROWS: RingSize[] = Array.from(
  * "what is the most common ring size". People want to know whether their
  * number is normal. No competitor answers it.
  */
+/**
+ * ⚠️ These two numbers are NOT computed and NOT standardised, and they are the
+ * only figures on this site that cannot be traced to a published standard.
+ *
+ * Checked 28 Aug 2026: every citable source for "average ring size" is either a
+ * jeweller's own retail data or another blog repeating one. The most-repeated
+ * attribution is to the GIA, but the sources repeat each other rather than a
+ * primary publication, and the supporting claims ("a database of over 10,000
+ * customers", "25-30% of American women") are unverifiable marketing.
+ *
+ * There is no census of finger sizes. 6 and 9 describe what jewellers stock and
+ * sell - ring BUYERS, not people. They are kept because the question is asked
+ * constantly and refusing to answer helps nobody, but any page printing them
+ * must say what they are. See /average-ring-size, which does.
+ */
 export const AVERAGE_US_SIZE = { women: 6, men: 9 } as const;
 
 export function sizeContext(usSize: number | null, who: 'women' | 'men'): string {

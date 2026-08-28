@@ -31,6 +31,7 @@ export const NAV = [
 ] as const;
 
 export const FOOTER_LINKS = [
+  { href: '/average-ring-size', label: 'Average Ring Size' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
   { href: '/privacy', label: 'Privacy' },

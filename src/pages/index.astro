@@ -199,56 +199,35 @@ const jsonLd = [
     <!-- ── Main Editorial Content ────────────────────────────────────────── -->
     <div class="mx-auto w-full max-w-4xl px-6 space-y-20 sm:space-y-24 my-12 sm:my-20">
 
-      <!-- ── Is this number normal? ────────────────────────────────────── -->
+      <!-- ── Is this number normal? — summary only ─────────────────────
+           The table and the provenance moved to /average-ring-size, which
+           targets three >1000/mo keywords across two genders. One paragraph
+           here cannot rank for thirteen of them, and two copies of the same
+           caveat would compete. -->
       <section id="normal" class="scroll-mt-20" aria-labelledby="normal-heading">
         <p class="section-label">Finger size context</p>
         <h2 id="normal-heading" class="text-2xl sm:text-3xl font-display font-semibold text-text">
           Is your size normal?
         </h2>
 
-        <p class="mt-4 text-text-muted leading-relaxed">
-          Almost certainly. Rings are sold from about US {smallest.us} to US {largest.us}, and most
-          adults land in a narrow band inside that.
+        <p class="mt-4 max-w-[62ch] text-text-muted leading-relaxed">
+          Almost certainly. Rings are sold from about US&nbsp;{smallest.us} to US&nbsp;{largest.us},
+          and most adults sit in a narrow band inside that — commonly quoted as
+          US&nbsp;{AVERAGE_US_SIZE.women} for women and US&nbsp;{AVERAGE_US_SIZE.men} for men.
         </p>
 
-        <div class="table-scroll mt-6 rounded-2xl border border-border bg-surface shadow-xs">
-          <table class="w-full min-w-[32rem] text-left text-sm">
-            <caption class="sr-only">Most common and typical ring sizes</caption>
-            <thead>
-              <tr class="bg-surface-sunk/80 border-b border-border">
-                <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">&nbsp;</th>
-                <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">Most common</th>
-                <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">Typical range</th>
-                <th scope="col" class="px-4 py-3 font-semibold text-accent text-xs uppercase tracking-wider">Inner diameter</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-border/60 tabular">
-              <tr class="transition-colors hover:bg-surface-sunk/40">
-                <th scope="row" class="px-4 py-3.5 font-semibold text-text">Women</th>
-                <td class="px-4 py-3.5 font-medium text-text">US {AVERAGE_US_SIZE.women}</td>
-                <td class="px-4 py-3.5 text-text-muted">US 4 – 8½</td>
-                <td class="px-4 py-3.5 font-mono text-accent">{`${fromDiameter(diameterFromUs(4)).diameterMm.toFixed(1)} – ${fromDiameter(diameterFromUs(8.5)).diameterMm.toFixed(1)} mm`}</td>
-              </tr>
-              <tr class="transition-colors hover:bg-surface-sunk/40">
-                <th scope="row" class="px-4 py-3.5 font-semibold text-text">Men</th>
-                <td class="px-4 py-3.5 font-medium text-text">US {AVERAGE_US_SIZE.men}</td>
-                <td class="px-4 py-3.5 text-text-muted">US 8 – 13</td>
-                <td class="px-4 py-3.5 font-mono text-accent">{`${fromDiameter(diameterFromUs(8)).diameterMm.toFixed(1)} – ${largest.diameterMm.toFixed(1)} mm`}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <p class="mt-6 text-sm text-text-muted leading-relaxed">
-          One caveat worth stating plainly: there is no census of finger sizes. These figures come from
-          what jewellers stock and sell, so they describe ring <em>buyers</em>, not people. Treat them
-          as a sanity check, not a verdict. A size 4 and a size 12 are both ordinary.
+        <p class="mt-4 max-w-[62ch] text-text-muted leading-relaxed">
+          Worth stating plainly: those two figures are not standardised and there is no census of
+          finger sizes. They describe what jewellers <em>sell</em>, not what people have.
         </p>
 
-        <p class="mt-3 text-sm text-text-muted leading-relaxed">
-          So <strong class="text-text font-semibold">US 7 is not a large ring.</strong> It is one size above the
-          commonest women's size and two below the commonest men's — squarely in the middle of what
-          every jeweller keeps in stock.
+        <p class="mt-6">
+          <a
+            href="/average-ring-size"
+            class="inline-flex min-h-11 items-center font-semibold text-accent-text underline underline-offset-2 hover:opacity-80"
+          >
+            Average ring size, and what it is actually worth &rarr;
+          </a>
         </p>
       </section>
 

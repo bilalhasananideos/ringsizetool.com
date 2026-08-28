@@ -1,0 +1,236 @@
+---
+/**
+ * /average-ring-size — the "is my size normal / what should I guess" page.
+ *
+ * Why this page exists: three >1000/mo keywords (`average ring size for women`,
+ * `average ring size for men`, `average ring size`) plus roughly ten more at
+ * >100, with `average ring size for women` measured at KD 0 and a DR 18 page
+ * taking 3.2K traffic in the top 5. The homepage's one-paragraph "Is your size
+ * normal?" section cannot rank for thirteen keywords across two genders, so it
+ * shrinks to a summary and the detail lives here. See RESEARCH.md, 28 Aug pass.
+ *
+ * MUST NOT become a conversion chart. /ring-size-chart answers "what converts
+ * to what"; this page answers "what is typical". The only sizes printed here
+ * are the averages and the bands around them.
+ *
+ * ⚠️ Every other page on this site prints numbers computed from a published
+ * standard. This one cannot: no standard governs "average ring size" and no
+ * primary source exists — see the comment on AVERAGE_US_SIZE in
+ * src/data/ringSizes.ts. Saying so is the entire differentiator. Every
+ * competitor states 6 and 9 as fact.
+ */
+import Layout from '../layouts/Layout.astro';
+import { NOINDEX_SITE, SITE_URL } from '../config';
+import { AVERAGE_US_SIZE, diameterFromUs, fromDiameter, CHART_ROWS } from '../data/ringSizes';
+import { breadcrumbSchema } from '../data/faq';
+
+const PAGE_URL = `${SITE_URL}/average-ring-size`;
+
+/* Derived, never typed — the averages themselves are the only unsourced input,
+   and everything downstream of them is computed. */
+const women = fromDiameter(diameterFromUs(AVERAGE_US_SIZE.women));
+const men = fromDiameter(diameterFromUs(AVERAGE_US_SIZE.men));
+
+const womenLow = fromDiameter(diameterFromUs(4));
+const womenHigh = fromDiameter(diameterFromUs(8.5));
+const menLow = fromDiameter(diameterFromUs(8));
+const menHigh = fromDiameter(diameterFromUs(13));
+
+const sold = CHART_ROWS.filter((r) => r.usNumeric !== null);
+const smallest = sold[0];
+const largest = sold[sold.length - 1];
+
+/* One US size is this much finger. Used to show how little separates the
+   averages from everything either side of them. */
+const oneSizeMm = diameterFromUs(7) - diameterFromUs(6);
+
+const jsonLd = [
+  breadcrumbSchema([
+    { name: 'Ring Sizer', url: SITE_URL },
+    { name: 'Average Ring Size', url: PAGE_URL },
+  ]),
+];
+---
+<Layout
+  title="Average Ring Size for Women and Men — and What It Is Worth | Ring Size Tool"
+  description="The average ring size is US 6 for women and US 9 for men. Here is where those numbers come from, how wide the spread around them really is, and why they are a poor substitute for measuring."
+  noindex={NOINDEX_SITE}
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+
+    <nav aria-label="Breadcrumb" class="text-sm text-text-faint">
+      <a href="/" class="text-accent-text underline underline-offset-2">Ring Sizer</a>
+      <span aria-hidden="true"> · </span>Average ring size
+    </nav>
+
+    <header class="mt-6">
+      <h1 class="max-w-[20ch] text-[clamp(2.25rem,5.5vw,3.5rem)]">
+        Average <span class="text-accent">ring size</span> </h1>
+
+      <p class="mt-5 max-w-[60ch] text-lg text-text-muted">
+        US&nbsp;{women.us} for women and US&nbsp;{men.us} for men. Those are the figures every
+        jeweller quotes, and they are worth rather less than they look.
+      </p>
+
+      <p class="mt-6 border-l-2 border-accent py-1 pl-4 text-sm text-text-muted">
+        Every other number on this site is computed from a published standard. These two are not,
+        because no standard governs them and no primary source exists. What that means in practice
+        is set out below — no other page answering this question tells you.
+      </p>
+    </header>
+
+    <!-- ── Women ────────────────────────────────────────────────────────────
+         Query: "average ring size for women" (>1000, KD 0), "what is the
+         average ring size for a woman", "average ring size women". -->
+    <section class="mt-14" aria-labelledby="women">
+      <h2 id="women" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Average ring size for women</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        The commonly cited average is <strong class="text-text">US&nbsp;{women.us}</strong> — an
+        inner diameter of <span class="tabular">{women.diameterMm.toFixed(2)}&nbsp;mm</span>, a
+        circumference of <span class="tabular">{women.circumferenceMm.toFixed(2)}&nbsp;mm</span>,
+        and UK&nbsp;{women.uk} or EU&nbsp;{women.eu}.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Most women who buy rings fall between about US&nbsp;4 and US&nbsp;8½, which is <span class="tabular">{womenLow.diameterMm.toFixed(1)}</span> to <span class="tabular">{womenHigh.diameterMm.toFixed(1)}&nbsp;mm</span> — a span of roughly <span class="tabular">{(womenHigh.diameterMm - womenLow.diameterMm).toFixed(0)}&nbsp;mm</span> of finger.
+      </p>
+    </section>
+
+    <!-- ── Men ──────────────────────────────────────────────────────────────
+         Query: "average ring size for men" (>1000), "mens average ring size",
+         "what is the average ring size for a man". Men are under-served across
+         three separate keyword clusters; this is one of them. -->
+    <section class="mt-14" aria-labelledby="men">
+      <h2 id="men" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Average ring size for men</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        The commonly cited average is <strong class="text-text">US&nbsp;{men.us}</strong> — an inner
+        diameter of <span class="tabular">{men.diameterMm.toFixed(2)}&nbsp;mm</span>, a
+        circumference of <span class="tabular">{men.circumferenceMm.toFixed(2)}&nbsp;mm</span>, and
+        UK&nbsp;{men.uk} or EU&nbsp;{men.eu}.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        The typical band runs about US&nbsp;8 to US&nbsp;13 — <span class="tabular">{menLow.diameterMm.toFixed(1)}</span> to <span class="tabular">{menHigh.diameterMm.toFixed(1)}&nbsp;mm</span>. It is wider than the
+        women's band, and men's bands are also more often wide-profile, which makes a ring fit
+        tighter at the same nominal size.
+      </p>
+
+      <div class="table-scroll mt-8 rounded-2xl border border-border bg-surface shadow-xs">
+        <table class="w-full min-w-[32rem] text-left text-sm">
+          <caption class="sr-only">
+            Commonly cited average ring sizes and typical ranges for women and men, with inner
+            diameter in millimetres.
+          </caption>
+          <thead>
+            <tr class="border-b border-border bg-surface-sunk/80">
+              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-text">&nbsp;</th>
+              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-text">Most common</th>
+              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-text">Typical range</th>
+              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-accent">Inner diameter</th>
+            </tr>
+          </thead>
+          <tbody class="tabular divide-y divide-border/60">
+            <tr>
+              <th scope="row" class="px-4 py-3.5 font-semibold text-text">Women</th>
+              <td class="px-4 py-3.5 font-medium text-text">US {women.us}</td>
+              <td class="px-4 py-3.5 text-text-muted">US 4 – 8½</td>
+              <td class="px-4 py-3.5 font-mono text-accent">{`${womenLow.diameterMm.toFixed(1)} – ${womenHigh.diameterMm.toFixed(1)} mm`}</td>
+            </tr>
+            <tr>
+              <th scope="row" class="px-4 py-3.5 font-semibold text-text">Men</th>
+              <td class="px-4 py-3.5 font-medium text-text">US {men.us}</td>
+              <td class="px-4 py-3.5 text-text-muted">US 8 – 13</td>
+              <td class="px-4 py-3.5 font-mono text-accent">{`${menLow.diameterMm.toFixed(1)} – ${menHigh.diameterMm.toFixed(1)} mm`}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── Provenance ───────────────────────────────────────────────────────
+         The differentiator. Every competitor states 6 and 9 as fact. -->
+    <section class="mt-16" aria-labelledby="source">
+      <h2 id="source" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Where these numbers come from</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Ring sizes themselves are standardised. ISO&nbsp;8653 defines the EU scale, JIS&nbsp;S&nbsp;4700
+        defines Japan&rsquo;s, BS&nbsp;EN&nbsp;28653 defines the UK letters. Every size on this site is
+        computed from one of those. <strong class="text-text">The average is not.</strong>
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        We went looking for a primary source in August 2026 and did not find one. What exists is
+        jewellers publishing their own sales figures, and other pages repeating them. The attribution
+        you see most often is to the Gemological Institute of America, but the pages citing it cite
+        each other rather than a publication, and the supporting details — a database of ten thousand
+        customers, a quarter of American women wearing a six — are not checkable by anyone outside
+        the company making the claim.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        There has never been a census of finger sizes. What these figures actually describe is
+        <strong class="text-text">what jewellers stock and sell</strong> — ring buyers, not people.
+        Engagement rings skew the sample young and female; wedding bands skew it differently again.
+        A size {smallest.us} and a size {largest.us} are both entirely ordinary.
+      </p>
+
+      <p class="mt-6 max-w-[62ch] rounded-xl bg-surface-sunk p-4 text-sm text-text-faint">
+        We print them anyway, because the question gets asked constantly and refusing to answer
+        helps nobody. But they are a rough central tendency from retail, not a measurement, and
+        nothing on this page rounds to a decimal place they could support.
+      </p>
+    </section>
+
+    <!-- ── What it is worth ─────────────────────────────────────────────────
+         Query: "is ring size 7 big for a woman", "is a size 8 ring big for a
+         woman", "is ring size 6 small" — all in the PAA for this keyword. -->
+    <section class="mt-16" aria-labelledby="worth">
+      <h2 id="worth" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">How much the average tells you</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Less than the number of digits suggests. One full US size is <span class="tabular">{oneSizeMm.toFixed(2)}&nbsp;mm</span> of diameter — about the
+        thickness of a stack of ten sheets of paper. The whole women&rsquo;s band from US&nbsp;4 to
+        US&nbsp;8½ spans a finger difference you could cover with a fingernail.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        So <strong class="text-text">US&nbsp;7 is not a large ring for a woman</strong>: it is one
+        size above the commonest, and two below the commonest men&rsquo;s. US&nbsp;6 is not small.
+        Both sit in the middle of what every jeweller keeps in stock. If you came here to find out
+        whether your size is unusual, it almost certainly is not.
+      </p>
+    </section>
+
+    <!-- ── Buying blind ─────────────────────────────────────────────────── -->
+    <section class="mt-16" aria-labelledby="guess">
+      <h2 id="guess" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">If you are buying without asking</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        This is why most people search for the average, and it is the case it serves worst. Buying
+        US&nbsp;{women.us} for someone whose size you do not know is a coin flip on a ring that has
+        to be resized — which is possible for most plain bands and impossible for eternity rings and
+        some tension settings.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Borrowing a ring they already wear takes two minutes and is genuinely accurate. There is a
+        <a href="/how-to-measure-ring-size-at-home#without" class="text-accent-text underline underline-offset-2">short guide to sizing someone else&rsquo;s finger without telling them</a>,
+        ranked by how well each approach actually works. If you truly cannot, guess the average and
+        buy somewhere that resizes free.
+      </p>
+
+      <p class="mt-8">
+        <a
+          href="/"
+          class="inline-flex min-h-11 items-center rounded-full bg-accent px-6 font-semibold text-on-accent no-underline transition-colors hover:bg-accent-hover"
+        >
+          Measure a real size instead &rarr;
+        </a>
+      </p>
+    </section>
+
+  </div>
+</Layout>
