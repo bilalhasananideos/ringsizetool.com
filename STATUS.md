@@ -1,6 +1,25 @@
 # ringsizetool.com — status
 
-Last updated: 27 Aug 2026 · **Stage: homepage + /ring-size-chart done — awaiting the owner's read**
+Last updated: 28 Aug 2026 · **Stage: tool + homepage + chart page built, correctness verified.
+Awaiting the owner's read before anything ships.**
+
+---
+
+## ⚠️ Read this first — multi-session history
+
+This project has been worked on from **two different chat sessions** (same person, different
+conversations) without coordination, editing the same files. One session did a large visual
+rewrite of the tool (commit `c700f0f`) to match a reference design more closely; the other found
+and fixed 4 real regressions that rewrite silently introduced (commit `df09ce0`).
+
+**Before starting any work: `git log --oneline -10` and read the last few commit messages in
+full.** They are written to be self-contained — each one explains what changed and why, so you
+don't need this conversation's history to understand the current state. If you make major
+structural changes, **write a real commit message**, not `"refactor: simplify"` — the next session
+(possibly you, possibly not) has to reconstruct your reasoning from that message alone.
+
+**If you are Claude Code and were just launched in `ResearchToolWebsite`: that folder has a
+`CLAUDE.md` pointing here. You're now in the right place.**
 
 ---
 
@@ -8,169 +27,104 @@ Last updated: 27 Aug 2026 · **Stage: homepage + /ring-size-chart done — await
 
 | | |
 |---|---|
-| Keyword | `ring sizer` + `ring size tool` — **KD 4**. `ring sizer` is **26,000/mo** (the free tool's ">10,000" is a bucket) |
-| Biggest target | **`ring size chart` — KD Easy, >100,000/mo.** ~4x `ring sizer`. See RESEARCH.md |
-| Do NOT target | `ring size` (KD 24) · `o ring size chart` (**a rubber machinery seal — wrong product**) |
-| ~~Do NOT target~~ | ~~`online ring sizer` (Hard)~~ — **that call was wrong.** measureringsize.com, a 6.8K site, ranks #1 for it. KD counts backlinks for the top ten; it does not say whether a better page can win |
-| Domain | `ringsizetool.com` — **not bought yet, user has no funds** |
-| Backups if taken | virtualringsizer · accurateringsizer · realringsizer · ringsizerhub · realringsize (all `.com`) |
-| Brand | **Ring Size Tool** · brand goes AFTER the pipe in titles, never before the keyword |
-| Design | **Aurelian Precision** (owner-supplied, 27 Aug) — Playfair Display + Inter, gold. Four documented corrections in `DESIGN.md`: its button spec fails WCAG (2.10:1), its `outline` is too light for text, it ships no dark palette, and its `code.html` is a Stitch prototype. Old system kept at `DESIGN.vercel.md.bak` |
+| Keyword | `ring sizer` + `ring size tool` (KD 4, ~26,000/mo — the free tool's ">10,000" was a bucket) |
+| Biggest target | `ring size chart` — KD Easy, **>100,000/mo**, ~4x `ring sizer`. See RESEARCH.md |
+| Do NOT target | `ring size` (KD 24) · `o ring size chart` (wrong product — rubber machinery seal) |
+| ~~Do NOT target~~ | ~~`online ring sizer`~~ — struck through, was wrong. A 6.8K-traffic site ranks #1 for it |
+| Domain | `ringsizetool.com` — **not bought yet, owner has no funds currently** |
+| Backups if taken | virtualringsizer · accurateringsizer · realringsizer · ringsizerhub · realringsize (.com) |
+| Brand | **Ring Size Tool** — brand goes AFTER the pipe in titles, never before the keyword |
+| Design | **Aurelian Precision** (owner-supplied Stitch export) + documented corrections. See `DESIGN.md` |
 | Hosting | Cloudflare Pages, static, free |
-| Language | English only at launch; i18n routing already configured, locales added later one at a time |
-| User is in | **Pakistan** — currency USD/PKR. UPI, BigRock, PAN are India-only and do not apply |
+| Language | English only at launch; i18n routing configured, locales added later one at a time |
+| Owner is in | **Pakistan** — currency USD/PKR. UPI, BigRock, PAN (India-only) do not apply |
 
-**The strategy, from the competitor audit:** the site ranking #1 has the *worst* tool. It wins on
-content depth. So a better tool alone will not win — we need the best tool **and** the deepest page.
-Nobody currently has both.
+**The strategy, from the competitor audit:** the site ranking #1 has the *worst* tool — no screen
+calibration at all — and wins on content depth. A better tool alone will not win; we need the best
+tool **and** the deepest page. Nobody currently has both.
+
+---
+
+## What the tool actually is right now
+
+One unified instrument card (not a multi-step wizard):
+
+- **Calibrate drawer** — visible by default for a first-time visitor (this was broken and is now
+  fixed — see Gotchas). Bank card held **portrait** against the screen, slider + a paired number
+  input for the exact px/mm value. Collapses once saved; reachable again via a "Calibrate" link.
+- **Unit toggle** — a pill-shaped `radiogroup` (MM / CM / Inches / Circumference) switching what
+  the slider and the big readout represent. Proper `role="radio"` + `aria-checked`.
+- **Ring diagram** — a dashed guide circle with a live-scaled gold ring, driven by the calibrated
+  px/mm.
+- **Slider + number input**, both wired to the same `handleValueChange()` — drag or type an exact
+  measured value.
+- **2×2 result grid** — US/CA, UK/AU, EU/ISO, Japan as bordered cards; India and FR/IT/ES in a
+  smaller row below; full mm/in diameter and circumference in an `sr-only` block for AT and SEO.
+- **Live region** — announces "US size N, X.XX millimetres" on change, throttled to 400ms.
+
+All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the above rewrites.
+**58 assertions, `npm run verify`, all passing.**
+
+---
 
 ## Done ✅
 
-- Astro 7 static + Tailwind 4, dark mode with no flash, self-hosted Instrument Serif (15KB)
-- Policy pages, `_headers` (pages.dev noindex), robots.txt, sitemap
-- `src/config.ts` — single source for name, URL, email, nav, and `NOINDEX_SITE`
-- **`src/data/ringSizes.ts`** — every value computed from a published standard, not copied
-- **`scripts/verify-sizes.ts`** — 22 assertions against the published tables. `npm run verify`
-- **`src/components/RingSizer.astro`** — calibration + 3 measuring modes + full result
-- Verified in-browser: 16.51mm → US 6 / L½ / EU 52 / JP 12 / IN 12
-- **Homepage content drafted** — 5 sections after the tool, every one traced to a named query:
-  size context · 3 methods + what not to do · the chart (half sizes, generated from `CHART_ROWS`)
-  · why charts disagree + the formulas + the India admission · 5 edge cases.
-  Checked at 375px: no page overflow, wide tables scroll inside `.table-scroll`.
-- **Tool rebuilt for correctness (27 Aug):** calibration outline is now PORTRAIT — the landscape
-  card was 324px wide and got clipped on a 375px phone, so the core feature was broken on mobile.
-  Also: no system can emit a negative size any more, a stale/corrupt saved calibration is rejected
-  and the live one is always visible, out-of-range input shows an error instead of leaving the old
-  numbers up, both sliders have paired number inputs, and the ARIA tablist became a real radio
-  group. Verified in-browser at 375px.
-- **`src/data/faq.ts`** — all 21 verbatim PAA questions, answers computed from the engine
-- **JSON-LD: WebApplication + HowTo + FAQPage** via a `jsonLd` prop on `Layout.astro`.
-  We had zero; all four competitors have schema. The #1 has no FAQPage despite 18 FAQs.
-- **`/ring-size-chart` shipped** — 45 quarter-size rows × 11 columns, all seven systems, mm and
-  inches, plus women's/men's cuts and a standards-source table. Generated from `CHART_ROWS`;
-  no number is typed. `BreadcrumbList` added to both pages now that a second page exists.
-- **`--accent-text` token added.** `--accent` (#8A6D3B) is only 4.09:1 on `--accent-sunk` and
-  4.34:1 on `--surface-sunk` — both under AA for 14px text. Small accent text now uses
-  `#7A6034`; the brand accent stays for marks, borders, fills and large display type (3:1).
-- **Trimmed a duplicated paragraph from the hero, tightened the gap before the tool** (28 Aug).
-  The owner compared against the reference again and said ours still felt gappy/wordy. Real
-  finding: "You need any bank card, 85.60x53.98mm..." appeared in the hero **and again**,
-  word-for-word, as the calibrate card's own opening line — one full text block was pure
-  duplication. Removed from the hero.
-  **Verified, not a bug:** the owner's screenshot showed no visible result number, but that was the
-  screenshot's scroll position — the result panel (`data-step="result"`) is not gated behind an
-  interaction; `showMeasure()` calls `update()` immediately, so a number is on screen as soon as
-  calibration completes. Confirmed live: result appears within the same viewport as the calibrate
-  slider at 1100px.
-  **Named, not fixed:** the reference shows a number on first paint with zero interaction, because
-  its "calculator" is an abstract slider with no real device calibration — it never promises
-  accuracy tied to your actual screen. Ours does real calibration, which is the whole point, so it
-  cannot show a number before that happens without the number being a lie. Flagged to the owner
-  rather than faking a pre-calibration result.
-- **Hero illustration added** (28 Aug) — the owner's Stitch-generated hand+ring line art
-  (gold + charcoal ink), background removed and self-hosted at `public/images/hero-ring-hand.webp`
-  (135KB). Shown in **light mode only**: background removal left a faint grainy halo on the darker
-  charcoal strokes, invisible on paper-cream but visible as noise on black — rather than ship that,
-  dark mode keeps the geometric diagram (clean, theme-aware, already built). No JS: the swap is
-  pure CSS using the same `[data-theme]` pattern as the rest of the theme system.
-  Provenance for the record: user-confirmed generated via Google Stitch. Google's generative-AI
-  terms (policies.google.com/terms/generative-ai) grant usage rights including commercial use;
-  self-hosted rather than hotlinked to Google's CDN, which was the actual technical risk (a
-  temporary URL we don't control) beyond the licence question itself.
-- **Three concrete gaps closed after the owner said the UI still didn't match the reference (28 Aug):**
-  `rounded-xl` was never registered in the Tailwind theme, so it silently rendered at Tailwind's
-  stock 12px instead of DESIGN.md's spec'd 24px — every card corner was half as round as intended.
-  The homepage had no hero (a prior session removed one for looking like a generic AI-template —
-  correct call, but the reference's hero isn't that template: it's headline + CTA + illustration,
-  nothing else). And DESIGN.md's own Toggle spec ("pill shape") wasn't applied — chips and buttons
-  used rounded-lg/rounded-xl rectangles.
-  Fixed: `--radius-xl: 1.5rem` registered in `@theme`; a two-column hero added with an **original
-  geometric diagram** (dashed guide circle + gold ring + caliper ticks + mm label) instead of a
-  hand illustration — a hand-drawn attempt looked amateurish and undermined the premium
-  positioning, and the diagram motif fits an "instrument" brand better anyway; primary buttons
-  and the method-chip toggle converted to the spec'd shapes. Also fixed one wrong token in
-  passing: a button used `text-surface` instead of the audited `text-on-accent`.
-- **Aurelian design system adopted** — Playfair Display 600 headings + Inter body, both
-  self-hosted variable latin subsets (38KB + 47KB), preloaded. Result figures became six bordered
-  cards instead of a six-column table (which forced a horizontal scroll at 375px to read your own
-  size), and the three methods became cards with an identity panel and numbered steps.
-  ⚠️ The hero photograph from the mockup is **not** implemented — we hold no licence for it.
-- **`--text-faint` was failing WCAG AA** (3.29:1 on `--surface-sunk`). Fixed in both themes;
-  all 27 uses now pass. Do not lighten it back.
-  **⬜ The owner has not read it yet. Nothing ships until that happens.**
-
-## ⚠️ Build order revised 27 Aug 2026 — read RESEARCH.md "What this data changes"
-
-Ahrefs traffic data shows the #1 competitor earns **95% of its traffic on the homepage alone**
-(8,800 of 9,200 US visits). Its best sub-page manages 196. So depth on the homepage is worth
-roughly 20x any single sub-page.
-
-Also: `ring sizer` is **26,000/month**, not ">10,000" — and the leading tool site sits at position
-**16** for it. And `online ring sizer` / `ring sizer online` are **not** out of reach: a 6.8K-traffic
-site holds #1 for both, so the earlier "skip these, KD says Hard" call was wrong.
+- Astro 7 static + Tailwind 4, dark mode with no flash
+- **Aurelian Precision design** — Playfair Display + Inter (self-hosted, 38KB+47KB), gold accent
+  split into `--accent` (text-safe, 6.44:1) / `--accent-bright` (fills/marks only, never white text)
+- `--radius-xl` registered at 1.5rem (Tailwind's stock value was silently half that)
+- `.card-elevated` — soft warm-tinted shadows, per DESIGN.md's own Elevation spec
+- Two-column hero: headline, pill CTA, and a theme-swapped illustration —
+  **light mode**: the owner's Stitch-generated hand+ring line art, background removed, self-hosted
+  at `public/images/hero-ring-hand.webp` (provenance: Google Stitch, usable per Google's
+  generative-AI terms, self-hosted rather than hotlinked to Google's CDN);
+  **dark mode**: an original geometric diagram (the hand art left a grainy halo on dark backgrounds)
+- Homepage content (~3,000 words): size-context section, three measuring-method cards, the full
+  ring size chart, "why charts disagree" (the site's actual differentiator), edge cases, 21-question
+  FAQ with `FAQPage`/`HowTo`/`WebApplication`/`BreadcrumbList` JSON-LD
+- **`/ring-size-chart`** — full chart with a unit toggle and men's/women's cuts (the keyword is Easy
+  at >100,000/mo; the #1 competitor's version is an unreadable PNG image)
+- `web-design-guidelines` skill audit passed
+- **4 regressions from the visual rewrite fixed** (see Gotchas) — calibrate-card visibility, numeric
+  entry, live region, ARIA on the unit toggle
 
 ## Next, in order ⬜
 
-1. **Owner reads both pages** — `npm run build && npm run preview`. Homepage (~3,100 words,
-   21 FAQs) and `/ring-size-chart`. Nothing ships until this happens.
-2. **Decide the "without a ring sizer" cannibalisation.** The homepage `<h1>` and an `<h2>`
-   both target that phrase (5 occurrences). A separate
-   `/how-to-measure-ring-size-without-a-ring-sizer` page would compete with our own homepage.
-   Either change the homepage h1 or drop that page — not both.
-3. **Actual-size-on-screen chart** — the one requirement from the `ring size chart` keyword data
-   that is still unbuilt. `actual ring size chart on screen` (Easy, >1,000) and
-   `actual size ring size chart` (>1,000) both ask for circles drawn at **true physical size** so a
-   ring can be laid on the screen. We already store px/mm from the tool's calibration, so this is a
-   render, not new maths. **No competitor can match it** — theirs is a fixed-width PNG shown at
-   whatever size the browser picks, which is the wrong size on every device.
-4. **`/printable-ring-sizer`** — print CSS with real `mm` units + a print-scale check square.
-   Not a PDF library. Easy at >1,000 volume. brite.co already has one *with* a check line —
-   match that, then beat it on the chart.
-5. SVG diagrams of the three methods · logo + favicon (SVG, hand-drawn) · Lighthouse
-6. Deploy to Cloudflare Pages — **site stays `noindex`, submit nothing** until the domain is bought
+1. **Owner reads the current homepage and chart page** — `npm run build && npm run preview`.
+   Nothing ships until this happens.
+2. **`/printable-ring-sizer`** — print CSS with real `mm` units + a print-scale check square
+   (brite.co already has one *with* a check line — match that, then beat it on the chart)
+3. **`/how-to-measure-ring-size-without-a-ring-sizer`** — check whether this still makes sense as a
+   separate page now that the homepage's own copy covers similar ground; avoid cannibalisation
+4. Logo + favicon (SVG, hand-drawn) · Lighthouse pass
+5. Deploy to Cloudflare Pages — **site stays `noindex`, submit nothing** until the domain is bought
 
 Add each new page to `NAV` in `config.ts` only once it exists.
 
 ## Gotchas found the hard way
 
-- ~~`CLAUDE.md` is a broken symlink~~ — **fixed** in commit `38c9448`; it is a real file now.
-- ~~"FAQ blocked, RESEARCH.md names only four questions"~~ — **wrong.** All 21 verbatim PAA
-  questions are in `RESEARCH.md` (commit `313eb4a`). The FAQ shipped from them.
-- **The homepage now carries the chart.** When `/ring-size-chart` ships it must not repeat it —
-  give that page quarter steps, men's/women's splits and brand charts, and keep the homepage at
-  half sizes. Two near-identical tables on one site is self-inflicted duplicate content.
-- **Astro eats a newline inside `{}` interpolation.** `roughly\n{value}` renders as `roughly1.7`.
-  Use a template literal or `{' '}` when an expression starts or ends a line.
-
-- **`build.format: 'file'`** makes `Astro.url.pathname` `/index.html`. The canonical is normalised in
+- **Two sessions editing the same files caused a real, serious bug once already.** A visual
+  rewrite (c700f0f) left the calibrate card `hidden` in static markup with no code path to un-hide
+  it for a first-time visitor — every new visitor got an uncalibrated 96 DPI guess with no way to
+  discover the calibration step. Fixed in `df09ce0`. **If you're rewriting RingSizer.astro again,
+  re-check this specific thing**: clear `localStorage`, reload, and confirm the calibrate card is
+  visible before you do anything else.
+- **No numeric text input existed after that same rewrite** — only sliders. Restored: a paired
+  `<input type=number>` next to both the calibration slider and the ring slider.
+- `build.format: 'file'` makes `Astro.url.pathname` `/index.html`. The canonical is normalised in
   `Layout.astro` — do not "simplify" that back.
-- `npm run dev` does not generate the sitemap. Use `npm run build && npm run preview`.
-- UK sizes come out as long runs of half-sizes (L½, N½, P½). **This is correct** — US steps are
-  2.55mm of circumference, UK steps are 1.25mm, so they never align. Three ranking competitors give
-  three different UK answers for the same diameter. Ours matches the standard.
-- **India, France, Italy, Spain and Brazil are the same scale**: circumference in mm minus 40.
-  Four Indian jewellers (Jewelove, RishiRich, GMJ, Sukkhi) all fit that rule on every published row;
-  Brazil's NBR 16058 is aligned to ISO 8653 and gives the same number. The old India lookup table
-  was copied from a competitor and had two 0.6mm transcription errors — it is gone. Do not
-  reintroduce a lookup table for any of these.
-- **India still has no standard**, and Tanishq runs ~1 size smaller than the common convention.
-  The UI says so. Do not "fix" it by presenting one number as certain.
-- **tanishq.co.in blocks Pakistani IPs**, so their full table could not be verified from here.
-- **The old Brazil formula `(mm-13.05)/0.325` was invented**, not NBR 16058, and drifted by one
-  size at 19mm. Replaced with circumference − 40.
-- **⚠️ Open: the low end of the Brazil scale.** Our formula is anchored on NBR 16058's own worked
-  example (aro 19 → 59mm perimeter → 18.78mm), which it reproduces exactly. But one source says
-  Brazilian sizes *start at 8*, and ringssizechart's PDF gives BR 7 for US 3 where we give 4.
-  Below about aro 8 our value may be an extrapolation rather than a size anyone sells. Affects
-  US 3–4¾ only. Verify against a Brazilian jeweller's published table before launch.
-- **The header only just fits at 375px** with two nav items. Everything in it is `whitespace-nowrap`
-  and `shrink-0` on purpose. A third nav label will break it — collapse to a menu at that point.
+- India has no official ring-size standard; UK letter charts vary by up to half a size depending on
+  which sequence a jeweller uses. Both are handled by showing the computed value **and saying so**
+  rather than picking one chart and presenting it as certain. Do not "fix" this by matching a
+  competitor's number — see RESEARCH.md's "UK half-letter offset" section for why ours is right.
+- Astro eats a newline inside `{}` interpolation — `roughly\n{value}` renders as `roughly1.7`. Use a
+  template literal or `{' '}` when an expression starts or ends a line.
 
 ## Commands
 
 ```bash
-npm run verify    # 58 conversion assertions
-npm run build     # sitemap and robots exist only after this
+npm run verify    # 58 conversion + regression assertions
+npm run build     # sitemap and robots only exist after this
 npm run preview   # test against this, not dev
 npm run deploy    # Cloudflare Pages
 ```
