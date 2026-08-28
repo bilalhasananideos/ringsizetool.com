@@ -7,7 +7,7 @@
 import {
   fromDiameter, fromCircumference, diameterFromUs, jpFromDiameter,
   ukFromCircumference, euFromCircumference, circMinus40, formatUs,
-  inFromCircumference, sizeContext,
+  inFromCircumference, sizeContext, CHART_ROWS,
   ISO_MIN, ISO_MAX, JP_MAX, UK_MAX_STEP, INDIA_MAX, CIRC_MINUS_40_MAX,
   AVERAGE_US_SIZE,
 } from '../src/data/ringSizes.ts';
@@ -15,6 +15,9 @@ import {
   toMode, toDia, modeSpec, modeFromParams, ceilTo, floorTo,
   DIA_MIN_MM, DIA_MAX_MM,
 } from '../src/data/ringModes.ts';
+import {
+  PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, STAGE_MAX_CIRCLE_PX,
+} from '../src/data/calibration.ts';
 
 let pass = 0, fail = 0;
 
@@ -130,9 +133,11 @@ eq('7    formats', formatUs(7),    '7');
 
 
 console.log('\n— Upper bounds: no system may invent a size above its published range —');
-/* Before these guards existed the slider's own top end (25 mm diameter, the
- * DIA_MAX in RingSizer.astro) produced EU 79, JP 37 and UK Z+7½ - three sizes
- * that do not exist. Bounds confirmed against the standards on 28 Aug 2026:
+/* Before these guards existed the slider's own top end (25 mm diameter at the
+ * time) produced EU 79, JP 37 and UK Z+7½ - three sizes that do not exist. The
+ * slider now stops at DIA_MAX_MM (24.35 mm), so 25 mm is beyond it entirely;
+ * these stay as guards on the data module itself, which any page may call with
+ * any number. Bounds confirmed against the standards on 28 Aug 2026:
  *   ISO 8653:2016    41 to 76
  *   JIS S 4700:2022  1 to 35   (13.00 mm to 24.33 mm inner diameter)
  *   BS EN 28653:1993 A to Z+6
@@ -191,20 +196,22 @@ eq('Z  = 68.75 mm  (n=25, last letter)',     ukFromCircumference(68.75), 'Z');
 
 console.log('\n— fromCircumference(): the circumference slider path —');
 /* The circumference mode feeds this function, and nothing asserted it
- * end-to-end. Note the slider's own bounds are DIA_MIN/MAX x PI = 34.56 to
- * 78.54 mm, so both ends must land on real sizes or on an honest refusal. */
+ * end-to-end. The figures below (34.56 / 78.54 mm) were the slider's own
+ * bounds before the range was pinned to ISO 8653's band; they now sit outside
+ * it, and are kept because they assert the refusals that made pinning it
+ * necessary. The reachable range is swept separately further down. */
 const c52 = fromCircumference(52);
 eq('circ 52 mm -> EU 52', c52.eu, 52);
 eq('circ 52 mm -> diameter 16.552 mm', c52.diameterMm, 16.552, 0.001);
 eq('circ 52 mm -> FR 12', c52.fr, 12);
-/* At the very bottom of the slider's travel EVERY system refuses, including
- * US: DIA_MIN is 11 mm and US 0 is 11.6332 mm, so 11 mm is below the US scale
- * too. Four em dashes is the honest answer for a ring that small, and this
- * pins it so nobody "fixes" the blank cells by inventing a size 0. */
-eq('circ slider bottom (34.56 mm) -> EU refused (below ISO 41)', fromCircumference(34.56).eu, null);
-eq('circ slider bottom (34.56 mm) -> US refused (below US 0)', fromCircumference(34.56).us, null);
+/* Below the slider EVERY system refuses, US included: US 0 is 11.6332 mm, so
+ * 11 mm is under the US scale too. Four em dashes is the honest answer for a
+ * ring that small, and this pins it so nobody "fixes" the blank cells by
+ * inventing a size 0. */
+eq('below the slider (34.56 mm) -> EU refused (below ISO 41)', fromCircumference(34.56).eu, null);
+eq('below the slider (34.56 mm) -> US refused (below US 0)', fromCircumference(34.56).us, null);
 eq('US 0 arrives at 11.6332 mm', formatUs((11.6332 - 11.6332) / 0.8128), '0');
-eq('circ slider top (78.54 mm) -> EU refused (above ISO 76)', fromCircumference(78.54).eu, null);
+eq('above the slider (78.54 mm) -> EU refused (above ISO 76)', fromCircumference(78.54).eu, null);
 // mm mode and circumference mode must never disagree about the same ring.
 eq('mm 16.51 and circ 51.8677 agree on EU',
    fromDiameter(16.51).eu, fromCircumference(Math.PI * 16.51).eu);
@@ -295,6 +302,131 @@ for (const m of ['dia', 'circ'] as const) {
      * whatever the grid rounds it to. */
     eq(`${m}/${u} one + moves exactly one nudge`, up - shown, s2.nudge, 5e-3);
   }
+}
+
+console.log('\n— sizer modes: what the tool PRINTS must round-trip —');
+/* The bug this catches, and how it hid for so long:
+ *
+ * Every assertion above feeds the maths module exact floating-point diameters.
+ * A visitor cannot do that. They read a number off the screen — or off the
+ * chart — and type it back in, and what they type has already been rounded to
+ * the mode's own decimal places. So the real question is not "is fromDiameter
+ * correct" (it is) but "is what we PRINT precise enough to name the size it
+ * came from".
+ *
+ * It was not. Centimetres printed 2 dp = 0.1 mm of resolution, while a UK half
+ * size is 0.199 mm of diameter and a Japanese size is 0.333 mm. 17 of the 21
+ * half-size chart rows came back as a DIFFERENT size when typed into the cm
+ * box. Diameter-in-inches stepped 0.005 in and could not land on US 11 at all.
+ *
+ * This walks every chart row through every mode the way a person would. */
+{
+  const key = (r: ReturnType<typeof fromDiameter>) => [r.us, r.uk, r.eu, r.jp, r.in].join('/');
+  /* US 6¼ is a genuine knife-edge, not a defect, and is pinned separately
+   * below. Excluded here so it cannot mask a real regression. */
+  const KNIFE_EDGE = 6.25;
+  for (const m of ['dia', 'circ'] as const) {
+    for (const u of ['mm', 'cm', 'in'] as const) {
+      const s3 = modeSpec(m, u);
+      let wrong = 0;
+      for (const row of CHART_ROWS) {
+        if (row.usNumeric === null || row.usNumeric > 13 || row.usNumeric === KNIFE_EDGE) continue;
+        const printed = toMode(row.diameterMm, m, u).toFixed(s3.dp);
+        if (key(fromDiameter(toDia(parseFloat(printed), m, u))) !== key(row)) wrong++;
+      }
+      eq(`${m}/${u}: every printed chart value names its own size`, wrong, 0);
+    }
+  }
+}
+
+/* US 6¼ has an inner circumference of 52.5061 mm — six THOUSANDTHS of a
+ * millimetre above the EU 52/53 rounding boundary. Printing its diameter at
+ * 2 dp (16.71 mm) loses 0.0032 mm and drops it to EU 52. Nothing short of 4 dp
+ * fixes that, and "16.7132 mm" claims a precision no one holding a ring
+ * against glass possesses. The tool itself is unaffected — chart and
+ * calculator both derive from diameterFromUs() and never round-trip through
+ * the printed string. This pins the limit so it is a known quantity rather
+ * than a surprise. */
+eq('US 6¼ sits 0.0061 mm above the EU 52/53 boundary',
+   Math.PI * diameterFromUs(6.25) - 52.5, 0.0061, 0.0001);
+eq('US 6¼ is EU 53 when computed', fromDiameter(diameterFromUs(6.25)).eu, 53);
+eq('US 6¼ is EU 52 when read back off a 2 dp print', fromDiameter(16.71).eu, 52);
+
+console.log('\n— sizer modes: unit conversion must be exact on size boundaries —');
+/* toDia used to DIVIDE by a per-unit fraction: { cm: 0.1 }, and 1.65 / 0.1 is
+ * 16.499999999999996, not 16.5. That matters because 16.5 mm is exactly the
+ * JP 11/12 boundary, so the same ring reported one Japanese size smaller when
+ * entered in centimetres than in millimetres. Multiplying by 10 is exact. */
+eq('1.65 cm is exactly 16.5 mm', toDia(1.65, 'dia', 'cm'), 16.5, 0);
+eq('1.45 cm is exactly 14.5 mm', toDia(1.45, 'dia', 'cm'), 14.5, 0);
+eq('1.65 cm and 16.5 mm agree on the Japanese size',
+   fromDiameter(toDia(1.65, 'dia', 'cm')).jp, fromDiameter(16.5).jp);
+eq('…and that size is 12, not 11', fromDiameter(toDia(1.65, 'dia', 'cm')).jp, 12);
+
+console.log('\n— sizer modes: every reachable slider position names a real size —');
+/* The old range (11.64-25 mm) put "US 16½" beside three em dashes at the top
+ * and blanked EU/JP/India below 12.89 mm. DIA_MIN/MAX are now derived from
+ * ISO 8653's rounding band, and this walks the ACTUAL step grid of all six
+ * modes to prove ISO really is the binding constraint at both ends. */
+{
+  let blanks = 0;
+  let positions = 0;
+  for (const m of ['dia', 'circ'] as const) {
+    for (const u of ['mm', 'cm', 'in'] as const) {
+      const s4 = modeSpec(m, u);
+      const step = parseFloat(s4.step);
+      for (let v = Math.ceil(s4.min / step) * step; v <= s4.max + 1e-12; v += step) {
+        const shown = parseFloat(v.toFixed(s4.dp));
+        if (shown < s4.min || shown > s4.max) continue;
+        positions++;
+        const r = fromDiameter(toDia(shown, m, u));
+        if ([r.us, r.uk, r.eu, r.jp, r.in, r.fr, r.br].some((x) => x === null)) blanks++;
+      }
+    }
+  }
+  eq(`all seven systems answer at every one of ${positions} slider positions`, blanks, 0);
+}
+
+/* And the slider must be able to REACH every size it prints in the chart:
+ * one step is at most half a US quarter size away from any real diameter. */
+for (const m of ['dia', 'circ'] as const) {
+  for (const u of ['mm', 'cm', 'in'] as const) {
+    const s5 = modeSpec(m, u);
+    const step = parseFloat(s5.step);
+    let worstMm = 0;
+    for (const row of CHART_ROWS) {
+      if (row.usNumeric === null || row.usNumeric > 13) continue;
+      const exact = toMode(row.diameterMm, m, u);
+      const snapped = s5.min + Math.round((exact - s5.min) / step) * step;
+      worstMm = Math.max(worstMm, Math.abs(toDia(snapped, m, u) - row.diameterMm));
+    }
+    /* A US quarter size is 0.2032 mm. Landing within a tenth of one means the
+     * snapped value always rounds to the size the visitor was aiming at. */
+    eq(`${m}/${u} snaps within 0.02 mm of every real size`, worstMm < 0.02, true);
+  }
+}
+
+console.log('\n— calibration: the drawn ring must fit the stage it is drawn in —');
+/* The ring stage is a fixed 256 px box with a dashed guide circle inset 12 px
+ * a side, and it clips. The largest circle the tool can ever draw is
+ * DIA_MAX_MM x PPM_MAX, so raising either constant without checking the other
+ * silently crops the ring — which would be an accuracy bug, not a visual one,
+ * because a clipped circle cannot be matched against a real ring. */
+eq('largest drawable ring fits inside the stage guide',
+   DIA_MAX_MM * PPM_MAX <= STAGE_MAX_CIRCLE_PX, true);
+eq('the default is the CSS spec figure, 96 dpi', DEFAULT_PX_PER_MM, 96 / 25.4, 1e-12);
+eq('calibration floor is below every real screen', PPM_MIN < 3, true);
+eq('calibration ceiling clears a modern phone (~6.2 px/mm)', PPM_MAX > 6.5, true);
+
+/* Calibration and measurement are two independent lanes: pxPerMm decides how
+ * LARGE things are drawn, the diameter in mm decides WHICH SIZE they are, and
+ * the only place they meet is the circle's pixel width. Changing calibration
+ * must never change the answer. */
+for (const ppm of [PPM_MIN, DEFAULT_PX_PER_MM, 6.1, PPM_MAX]) {
+  const r = fromDiameter(16.51);
+  eq(`size at ${ppm.toFixed(2)} px/mm is unchanged by calibration`, r.us, '6');
+  eq(`…and the circle is drawn at ${(16.51 * ppm).toFixed(1)} px`,
+     16.51 * ppm <= STAGE_MAX_CIRCLE_PX, true);
 }
 
 console.log('\n— sizer modes: URL parsing —');
