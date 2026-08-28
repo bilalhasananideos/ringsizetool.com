@@ -61,6 +61,12 @@ export const UK_STEP_MM = 1.25;
 
 const UK_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
+/** BS EN 28653:1993 runs A to Z+6. Z is letter index 25, so Z+6 is half-size
+ *  step 31 - the last position the British scale actually names. Beyond it we
+ *  report nothing rather than minting letters like "Z+7½" that no jeweller
+ *  stocks and no chart lists. */
+export const UK_MAX_STEP = 31;
+
 /**
  * ⚠️ Published UK charts disagree with each other by up to half a letter, and
  * ours sits half a letter below most of them. That is not an arithmetic error.
@@ -91,6 +97,7 @@ export function ukFromCircumference(circMm: number): string | null {
   const raw = (circMm - UK_BASE_CIRC_MM) / UK_STEP_MM;
   const step = Math.round(raw * 2) / 2;
   if (step < 0) return null;               // smaller than size A - no honest answer
+  if (step > UK_MAX_STEP) return null;     // larger than Z+6 - the scale stops
 
   const whole = Math.floor(step);
   const half = step - whole >= 0.5;
@@ -104,14 +111,16 @@ export function ukFromCircumference(circMm: number): string | null {
 
 /* ── EU / ISO 8653:2016 ───────────────────────────────────────────────────
  * The size IS the inner circumference in mm. Nothing to convert.
- * ISO 8653:2016 tabulates 41 to 76; below 41 we report nothing rather than
- * inventing a size that the standard does not define.
+ * ISO 8653:2016 tabulates 41 to 76. Outside that range we report nothing
+ * rather than inventing a size the standard does not define - a size 79 ring
+ * is not an ISO size, it is a number we made up.
  */
 export const ISO_MIN = 41;
+export const ISO_MAX = 76;
 
 export function euFromCircumference(circMm: number): number | null {
   const n = Math.round(circMm);
-  return n >= ISO_MIN ? n : null;
+  return n >= ISO_MIN && n <= ISO_MAX ? n : null;
 }
 
 /* ── The "circumference minus 40" family ──────────────────────────────────
@@ -130,9 +139,13 @@ export function euFromCircumference(circMm: number): number | null {
  *
  * India: see the India note below. Same arithmetic, no standard behind it.
  */
+/** These scales are ISO 8653 relabelled, so they inherit its ceiling: ISO 76
+ *  is size 36. Above that the label has nothing behind it. */
+export const CIRC_MINUS_40_MAX = ISO_MAX - 40;   // 36
+
 export function circMinus40(circMm: number): number | null {
   const n = Math.round(circMm - 40);
-  return n >= 1 ? n : null;
+  return n >= 1 && n <= CIRC_MINUS_40_MAX ? n : null;
 }
 
 export const frFromCircumference = circMinus40;
@@ -149,10 +162,14 @@ export const brFromCircumference = circMinus40;
  */
 export const JP_BASE_MM = 13;
 export const JP_STEP_MM = 1 / 3;
+/** JIS S 4700:2022 runs 1 to 35 (13.00 mm to 24.33 mm inner diameter). */
+export const JP_MAX = 35;
 
 export function jpFromDiameter(mm: number): number | null {
   const n = Math.round((mm - JP_BASE_MM) / JP_STEP_MM) + 1;
-  return n >= 1 ? n : null;                // below 13 mm JIS defines nothing
+  if (n < 1) return null;                  // below 13 mm JIS defines nothing
+  if (n > JP_MAX) return null;             // above 24.33 mm the table stops
+  return n;
 }
 
 /* ── India ────────────────────────────────────────────────────────────────
@@ -190,7 +207,16 @@ export const INDIA_NOTE =
   'what we show. Tanishq publishes a chart that runs about one size smaller. ' +
   'Give your jeweller the diameter in millimetres - that number is unambiguous.';
 
-export const inFromCircumference = circMinus40;
+/** India is NOT ISO, so it does not inherit ISO's 76 ceiling. The fullest
+ *  published Indian table we found (Sukkhi) runs 1-37, so that is where we
+ *  stop. Same arithmetic as circMinus40, different ceiling - and the ceiling
+ *  is evidence-based rather than standards-based, like everything else here. */
+export const INDIA_MAX = 37;
+
+export function inFromCircumference(circMm: number): number | null {
+  const n = Math.round(circMm - 40);
+  return n >= 1 && n <= INDIA_MAX ? n : null;
+}
 
 /* ── Rounding ─────────────────────────────────────────────────────────────
  * US sizes are sold in quarters. Never report more precision than exists.
@@ -202,8 +228,10 @@ const QUARTER_MARKS: Record<string, string> = { '0.25': '¼', '0.5': '½', '0.75
 /** Formats a non-negative quarter size. Returns null below US 0, where the
  *  scale stops - the old version returned strings like "-2¾" for -1.25. */
 export function formatUs(size: number): string | null {
-  if (size < 0) return null;
   const q = toQuarter(size);
+  // Test the quantised value, not the raw one: -0.1 quarters to 0, which is a
+  // real US size, and the old `size < 0` check refused it.
+  if (q < 0) return null;
   const whole = Math.floor(q);
   const frac = q - whole;
   return frac === 0 ? String(whole) : `${whole}${QUARTER_MARKS[String(frac)]}`;

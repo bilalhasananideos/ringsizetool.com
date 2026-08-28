@@ -2,7 +2,28 @@
 /**
  * Interactive Ring Size Instrument.
  * Real-time measurement in MM, CM, and Inches, multi-region size conversions, and screen calibration.
+ *
+ * The values rendered on the server below are DERIVED, not typed. They used to
+ * be hand-written literals (6 / "L ½" / 52 / 12 / 16.51 mm / 51.87 mm), which
+ * breaks the house rule in CLAUDE.md and had already drifted: the markup said
+ * "L ½" with a space while ukFromCircumference() emits "L½", so the value
+ * visibly changed shape the moment the script booted.
  */
+import { fromDiameter, diameterFromUs, UK_NOTE, INDIA_NOTE } from '../data/ringSizes';
+
+/** US 6 - the women's average, and the size the tool opens on. */
+const DEFAULT_DIA = diameterFromUs(6);
+const d = fromDiameter(DEFAULT_DIA);
+
+/** The script's own default before any calibration: 96 CSS DPI. */
+const DEFAULT_PPM = 3.78;
+
+/* Slider range in mm of inner diameter. The client script reads these back off
+ * the range input rather than redeclaring them, so there is one source. */
+const DIA_MIN_MM = 11;
+const DIA_MAX_MM = 25;
+
+const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 ---
 
 <section class="ring-sizer w-full" aria-labelledby="tool-heading">
@@ -154,8 +175,8 @@
         <!-- Slider Control Area -->
         <div class="mb-8">
           <div class="flex items-center justify-between text-xs font-mono text-text-muted mb-2 font-medium">
-            <span data-min-label>11.00 mm</span>
-            <span data-max-label>25.00 mm</span>
+            <span data-min-label>{`${DIA_MIN_MM.toFixed(2)} mm`}</span>
+            <span data-max-label>{`${DIA_MAX_MM.toFixed(2)} mm`}</span>
           </div>
 
           <div class="flex items-center gap-3">
@@ -173,10 +194,10 @@
                 id="ring-range"
                 data-ring-range
                 type="range"
-                min="11"
-                max="25"
+                min={DIA_MIN_MM}
+                max={DIA_MAX_MM}
                 step="0.01"
-                value="16.51"
+                value={d.diameterMm.toFixed(2)}
                 class="h-2 w-full cursor-pointer appearance-none rounded-full bg-border-strong/40 accent-[#D4AF37] focus:outline-none"
               />
             </div>
@@ -205,28 +226,40 @@
             <!-- US & Canada -->
             <div class="rounded-xl border border-border bg-surface-sunk/40 p-4 sm:p-5 text-center transition-all hover:border-accent/40 hover:shadow-xs">
               <dt class="text-xs font-medium text-text-muted">US / CA</dt>
-              <dd data-readout data-out-us class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">6</dd>
+              <dd data-readout data-out-us class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">{dash(d.us)}</dd>
             </div>
 
             <!-- UK & Australia -->
             <div class="rounded-xl border border-border bg-surface-sunk/40 p-4 sm:p-5 text-center transition-all hover:border-accent/40 hover:shadow-xs">
               <dt class="text-xs font-medium text-text-muted">UK / AU</dt>
-              <dd data-out-uk class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">L ½</dd>
+              <dd data-out-uk class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">{dash(d.uk)}</dd>
             </div>
 
             <!-- Europe -->
             <div class="rounded-xl border border-border bg-surface-sunk/40 p-4 sm:p-5 text-center transition-all hover:border-accent/40 hover:shadow-xs">
               <dt class="text-xs font-medium text-text-muted">EU / ISO</dt>
-              <dd data-readout data-out-eu class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">52</dd>
+              <dd data-readout data-out-eu class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">{dash(d.eu)}</dd>
             </div>
 
             <!-- Japan -->
             <div class="rounded-xl border border-border bg-surface-sunk/40 p-4 sm:p-5 text-center transition-all hover:border-accent/40 hover:shadow-xs">
               <dt class="text-xs font-medium text-text-muted">Japan (JP)</dt>
-              <dd data-readout data-out-jp class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">12</dd>
+              <dd data-readout data-out-jp class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">{dash(d.jp)}</dd>
             </div>
           </div>
         </div>
+
+        <!-- The two systems we are least certain about are the two the tool
+             prints with no qualification, which is the one thing the site says
+             competitors get wrong. UK_NOTE and INDIA_NOTE come from the data
+             module so the caveat can never drift from the maths it describes. -->
+        <details class="mt-4 rounded-xl border border-border bg-surface-sunk/30 px-4 py-3 text-xs">
+          <summary class="flex min-h-11 cursor-pointer items-center font-medium text-text-muted marker:text-text-faint">
+            Why UK and India can differ from your jeweller&rsquo;s chart
+          </summary>
+          <p class="mt-2.5 text-text-faint leading-relaxed">{UK_NOTE}</p>
+          <p class="mt-2 text-text-faint leading-relaxed">{INDIA_NOTE}</p>
+        </details>
 
         <!-- Action Row: Show Size Chart & Calibration -->
         <div class="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4 text-xs">
@@ -242,8 +275,8 @@
           </a>
 
           <div class="flex items-center gap-3 text-text-faint">
-            <span>India: <strong data-readout data-out-in class="font-semibold text-text font-mono">12</strong></span>
-            <span>FR/IT/ES: <strong data-readout data-out-fr class="font-semibold text-text font-mono">12</strong></span>
+            <span>India: <strong data-readout data-out-in class="font-semibold text-text font-mono">{dash(d.in)}</strong></span>
+            <span>FR/IT/ES: <strong data-readout data-out-fr class="font-semibold text-text font-mono">{dash(d.fr)}</strong></span>
             <button data-recal type="button" class="cursor-pointer text-accent-text underline underline-offset-2 hover:opacity-80 font-medium">
               Calibrate
             </button>
@@ -254,11 +287,11 @@
 
     <!-- Hidden data points for schema and accessibility -->
     <div class="sr-only">
-      <span data-readout data-cal-status>3.78</span>
-      <span data-readout data-out-dia-mm>16.51 mm</span>
-      <span data-readout data-out-dia-in>0.650 in</span>
-      <span data-readout data-out-circ-mm>51.87 mm</span>
-      <span data-readout data-out-circ-in>2.042 in</span>
+      <span data-readout data-cal-status>{DEFAULT_PPM.toFixed(2)}</span>
+      <span data-readout data-out-dia-mm>{`${d.diameterMm.toFixed(2)} mm`}</span>
+      <span data-readout data-out-dia-in>{`${d.diameterIn.toFixed(3)} in`}</span>
+      <span data-readout data-out-circ-mm>{`${d.circumferenceMm.toFixed(2)} mm`}</span>
+      <span data-readout data-out-circ-in>{`${d.circumferenceIn.toFixed(3)} in`}</span>
       <p data-live aria-live="polite"></p>
     </div>
   </div>
@@ -296,7 +329,7 @@
 </style>
 
 <script>
-  import { fromDiameter } from '../data/ringSizes';
+  import { fromDiameter, diameterFromUs } from '../data/ringSizes';
 
   const root = document.querySelector<HTMLElement>('.ring-sizer');
   if (root) {
@@ -306,9 +339,6 @@
     const STORE = 'rst.pxPerMm';
     const PPM_MIN = 2.5;
     const PPM_MAX = 7;
-    const DIA_MIN = 11;
-    const DIA_MAX = 25;
-
     const stepCal = $('[data-step="calibrate"]');
     const card = $<HTMLElement>('[data-card]');
     const calRange = $<HTMLInputElement>('[data-cal-range]');
@@ -334,9 +364,48 @@
     const btnMinus = $<HTMLButtonElement>('[data-step-btn="minus"]');
     const btnPlus = $<HTMLButtonElement>('[data-step-btn="plus"]');
 
-    let pxPerMm = 3.78;                       // default 96 CSS DPI
+    /* Read back from the markup so the server-rendered slider and the script
+     * cannot disagree about the range. */
+    const DIA_MIN = parseFloat(ringRange.min);
+    const DIA_MAX = parseFloat(ringRange.max);
+
+    /* Slider bounds per mode, all derived from DIA_MIN/DIA_MAX so no mode can
+     * offer travel that handleValueChange() will just clamp away. The old
+     * circumference min of 34.5 mm was 10.98 mm of diameter - below DIA_MIN -
+     * so the bottom sliver of the slider changed nothing while the label
+     * happily read "34.50 mm". */
+    const BOUNDS = {
+      mm:            { min: DIA_MIN,           max: DIA_MAX,           dp: 2, unit: 'mm', label: 'Inside Diameter', step: '0.01',  nudge: 0.1   },
+      cm:            { min: DIA_MIN / 10,      max: DIA_MAX / 10,      dp: 2, unit: 'cm', label: 'Inside Diameter', step: '0.01',  nudge: 0.01  },
+      inches:        { min: DIA_MIN / 25.4,    max: DIA_MAX / 25.4,    dp: 3, unit: 'in', label: 'Inside Diameter', step: '0.005', nudge: 0.005 },
+      circumference: { min: DIA_MIN * Math.PI, max: DIA_MAX * Math.PI, dp: 2, unit: 'mm', label: 'Circumference',   step: '0.05',  nudge: 0.25  },
+    } as const;
+
+    /** currentDia expressed in whatever unit the slider is currently showing. */
+    const toMode = (dia: number, mode: keyof typeof BOUNDS) =>
+      mode === 'mm' ? dia
+      : mode === 'cm' ? dia / 10
+      : mode === 'inches' ? dia / 25.4
+      : dia * Math.PI;
+
+    /** Same conversion the other way, used by handleValueChange(). */
+    const toDia = (val: number, mode: keyof typeof BOUNDS) =>
+      mode === 'mm' ? val
+      : mode === 'cm' ? val * 10
+      : mode === 'inches' ? val * 25.4
+      : val / Math.PI;
+
+    /* Round the *displayed* end labels inward, never outward: a label must
+     * never advertise a value the slider cannot reach. These are for the
+     * labels only - the input's own min/max stay exact. */
+    const ceilTo = (v: number, dp: number) => (Math.ceil(v * 10 ** dp) / 10 ** dp).toFixed(dp);
+    const floorTo = (v: number, dp: number) => (Math.floor(v * 10 ** dp) / 10 ** dp).toFixed(dp);
+
+    /* Both defaults are read from the DOM / data module rather than retyped, so
+     * the server-rendered markup and the hydrated state cannot disagree. */
+    let pxPerMm = parseFloat($('[data-cal-status]').textContent ?? '3.78');
     let activeMode: 'mm' | 'cm' | 'inches' | 'circumference' = 'mm';
-    let currentDia = 16.51;                   // default US 6 inner diameter (mm)
+    let currentDia = diameterFromUs(6);       // US 6 - the women's average
     const NUM_STEP: Record<typeof activeMode, string> = { mm: '0.01', cm: '0.01', inches: '0.001', circumference: '0.01' };
 
     const store = {
@@ -401,48 +470,40 @@
         }
       });
 
-      if (mode === 'mm') {
-        mainLabel.textContent = 'Inside Diameter';
-        mainUnit.textContent = 'mm';
-        minLabel.textContent = '11.00 mm';
-        maxLabel.textContent = '25.00 mm';
-        ringRange.min = '11';
-        ringRange.max = '25';
-        ringRange.step = '0.01';
-        ringRange.value = currentDia.toFixed(2);
-      } else if (mode === 'cm') {
-        mainLabel.textContent = 'Inside Diameter';
-        mainUnit.textContent = 'cm';
-        minLabel.textContent = '1.10 cm';
-        maxLabel.textContent = '2.50 cm';
-        ringRange.min = '1.1';
-        ringRange.max = '2.5';
-        ringRange.step = '0.01';
-        ringRange.value = (currentDia / 10).toFixed(2);
-      } else if (mode === 'inches') {
-        mainLabel.textContent = 'Inside Diameter';
-        mainUnit.textContent = 'in';
-        minLabel.textContent = '0.43 in';
-        maxLabel.textContent = '0.98 in';
-        ringRange.min = '0.433';
-        ringRange.max = '0.984';
-        ringRange.step = '0.005';
-        ringRange.value = (currentDia / 25.4).toFixed(3);
-      } else {
-        mainLabel.textContent = 'Circumference';
-        mainUnit.textContent = 'mm';
-        minLabel.textContent = '34.50 mm';
-        maxLabel.textContent = '78.50 mm';
-        ringRange.min = '34.5';
-        ringRange.max = '78.5';
-        ringRange.step = '0.05';
-        ringRange.value = (currentDia * Math.PI).toFixed(2);
-      }
+      const b = BOUNDS[mode];
+      mainLabel.textContent = b.label;
+      mainUnit.textContent = b.unit;
+      minLabel.textContent = `${ceilTo(b.min, b.dp)} ${b.unit}`;
+      maxLabel.textContent = `${floorTo(b.max, b.dp)} ${b.unit}`;
+      /* Bounds are rounded INWARD to the mode's own decimal grid. Using the
+       * exact converted bound instead (DIA_MIN in inches is 0.4330708...)
+       * offsets the whole step grid by an irrational amount, and the slider
+       * starts reporting values like "0.648070866141732". A clean grid costs
+       * at most one step of reach at each end, which is 0.005 in - far less
+       * than the precision anyone can achieve holding a ring against glass. */
+      ringRange.min = ceilTo(b.min, b.dp);
+      ringRange.max = floorTo(b.max, b.dp);
+      ringRange.step = b.step;
+      /* The exact value, to this mode's precision. The browser will snap the
+       * slider's own `value` to the nearest step - in circumference mode a
+       * 0.05 mm step turns 51.87 into 51.86 - so the THUMB can sit up to half
+       * a step off. That is deliberate and invisible: the slider carries no
+       * number of its own, while the field and the big readout below both show
+       * the exact figure.
+       *
+       * The alternative - adopting whatever the slider snapped to as the new
+       * truth - keeps the thumb honest but makes switching units MUTATE the
+       * measurement. Cycling mm -> cm -> in -> circ -> mm drifted 16.51 to
+       * 16.49, enough to flip the Japanese size from 12 to 11 without the
+       * visitor touching the slider. Losing the measurement is worse than a
+       * thumb that is a fraction of a step out. */
+      const exact = toMode(currentDia, mode).toFixed(b.dp);
+      ringRange.value = exact;
       
       ringNum.min = ringRange.min;
       ringNum.max = ringRange.max;
       ringNum.step = NUM_STEP[mode];
-      ringNum.value = ringRange.value;
+      ringNum.value = exact;          // exact, NOT ringRange.value post-snap
 
       updateDisplay();
     }
@@ -456,21 +517,32 @@
 
     /* ── slider & step buttons handlers ── */
     function handleValueChange(val: number) {
-      if (activeMode === 'mm') {
-        currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, val));
-      } else if (activeMode === 'cm') {
-        currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, val * 10));
-      } else if (activeMode === 'inches') {
-        currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, val * 25.4));
-      } else {
-        currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, val / Math.PI));
+      currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, toDia(val, activeMode)));
+
+      /* If the request was out of range we just clamped it, so the number field
+       * and the slider are now showing something that is not what the tool is
+       * actually using. Type "5" in mm mode and the field kept saying 5 while
+       * the readout said 11.00. Write the clamped value back to both.
+       *
+       * Only on a genuine clamp: rewriting mid-drag or mid-keystroke would
+       * fight the user's cursor. */
+      const b = BOUNDS[activeMode];
+      const clamped = toMode(currentDia, activeMode);
+      if (Math.abs(clamped - val) > 10 ** -(b.dp + 1)) {
+        const s = clamped.toFixed(b.dp);
+        ringRange.value = s;
+        ringNum.value = s;
       }
+
       updateDisplay();
     }
 
     ringRange.addEventListener('input', () => {
-      ringNum.value = ringRange.value;
-      handleValueChange(parseFloat(ringRange.value));
+      // toFixed, not the raw string: the slider hands back "22.2" where the
+      // readout beside it says "22.20".
+      const v = parseFloat(ringRange.value);
+      ringNum.value = Number.isFinite(v) ? v.toFixed(BOUNDS[activeMode].dp) : ringRange.value;
+      handleValueChange(v);
     });
     ringNum.addEventListener('input', () => {
       const v = parseFloat(ringNum.value);
@@ -480,20 +552,22 @@
     });
 
     btnMinus.addEventListener('click', () => {
-      const step = activeMode === 'mm' ? 0.1 : activeMode === 'cm' ? 0.01 : activeMode === 'inches' ? 0.005 : 0.25;
+      const step = BOUNDS[activeMode].nudge;
       const current = parseFloat(ringRange.value);
       const next = Math.max(parseFloat(ringRange.min), current - step);
-      ringRange.value = String(next);
-      ringNum.value = String(next);
+      const s = next.toFixed(BOUNDS[activeMode].dp);
+      ringRange.value = s;
+      ringNum.value = s;
       handleValueChange(next);
     });
 
     btnPlus.addEventListener('click', () => {
-      const step = activeMode === 'mm' ? 0.1 : activeMode === 'cm' ? 0.01 : activeMode === 'inches' ? 0.005 : 0.25;
+      const step = BOUNDS[activeMode].nudge;
       const current = parseFloat(ringRange.value);
       const next = Math.min(parseFloat(ringRange.max), current + step);
-      ringRange.value = String(next);
-      ringNum.value = String(next);
+      const s = next.toFixed(BOUNDS[activeMode].dp);
+      ringRange.value = s;
+      ringNum.value = s;
       handleValueChange(next);
     });
 
@@ -508,16 +582,12 @@
       ringCircle.style.width = `${px}px`;
       ringCircle.style.height = `${px}px`;
 
-      // Update main numeric readout based on active mode
-      if (activeMode === 'mm') {
-        mainVal.textContent = d.toFixed(2);
-      } else if (activeMode === 'cm') {
-        mainVal.textContent = (d / 10).toFixed(2);
-      } else if (activeMode === 'inches') {
-        mainVal.textContent = (d / 25.4).toFixed(2);
-      } else {
-        mainVal.textContent = (d * Math.PI).toFixed(2);
-      }
+      /* Readout precision matches the mode's step. Inches used to render at
+       * 2 dp against a 0.001 in step, so 0.01 in = 0.254 mm was the smallest
+       * visible change - coarser than a US quarter size (0.2032 mm), and two
+       * clicks of the step button appeared to do nothing. */
+      const bd = BOUNDS[activeMode];
+      mainVal.textContent = toMode(d, activeMode).toFixed(bd.dp);
 
       // Convert diameter to official standards
       const r = fromDiameter(d);
@@ -560,9 +630,15 @@
       setPxPerMm(saved);
       stepCal.hidden = true;
     } else {
-      setPxPerMm(3.78);
+      setPxPerMm(pxPerMm);                   // the value read out of the DOM
       stepCal.hidden = false;
     }
-    updateDisplay();
+
+    /* setMode() is what fills the paired number input and derives the slider's
+     * bounds and end labels. Boot used to call only updateDisplay(), so the
+     * number field sat EMPTY until the visitor touched something, and the
+     * bounds were whatever the markup happened to say. Run it once for the
+     * starting mode so every one of those comes from BOUNDS. */
+    setMode(activeMode);
   }
 </script>

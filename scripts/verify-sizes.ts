@@ -7,6 +7,9 @@
 import {
   fromDiameter, fromCircumference, diameterFromUs, jpFromDiameter,
   ukFromCircumference, euFromCircumference, circMinus40, formatUs,
+  inFromCircumference, sizeContext,
+  ISO_MIN, ISO_MAX, JP_MAX, UK_MAX_STEP, INDIA_MAX, CIRC_MINUS_40_MAX,
+  AVERAGE_US_SIZE,
 } from '../src/data/ringSizes.ts';
 
 let pass = 0, fail = 0;
@@ -120,6 +123,112 @@ console.log('\n— Quarter-size formatting —');
 eq('6.25 formats', formatUs(6.25), '6¼');
 eq('6.5  formats', formatUs(6.5),  '6½');
 eq('7    formats', formatUs(7),    '7');
+
+
+console.log('\n— Upper bounds: no system may invent a size above its published range —');
+/* Before these guards existed the slider's own top end (25 mm diameter, the
+ * DIA_MAX in RingSizer.astro) produced EU 79, JP 37 and UK Z+7½ - three sizes
+ * that do not exist. Bounds confirmed against the standards on 28 Aug 2026:
+ *   ISO 8653:2016    41 to 76
+ *   JIS S 4700:2022  1 to 35   (13.00 mm to 24.33 mm inner diameter)
+ *   BS EN 28653:1993 A to Z+6
+ */
+const top = fromDiameter(25);
+eq('slider top (25 mm) -> EU refused, not 79', top.eu, null);
+eq('slider top (25 mm) -> JP refused, not 37', top.jp, null);
+eq('slider top (25 mm) -> UK refused, not Z+7½', top.uk, null);
+eq('slider top (25 mm) -> FR refused', top.fr, null);
+eq('slider top (25 mm) -> BR refused', top.br, null);
+
+// The last valid value on each scale must still come through.
+eq(`EU ${ISO_MAX} is the last ISO size`, euFromCircumference(ISO_MAX), ISO_MAX);
+eq(`EU ${ISO_MAX + 1} is past the standard`, euFromCircumference(ISO_MAX + 1), null);
+eq(`EU ${ISO_MIN} is the first ISO size`, euFromCircumference(ISO_MIN), ISO_MIN);
+eq(`JP ${JP_MAX} at 24.33 mm (JIS table's last row)`, jpFromDiameter(24.33), JP_MAX);
+eq('JP refuses 24.7 mm, past the table', jpFromDiameter(24.7), null);
+// Z+6 is half-step 31: circumference = 37.5 + 31 x 1.25 = 76.25 mm.
+eq('UK Z+6 is the last British size', ukFromCircumference(37.5 + UK_MAX_STEP * 1.25), 'Z+6');
+eq('UK refuses one full letter past Z+6', ukFromCircumference(37.5 + (UK_MAX_STEP + 1) * 1.25), null);
+eq(`FR/BR cap at ${CIRC_MINUS_40_MAX} (= ISO ${ISO_MAX})`, circMinus40(ISO_MAX), CIRC_MINUS_40_MAX);
+eq('FR/BR refuse ISO 77', circMinus40(77), null);
+/* India is NOT ISO, so it does not inherit ISO's ceiling. Sukkhi - the fullest
+ * published Indian table we found - runs 1 to 37, so India stops at 37 while
+ * FR/BR stop at 36. The two scales are deliberately not aliased at the top. */
+eq(`India reaches ${INDIA_MAX}, past FR/BR's ${CIRC_MINUS_40_MAX}`,
+   inFromCircumference(40 + INDIA_MAX), INDIA_MAX);
+eq('India refuses 38', inFromCircumference(40 + INDIA_MAX + 1), null);
+
+console.log('\n— UK half-size rounding ties —');
+/* Math.round(raw * 2) / 2 decides letter vs half-letter, and JS rounds .5 up
+ * (away from zero for positives). Pin the behaviour so a future "cleanup" that
+ * swaps in a different rounding cannot silently shift every UK letter. */
+// raw = 11.25 -> step 11.5 -> L½ ; raw = 11.75 -> step 12 -> M
+eq('raw 11.25 ties up to L½', ukFromCircumference(37.5 + 11.25 * 1.25), 'L½');
+eq('raw 11.75 ties up to M',  ukFromCircumference(37.5 + 11.75 * 1.25), 'M');
+eq('raw 0.25 ties up to A½',  ukFromCircumference(37.5 + 0.25 * 1.25),  'A½');
+eq('exactly A at base circumference', ukFromCircumference(37.5), 'A');
+eq('a hair below A is refused', ukFromCircumference(37.5 - 0.7), null);
+
+console.log('\n— UK letter indexing across the whole scale —');
+/* Only one of these is a true external anchor: BS EN 28653 states C = 40 mm,
+ * and that is the single published figure the whole letter scale hangs off.
+ * The rest are position checks: circ = 37.5 + 1.25n for the nth letter,
+ * 0-indexed from A. They are NOT independent evidence, and they are not
+ * pretending to be - their job is to catch an off-by-one in the letter
+ * sequence, which is precisely where published British charts drift from each
+ * other (see UK_NOTE). An off-by-one here would shift every UK answer the
+ * site gives, and the C anchor alone would not catch it at the far end. */
+eq('C  = 40.00 mm  (BS EN 28653, external)', ukFromCircumference(40.0),  'C');
+eq('H  = 46.25 mm  (n=7)',                   ukFromCircumference(46.25), 'H');
+eq('L  = 51.25 mm  (n=11)',                  ukFromCircumference(51.25), 'L');
+eq('P  = 56.25 mm  (n=15)',                  ukFromCircumference(56.25), 'P');
+eq('T  = 61.25 mm  (n=19)',                  ukFromCircumference(61.25), 'T');
+eq('Z  = 68.75 mm  (n=25, last letter)',     ukFromCircumference(68.75), 'Z');
+
+console.log('\n— fromCircumference(): the circumference slider path —');
+/* The circumference mode feeds this function, and nothing asserted it
+ * end-to-end. Note the slider's own bounds are DIA_MIN/MAX x PI = 34.56 to
+ * 78.54 mm, so both ends must land on real sizes or on an honest refusal. */
+const c52 = fromCircumference(52);
+eq('circ 52 mm -> EU 52', c52.eu, 52);
+eq('circ 52 mm -> diameter 16.552 mm', c52.diameterMm, 16.552, 0.001);
+eq('circ 52 mm -> FR 12', c52.fr, 12);
+/* At the very bottom of the slider's travel EVERY system refuses, including
+ * US: DIA_MIN is 11 mm and US 0 is 11.6332 mm, so 11 mm is below the US scale
+ * too. Four em dashes is the honest answer for a ring that small, and this
+ * pins it so nobody "fixes" the blank cells by inventing a size 0. */
+eq('circ slider bottom (34.56 mm) -> EU refused (below ISO 41)', fromCircumference(34.56).eu, null);
+eq('circ slider bottom (34.56 mm) -> US refused (below US 0)', fromCircumference(34.56).us, null);
+eq('US 0 arrives at 11.6332 mm', formatUs((11.6332 - 11.6332) / 0.8128), '0');
+eq('circ slider top (78.54 mm) -> EU refused (above ISO 76)', fromCircumference(78.54).eu, null);
+// mm mode and circumference mode must never disagree about the same ring.
+eq('mm 16.51 and circ 51.8677 agree on EU',
+   fromDiameter(16.51).eu, fromCircumference(Math.PI * 16.51).eu);
+eq('mm 16.51 and circ 51.8677 agree on UK',
+   fromDiameter(16.51).uk, fromCircumference(Math.PI * 16.51).uk);
+
+console.log('\n— formatUs() boundary at zero —');
+/* The guard used to test the raw value before quantising, so -0.1 was refused
+ * even though it quarters to 0, which is a real US size. */
+eq('-0.1 quarters to US 0, not null', formatUs(-0.1), '0');
+eq('-0.2 is below the scale', formatUs(-0.2), null);
+eq('0 formats as 0', formatUs(0), '0');
+
+console.log('\n— sizeContext() band boundaries —');
+/* The bands are |diff| < 0.5 (most common), <= 1.5 (slightly above/below),
+ * then out of band. Nothing asserted them, so the boundaries were free to
+ * drift and the copy would silently start calling a size "most common" when
+ * it is not. */
+const wAvg = AVERAGE_US_SIZE.women;              // 6
+eq('women avg is the most common size', sizeContext(wAvg, 'women').includes('most common'), true);
+eq('+0.25 from avg still most common', sizeContext(wAvg + 0.25, 'women').includes('most common'), true);
+eq('+0.5 from avg is no longer most common', sizeContext(wAvg + 0.5, 'women').includes('most common'), false);
+eq('+0.5 from avg reads as slightly above', sizeContext(wAvg + 0.5, 'women').includes('slightly above'), true);
+eq('+1.5 from avg is the last slightly-above', sizeContext(wAvg + 1.5, 'women').includes('slightly'), true);
+eq('+1.75 from avg drops out of band', sizeContext(wAvg + 1.75, 'women').includes('slightly'), false);
+eq('-2 from avg reads as below', sizeContext(wAvg - 2, 'women').includes('below'), true);
+eq("men's average is 9", AVERAGE_US_SIZE.men, 9);
+eq('null size yields no sentence', sizeContext(null, 'women'), '');
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

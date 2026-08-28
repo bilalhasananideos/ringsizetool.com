@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import RingSizer from '../components/RingSizer.astro';
 import HeroIllustration from '../components/HeroIllustration.astro';
 import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
-import { CHART_ROWS, AVERAGE_US_SIZE, diameterFromUs, fromDiameter } from '../data/ringSizes';
+import { CHART_ROWS, AVERAGE_US_SIZE, diameterFromUs, fromDiameter, INDIA_MAX } from '../data/ringSizes';
 import { FAQS, faqPageSchema, howToSchema, webAppSchema, breadcrumbSchema } from '../data/faq';
 
 /* The chart below is generated, never typed. Half-size steps from US 3 to 13 —
@@ -421,7 +421,7 @@ const jsonLd = [
           the published tables of four Indian jewellers: Jewelove, RishiRich Jewels, Gems Mart
           Jewellers and Sukkhi. All four turn out to use the same &ldquo;circumference minus 40&rdquo;
           rule as France and Brazil, and they agree on every row they publish — Sukkhi&rsquo;s table
-          runs from size 1 to 37 and fits the rule exactly. That is what we compute.
+          runs from size 1 to {INDIA_MAX} and fits the rule exactly. That is what we compute.
         </p>
         <p class="mt-3 text-text-muted leading-relaxed">
           The catch is Tanishq, the largest jeweller in India, whose published chart runs roughly one
