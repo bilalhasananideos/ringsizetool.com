@@ -579,3 +579,114 @@ traffic data shows `ringssizechart.com` actually earns from them: `/nose-ring-si
 `/oura-ring-size-chart/` 178. `pandora ring size chart` (>1,000) is untested by them.
 
 Worth doing **after** the main chart page, hand-checked, a few at a time. Not twenty generated pages.
+
+---
+
+## Keyword data: full Ahrefs pass — 28 Aug 2026
+
+Roughly 25 keywords through the **Keyword Difficulty Checker** (KD + SERP overview) and the
+**Free Keyword Generator** (volume bands). Both tools are needed and neither is sufficient: the
+Generator says whether a keyword is worth having, the Checker says whether it can be won. The
+free tier reports volume as `>100K` / `>10,000` / `>1000` / `>100` / `<100` only.
+
+🔴 **All of it is the United States market.** That is the right default for this site, but it
+understates the UK and India keywords, whose searchers largely are not in the US. Re-pull
+`uk ring size chart` for GB and `indian ring size chart` for IN before judging either on volume.
+
+Not yet pulled, and nothing here depends on them: `eu ring size chart`,
+`how to measure someone's ring size secretly`, `ring size half sizes`.
+
+### The head of the market
+
+| Keyword | Volume | Checker KD | Page today |
+|---|---|---|---|
+| `ring size chart` | **>100K** | Easy | `/ring-size-chart` |
+| `how to measure ring size` | **>10,000** | 18 | homepage section only |
+| `how to measure ring size at home` | **>10,000** | **2** | **none** |
+| `ring sizer` | **>10,000** | 4 (recorded earlier) | homepage |
+| `ring size` | >10,000 | 24 | not targeted, by decision |
+
+### `>1000` — the second tier
+
+`ring size guide` (KD 23) · `what is my ring size` (KD 9) · `ring size calculator` ·
+`ring size measurements` · `average ring size for women` (KD 0) · `average ring size for men` ·
+`average ring size` · `printable ring sizer` · `ring sizer printable` ·
+`printable ring size chart` · `ring size chart printable` · `mens ring size chart` (KD 3) ·
+`men ring size chart` · `ring size chart men` · `us ring size chart` · `ring size chart online` ·
+`ring size chart in cm` · `ring size chart cm` · `ring size chart inches` ·
+`ring size chart in inches` · **`actual ring size chart on screen`** · `actual size ring size chart` ·
+`oura ring size chart` · `pandora ring size chart` · `uk ring size to us` ·
+`how to measure ring size in cm` · `how to know ring size without measuring` ·
+`ring size in cm` · `ring size in inches` · `ring size in mm` · `ring sizer tool` ·
+`free ring sizer` · `ring sizer chart` · `virtual ring sizer` · `online ring sizer` ·
+`ring sizer online` · `how to find ring size` and ~8 further `how to …` phrasings ·
+`ring size adjuster`
+
+### 🔴 Standing methodology rule: read the weakest page in the top 5, not the KD number
+
+Four keywords contradicted their own difficulty score, and the contradiction ran both ways:
+
+| Keyword | KD says | The SERP says |
+|---|---|---|
+| `ring sizer online` | 50 Hard, ~84 domains | **DR 5** measureringsize.com at #2, 4.0K traffic |
+| `uk ring size chart` | 44 Hard, ~66 domains | **DR 3** antoanetta at #5, 1.1K traffic — above DR 60 H. Samuel on 223 |
+| `us to uk ring size` | 20 Medium | **DR 25** Walkers Celtic at #5 with **zero backlinks** |
+| `finger size chart` | **11 Medium** | Kay DR 73, Tiffany DR 80, Macy's DR 85 — **no weak page at all** |
+
+Where a DR 0–25 page holds a top-5 slot the keyword is live whatever KD says; where the top 5 is
+uniformly strong, a friendly KD is a trap. `finger size chart` is the trap, and is not a target.
+
+### 🔴 Two conclusions reached during this pass and then reversed by later data
+
+Recorded as reversals so a later session does not resurrect them.
+
+1. **Converter pages — proposed, then dropped.** `/mm-to-ring-size`, `/inches-to-ring-size` and
+   `/ring-circumference-to-size` were recommended on KD 0–19 against DR 0–8 competitors. That read
+   difficulty and ignored demand. `ring size in mm` is `>1000` but **18 of its 19 variants are
+   `<100`**; `mm to ring size` and `ring circumference to size` are `>100` with every variant
+   below that. The cluster cannot support three pages. **Item 2 of the earlier chart research —
+   unit variants belong on one chart with a toggle — is confirmed by this, not contradicted:**
+   the unit demand sits on *chart* queries (`ring size chart in cm` and
+   `ring size chart inches`, `>1000` each), not on converter queries.
+
+2. **`average ring size` — dismissed as covered, then upgraded to its own page.** First judged a
+   homepage section already served by "Is your size normal?". The full cluster is three `>1000`
+   keywords plus ~10 at `>100`, with `average ring size for women` at **KD 0** and a DR 18 page
+   taking 3.2K traffic in the top 5. One paragraph cannot rank for thirteen keywords.
+
+### What the SERPs expose about the competition
+
+- **`solvar.com/pages/ring-size-guide` is the page to beat.** DR 26, **24K monthly traffic across
+  1.4K keywords**, ranking above Tiffany (DR 80) and Brilliant Earth (DR 75) on both
+  `ring size guide` and `what is my ring size`. One page absorbing a head-term cluster from a
+  domain a new site can reach. This is the shape the homepage should take.
+- **The India SERP is the chart-as-image problem again.** `indian ring size chart` is KD 0 and the
+  two results above the fold are not pages: `staticimg.tanishq.co.in/sizing-…` (DR 66) and
+  `caratlane.us/media/size-…` (DR 35), both static assets. Same opening as the main chart SERP,
+  on an easier keyword — and `INDIA_NOTE` (no Indian standard exists) is content no image carries.
+- **`ringsizes.co`** holds a top-5 slot on `ring size conversion chart` at DR 68 with **348
+  visits** total. Authority coasting on a thin page; beatable later, not in month one.
+- **AI Overviews** sit on most of the easy keywords, and on the method queries they are stuffed
+  with YouTube and Instagram. Ranking is achievable; the clicks may not follow. This is the
+  largest unhedged risk in the whole dataset.
+
+### The long tail is a table, not a page each
+
+`what ring size is 2.5 inches circumference` · `what is 6 cm in mm ring size` ·
+`if my finger is 2.5 inches what is my ring size` · `63.5 mm to ring size` ·
+`7.5 ring size in mm` — dozens of these, each `>100` or `<100`, all one behaviour: someone has a
+number and wants a size. The tool already answers every one. Serve the common values in a single
+compact table; a page per value is hundreds of thin pages, which is what the kill criteria exist
+to prevent.
+
+### Wrong-product traps found
+
+`o ring size chart` (>100) is rubber seals — already recorded above. `cigar ring size in inches`
+(<100) is cigar ring gauge. Both look like near-matches and are not.
+
+### 💰 One monetisation signal
+
+`ring size adjuster` (`>1000`) is product intent — a cheap, high-volume physical item, and the
+only keyword in the set with a natural affiliate path. It is also downstream of what this tool
+does: the searcher already knows their ring does not fit. Worth checking against the revenue
+estimate above before anything is built for it.

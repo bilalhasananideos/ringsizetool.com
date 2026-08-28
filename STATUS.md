@@ -59,8 +59,12 @@ One unified instrument card (not a multi-step wizard):
 - **Calibrate drawer** — visible by default for a first-time visitor (this was broken and is now
   fixed — see Gotchas). Bank card held **portrait** against the screen, slider + a paired number
   input for the exact px/mm value. Collapses once saved; reachable again via a "Calibrate" link.
-- **Unit toggle** — a pill-shaped `radiogroup` (MM / CM / Inches / Circumference) switching what
-  the slider and the big readout represent. Proper `role="radio"` + `aria-checked`.
+- **Two switchers** — *what you measured* (Diameter / Circumference) and *unit* (MM / CM /
+  Inches), as two pill `radiogroup`s with `role="radio"` + `aria-checked`. This replaced a single
+  four-pill row that put a measurement among units and left circumference stuck in millimetres;
+  it is now six modes, all in `src/data/ringModes.ts`. The view is readable and writable via
+  `?measure=&unit=`, and `RingSizer.astro` takes `measure` / `unit` props so a page can open in
+  the mode it is about.
 - **Ring diagram** — a dashed guide circle with a live-scaled gold ring, driven by the calibrated
   px/mm.
 - **Slider + number input**, both wired to the same `handleValueChange()` — drag or type an exact
@@ -70,7 +74,7 @@ One unified instrument card (not a multi-step wizard):
 - **Live region** — announces "US size N, X.XX millimetres" on change, throttled to 400ms.
 
 All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the above rewrites.
-**58 assertions, `npm run verify`, all passing.**
+**155 assertions, `npm run verify`, all passing.**
 
 ---
 
@@ -88,11 +92,16 @@ All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the a
   **dark mode**: the SAME hand art — `HeroIllustration.astro` renders one image in both themes.
   (This line used to claim a separate geometric diagram for dark mode; there isn't one. The grainy
   halo it was meant to solve is still visible on the dark background — open decision, see below)
-- Homepage content (~3,000 words): size-context section, three measuring-method cards, the full
+- Homepage content (~3,000 words): size-context section, **two** measuring-method cards (this
+  line said three; there are two — `index.astro:253-300`), the full
   ring size chart, "why charts disagree" (the site's actual differentiator), edge cases, 21-question
   FAQ with `FAQPage`/`HowTo`/`WebApplication`/`BreadcrumbList` JSON-LD
-- **`/ring-size-chart`** — full chart with a unit toggle and men's/women's cuts (the keyword is Easy
-  at >100,000/mo; the #1 competitor's version is an unreadable PNG image)
+- **`/ring-size-chart`** — full quarter-size chart, all seven systems, men's/women's cuts (the
+  keyword is Easy at >100,000/mo; the #1 competitor's version is an unreadable PNG image).
+  ⚠️ This line used to claim **"a unit toggle"**. There is none: the table has eleven fixed
+  columns (`ring-size-chart.astro:108-126`) and `#units` is a prose section, not a control.
+  **Centimetres appear nowhere on the page** while `ring size chart in cm` / `ring size chart cm`
+  are >1,000 each — see the plan in RESEARCH.md's 28 Aug keyword pass
 - `web-design-guidelines` skill audit passed
 - **4 regressions from the visual rewrite fixed** (see Gotchas) — calibrate-card visibility, numeric
   entry, live region, ARIA on the unit toggle
@@ -140,10 +149,21 @@ All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the a
    `logo.png` / `logo.svg` / `favicon.svg` should be deleted.
 3. **Lighthouse pass.** Not run yet. `og.png` is 105 KB and `hero-ring-hand.webp` 135 KB — both
    are candidates if the score needs it.
-4. `/how-to-measure-ring-size-without-a-ring-sizer` — **decided against for now** (28 Aug 2026).
-   The homepage's ~3,000 words already cover the methods; a separate page would cannibalise it.
-   Revisit only if Search Console shows the query landing on nothing.
-5. **Deploy to Cloudflare Pages** — `wrangler` is not in `package.json`, so `npm run deploy`
+4. `/how-to-measure-ring-size-without-a-ring-sizer` — **still decided against** (28 Aug 2026).
+   Confirmed by volume the same day: that exact keyword is only >100 and all ten of its variants
+   are <100. The homepage covers the methods and a page here would cannibalise it for nothing.
+   **Do not confuse this with item 5.**
+5. `/how-to-measure-ring-size-at-home` — **approved, not built** (28 Aug 2026). A *different*
+   keyword: **>10,000/mo, KD 2**, plus `how to measure ring size` at >10,000. The largest
+   untargeted opportunity in the keyword data. The homepage's methods section shrinks to a
+   summary that links to it, and `howToSchema()` moves with the content — the homepage must not
+   keep declaring a HowTo whose steps have left. See RESEARCH.md, 28 Aug keyword pass.
+6. `/average-ring-size` — **approved, not built** (28 Aug 2026). Three >1,000 keywords
+   (`average ring size for women` / `for men` / bare) plus ~10 at >100; `for women` is KD 0.
+   ⚠️ **Blocker:** `AVERAGE_US_SIZE = { women: 6, men: 9 }` (`ringSizes.ts:301`) has **no source**
+   — the comment above it explains why the section exists, not where 6 and 9 came from. Source it
+   or the page says plainly that it is not certain. No standard governs "average ring size".
+7. **Deploy to Cloudflare Pages** — `wrangler` is not in `package.json`, so `npm run deploy`
    depends on a global/npx binary. Decide that before the first deploy.
    Site stays `noindex`, submit nothing, until the domain is bought.
 
