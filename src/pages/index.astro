@@ -245,7 +245,9 @@ const jsonLd = [
 
         <p class="mt-4 max-w-[62ch] text-text-muted leading-relaxed">
           If you have a <strong class="text-text">ring that already fits</strong>, lay it on the
-          circle above and match the circle to its <strong class="text-text">inside</strong> edge.
+          circle above and size the circle until its <strong class="text-text">outer</strong> edge
+          meets the <strong class="text-text">inside</strong> of the band — the metal itself is not
+          part of the measurement.
           If you do not, wrap a <strong class="text-text">strip of paper</strong> round the base of
           the finger, mark the overlap, and type the flat length in as a circumference.
         </p>
@@ -308,12 +310,17 @@ const jsonLd = [
               {chart.map((r) => (
                 <tr class="transition-colors hover:bg-surface-sunk/40">
                   <th scope="row" class="px-4 py-3 font-semibold text-text">{r.us}</th>
-                  <td class="px-4 py-3 text-text-muted font-medium">{r.uk}</td>
-                  <td class="px-4 py-3 text-text-muted">{r.eu}</td>
-                  <td class="px-4 py-3 text-text-muted">{r.jp}</td>
-                  <td class="px-4 py-3 text-text-muted">{r.in === null ? '—' : r.in}</td>
+                  <td class="px-4 py-3 text-text-muted font-medium">{r.uk ?? '—'}</td>
+                  <td class="px-4 py-3 text-text-muted">{r.eu ?? '—'}</td>
+                  <td class="px-4 py-3 text-text-muted">{r.jp ?? '—'}</td>
+                  <td class="px-4 py-3 text-text-muted">{r.in ?? '—'}</td>
                   <td class="px-4 py-3 font-mono font-medium text-accent">{r.diameterMm.toFixed(2)} mm</td>
-                  <td class="px-4 py-3 font-mono text-text-muted">{(r.diameterMm / 10).toFixed(2)} cm</td>
+                  {/* 3 dp, not 2. At 2 dp a centimetre column carries 0.1 mm of
+                      resolution, and a UK half size is 0.199 mm of diameter -
+                      so adjacent sizes printed the SAME figure, and typing one
+                      of these values into the tool's cm box returned a
+                      different size than the row it was read from. */}
+                  <td class="px-4 py-3 font-mono text-text-muted">{(r.diameterMm / 10).toFixed(3)} cm</td>
                   <td class="px-4 py-3 font-mono text-text-muted">{r.diameterIn.toFixed(3)} in</td>
                   <td class="px-4 py-3 font-mono text-text-muted">{r.circumferenceMm.toFixed(2)} mm</td>
                 </tr>

@@ -27,7 +27,7 @@ export interface Faq {
 export const FAQS: Faq[] = [
   {
     q: 'How can I measure my ring size at home?',
-    a: `Two ways, both on this page. If you own a ring that fits, calibrate your screen against a bank card and match the on-screen circle to the ring's inner edge. If you do not, wrap a strip of paper around the base of your finger, mark the overlap, measure the flat strip against a ruler and type the length in. Both give you an inner diameter, which is the only measurement ring sizes are actually built from.`,
+    a: `Two ways, both on this page. If you own a ring that fits, calibrate your screen against a bank card, then size the on-screen circle until its outer edge meets the inside of the band. If you do not, wrap a strip of paper around the base of your finger, mark the overlap, measure the flat strip against a ruler and type the length in. Both give you an inner diameter, which is the only measurement ring sizes are actually built from.`,
   },
   {
     q: 'Can I measure my ring size on my phone?',
@@ -75,7 +75,7 @@ export const FAQS: Faq[] = [
   },
   {
     q: 'Can I size my ring on my phone?',
-    a: `Yes. Open this page on the phone, calibrate against a bank card held flat on the screen, then lay the ring on the glass and match the circle. Do not reuse a calibration from another device — pixel density differs, and that is exactly what calibration corrects for.`,
+    a: `Yes. Open this page on the phone, calibrate against a bank card held flat on the screen, then lay the ring on the glass and size the circle to the inside of the band. Do not reuse a calibration from another device — pixel density differs, and that is exactly what calibration corrects for.`,
   },
   {
     q: 'How do I know my correct ring size?',
@@ -140,13 +140,13 @@ export const howToSchema = (url: string) => ({
     {
       '@type': 'HowToStep',
       name: 'Calibrate your screen',
-      text: 'Hold a bank card upright against the screen and drag the slider until the outline matches its edges exactly. Every card is 85.60 × 53.98 mm, so this establishes how many pixels your screen puts in a millimetre. Keep browser zoom at 100%.',
+      text: 'Hold a bank card upright against the screen and drag the slider until the outline matches the short edge of the card, which is 53.98 mm. Every card is 85.60 × 53.98 mm, so this establishes how many pixels your screen puts in a millimetre. Keep browser zoom at 100%.',
       url: `${url}#tool`,
     },
     {
       '@type': 'HowToStep',
       name: 'Measure the ring or the finger',
-      text: "Place a ring that already fits on the screen and adjust the circle until it sits inside the ring's inner edge. If you have no ring, wrap a paper strip around the base of the finger, mark the overlap and enter the flat length.",
+      text: "Place a ring that already fits on the screen and adjust the circle until its outer edge meets the inside of the band. If you have no ring, wrap a paper strip around the base of the finger, mark the overlap and enter the flat length.",
       url: `${url}#tool`,
     },
     {

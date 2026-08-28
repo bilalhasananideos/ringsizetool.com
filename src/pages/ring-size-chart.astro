@@ -107,11 +107,11 @@ const SECTIONS = [
       </p>
 
       <div class="table-scroll mt-6">
-        <table class="w-full min-w-[54rem] text-left text-sm">
+        <table class="w-full min-w-[58rem] text-left text-sm">
           <caption class="sr-only">
             Ring size conversion chart in quarter sizes: US and Canada, UK and Australia, EU/ISO,
             Japan, India, France/Italy/Spain, Brazil, with inner diameter and circumference in
-            millimetres and inches.
+            millimetres, centimetres and inches.
           </caption>
           <thead>
             <tr class="bg-surface-sunk">
@@ -123,6 +123,7 @@ const SECTIONS = [
               <th scope="col" class="px-3 py-2 font-medium">FR / IT / ES</th>
               <th scope="col" class="px-3 py-2 font-medium">Brazil</th>
               <th scope="col" class="px-3 py-2 font-medium">Diameter</th>
+              <th scope="col" class="px-3 py-2 font-medium">Ø cm</th>
               <th scope="col" class="px-3 py-2 font-medium">Ø inches</th>
               <th scope="col" class="px-3 py-2 font-medium">Circumference</th>
               <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Circ. inches</th>
@@ -139,6 +140,10 @@ const SECTIONS = [
                 <td class="px-3 py-2.5">{r.fr ?? '—'}</td>
                 <td class="px-3 py-2.5">{r.br ?? '—'}</td>
                 <td class="px-3 py-2.5">{r.diameterMm.toFixed(2)} mm</td>
+                {/* 3 dp. Two would be 0.1 mm of resolution, and a UK half size
+                    is 0.199 mm of diameter, so a 2 dp centimetre column cannot
+                    distinguish the very sizes the row beside it names. */}
+                <td class="px-3 py-2.5">{(r.diameterMm / 10).toFixed(3)} cm</td>
                 <td class="px-3 py-2.5">{r.diameterIn.toFixed(3)}</td>
                 <td class="px-3 py-2.5">{r.circumferenceMm.toFixed(2)} mm</td>
                 <td class="px-3 py-2.5">{r.circumferenceIn.toFixed(3)}</td>
