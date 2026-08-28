@@ -153,16 +153,23 @@ All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the a
    Confirmed by volume the same day: that exact keyword is only >100 and all ten of its variants
    are <100. The homepage covers the methods and a page here would cannibalise it for nothing.
    **Do not confuse this with item 5.**
-5. `/how-to-measure-ring-size-at-home` — **approved, not built** (28 Aug 2026). A *different*
-   keyword: **>10,000/mo, KD 2**, plus `how to measure ring size` at >10,000. The largest
-   untargeted opportunity in the keyword data. The homepage's methods section shrinks to a
-   summary that links to it, and `howToSchema()` moves with the content — the homepage must not
-   keep declaring a HowTo whose steps have left. See RESEARCH.md, 28 Aug keyword pass.
-6. `/average-ring-size` — **approved, not built** (28 Aug 2026). Three >1,000 keywords
-   (`average ring size for women` / `for men` / bare) plus ~10 at >100; `for women` is KD 0.
-   ⚠️ **Blocker:** `AVERAGE_US_SIZE = { women: 6, men: 9 }` (`ringSizes.ts:301`) has **no source**
-   — the comment above it explains why the section exists, not where 6 and 9 came from. Source it
-   or the page says plainly that it is not certain. No standard governs "average ring size".
+5. **Both new keyword pages are now BUILT** (28 Aug 2026) — awaiting the owner's read like
+   everything else. They came out of the keyword pass in RESEARCH.md:
+   - `/how-to-measure-ring-size-at-home` — >10,000/mo at KD 2, plus `how to measure ring size`
+     at >10,000. The homepage's methods section is now a summary linking to it, and
+     `howToSchema()` moved with the steps (a page must not declare a procedure it no longer
+     contains). Carries one generated table of paper-strip lengths that absorbs the whole
+     "what ring size is 7 cm circumference" family — deliberately one table, not a page each.
+   - `/average-ring-size` — three >1,000 keywords, `for women` at KD 0. The sourcing blocker was
+     resolved by **admitting there is no source**: searched 28 Aug 2026, every citation traces to
+     a jeweller's own retail data or to another blog. `AVERAGE_US_SIZE` now carries that finding
+     as a comment, and the page says it out loud. Every competitor states 6 and 9 as fact; this
+     is the differentiator, the same move as `UK_NOTE` and `INDIA_NOTE`.
+6. **Remaining from the keyword plan, not started:** the `/ring-size-chart` unit toggle (cm is
+   absent from that page while `ring size chart in cm` is >1,000), a section for
+   `actual ring size chart on screen` (>1,000, and the one keyword our calibration answers better
+   than anyone), a title/H1 pass on `/printable-ring-sizer` (its title currently reads
+   "Free PDF-Free Paper Gauge" — a copy bug), and then the `oura` / `pandora` brand pages.
 7. **Deploy to Cloudflare Pages** — `wrangler` is not in `package.json`, so `npm run deploy`
    depends on a global/npx binary. Decide that before the first deploy.
    Site stays `noindex`, submit nothing, until the domain is bought.
