@@ -9,7 +9,11 @@
   <h2 id="tool-heading" class="sr-only">Interactive Ring Sizer</h2>
 
   <!-- ── Step 1: Calibrate Drawer (Collapsible) ────────────────────────── -->
-  <div data-step="calibrate" hidden class="card-elevated mb-6 rounded-2xl border border-border bg-surface p-6 sm:p-8 transition-all">
+  <!-- `hidden` removed from markup: it must be visible on first paint for anyone
+       with no saved calibration, or the whole "accurate because you calibrate
+       your own screen" claim is silently false for every new visitor. The
+       boot script hides it (and only it) once a valid saved value is found. -->
+  <div data-step="calibrate" class="card-elevated mb-6 rounded-2xl border border-border bg-surface p-6 sm:p-8 transition-all">
     <div class="flex items-center justify-between gap-3 mb-4">
       <div class="flex items-center gap-3">
         <span class="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-on-accent text-xs font-bold">1</span>
@@ -31,11 +35,19 @@
             <span>Match outline to card</span>
             <span class="font-mono"><span data-readout data-cal-val>3.78</span> px/mm</span>
           </div>
-          <input
-            id="cal-range" data-cal-range type="range"
-            min="2.5" max="7" step="0.01" value="3.78"
-            class="h-2 w-full cursor-pointer appearance-none rounded-full bg-border-strong/40 accent-[#D4AF37] focus:outline-none"
-          />
+          <div class="flex items-center gap-3">
+            <input
+              id="cal-range" data-cal-range type="range"
+              min="2.5" max="7" step="0.01" value="3.78"
+              class="h-2 w-full cursor-pointer appearance-none rounded-full bg-border-strong/40 accent-[#D4AF37] focus:outline-none"
+            />
+            <label class="sr-only" for="cal-num">Pixels per millimetre, exact value</label>
+            <input
+              id="cal-num" data-cal-num type="number" inputmode="decimal"
+              min="2.5" max="7" step="0.01" value="3.78"
+              class="h-9 w-20 shrink-0 rounded-lg border border-border bg-surface px-2 text-right text-sm text-text"
+            />
+          </div>
         </div>
 
         <div class="mt-5 flex flex-wrap items-center gap-3">
@@ -67,30 +79,30 @@
   <div data-step="measure" class="card-elevated rounded-2xl border border-border bg-surface p-6 sm:p-10 md:p-12 shadow-sm">
     <!-- Top Pill Switcher: MM, CM, Inches, Circumference -->
     <div class="flex justify-center">
-      <div class="inline-flex flex-wrap justify-center rounded-full bg-surface-sunk p-1 border border-border/80 shadow-inner gap-1">
+      <div role="radiogroup" aria-label="Units" class="inline-flex flex-wrap justify-center rounded-full bg-surface-sunk p-1 border border-border/80 shadow-inner gap-1">
         <button
-          type="button"
+          type="button" role="radio" aria-checked="true"
           data-mode-btn="mm"
           class="cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all duration-150 bg-surface text-text shadow-xs"
         >
           MM
         </button>
         <button
-          type="button"
+          type="button" role="radio" aria-checked="false"
           data-mode-btn="cm"
           class="cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text"
         >
           CM
         </button>
         <button
-          type="button"
+          type="button" role="radio" aria-checked="false"
           data-mode-btn="inches"
           class="cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text"
         >
           Inches
         </button>
         <button
-          type="button"
+          type="button" role="radio" aria-checked="false"
           data-mode-btn="circumference"
           class="cursor-pointer rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 text-text-muted hover:text-text"
         >
@@ -168,6 +180,12 @@
                 class="h-2 w-full cursor-pointer appearance-none rounded-full bg-border-strong/40 accent-[#D4AF37] focus:outline-none"
               />
             </div>
+
+            <label class="sr-only" for="ring-num">Exact value, type a number you already measured</label>
+            <input
+              id="ring-num" data-ring-num type="number" inputmode="decimal"
+              class="h-9 w-20 shrink-0 rounded-lg border border-border bg-surface px-2 text-right text-sm text-text"
+            />
 
             <button
               type="button"
@@ -295,7 +313,10 @@
     const card = $<HTMLElement>('[data-card]');
     const calRange = $<HTMLInputElement>('[data-cal-range]');
     const calVal = $('[data-cal-val]');
+    const calNum = $<HTMLInputElement>('[data-cal-num]');
     const ringRange = $<HTMLInputElement>('[data-ring-range]');
+    const ringNum = $<HTMLInputElement>('[data-ring-num]');
+    const live = $('[data-live]');
     const ringCircle = $<HTMLElement>('[data-ring-circle]');
     const mainVal = $('[data-main-val]');
     const mainUnit = $('[data-main-unit]');
@@ -316,6 +337,7 @@
     let pxPerMm = 3.78;                       // default 96 CSS DPI
     let activeMode: 'mm' | 'cm' | 'inches' | 'circumference' = 'mm';
     let currentDia = 16.51;                   // default US 6 inner diameter (mm)
+    const NUM_STEP: Record<typeof activeMode, string> = { mm: '0.01', cm: '0.01', inches: '0.001', circumference: '0.01' };
 
     const store = {
       get(): number | null {
@@ -333,12 +355,17 @@
       card.style.width = `${CARD_SHORT_MM * pxPerMm}px`;
       const s = pxPerMm.toFixed(2);
       if (calRange.value !== s) calRange.value = s;
+      if (calNum.value !== s) calNum.value = s;
       if (calVal) calVal.textContent = s;
       $('[data-cal-status]').textContent = s;
       updateDisplay();
     }
 
     calRange.addEventListener('input', () => setPxPerMm(parseFloat(calRange.value)));
+    calNum.addEventListener('input', () => {
+      const v = parseFloat(calNum.value);
+      if (Number.isFinite(v)) setPxPerMm(v);
+    });
 
     $('[data-cal-save]').addEventListener('click', () => {
       store.set(pxPerMm);
@@ -412,11 +439,19 @@
         ringRange.value = (currentDia * Math.PI).toFixed(2);
       }
       
+      ringNum.min = ringRange.min;
+      ringNum.max = ringRange.max;
+      ringNum.step = NUM_STEP[mode];
+      ringNum.value = ringRange.value;
+
       updateDisplay();
     }
 
     Object.entries(modeButtons).forEach(([k, btn]) => {
-      btn.addEventListener('click', () => setMode(k as typeof activeMode));
+      btn.addEventListener('click', () => {
+        setMode(k as typeof activeMode);
+        Object.entries(modeButtons).forEach(([bk, bbtn]) => bbtn.setAttribute('aria-checked', String(bk === k)));
+      });
     });
 
     /* ── slider & step buttons handlers ── */
@@ -434,7 +469,14 @@
     }
 
     ringRange.addEventListener('input', () => {
+      ringNum.value = ringRange.value;
       handleValueChange(parseFloat(ringRange.value));
+    });
+    ringNum.addEventListener('input', () => {
+      const v = parseFloat(ringNum.value);
+      if (!Number.isFinite(v)) return;
+      ringRange.value = ringNum.value;
+      handleValueChange(v);
     });
 
     btnMinus.addEventListener('click', () => {
@@ -442,6 +484,7 @@
       const current = parseFloat(ringRange.value);
       const next = Math.max(parseFloat(ringRange.min), current - step);
       ringRange.value = String(next);
+      ringNum.value = String(next);
       handleValueChange(next);
     });
 
@@ -450,6 +493,7 @@
       const current = parseFloat(ringRange.value);
       const next = Math.min(parseFloat(ringRange.max), current + step);
       ringRange.value = String(next);
+      ringNum.value = String(next);
       handleValueChange(next);
     });
 
@@ -493,14 +537,31 @@
       set('[data-out-dia-in]', `${r.diameterIn.toFixed(3)} in`);
       set('[data-out-circ-mm]', `${r.circumferenceMm.toFixed(2)} mm`);
       set('[data-out-circ-in]', `${r.circumferenceIn.toFixed(3)} in`);
-    }
 
-    /* ── boot initialization ── */
+      // aria-live was present in markup but never written to — a screen reader
+      // user got zero feedback as the slider moved. Throttled so dragging
+      // doesn't spam an announcement on every pixel of travel.
+      if (live) {
+        window.clearTimeout(liveTimer);
+        liveTimer = window.setTimeout(() => {
+          live.textContent = `US size ${dash(r.us)}, ${r.diameterMm.toFixed(2)} millimetres`;
+        }, 400);
+      }
+    }
+    let liveTimer = 0;
+
+    /* ── boot initialization ──
+     * A first-time visitor (no saved calibration) MUST see the calibrate
+     * card — the entire "accurate because you calibrate your own screen"
+     * claim is silently false otherwise. Only collapse it when we actually
+     * have a valid saved value, mirroring what [data-cal-save] does. */
     const saved = store.get();
     if (saved) {
       setPxPerMm(saved);
+      stepCal.hidden = true;
     } else {
       setPxPerMm(3.78);
+      stepCal.hidden = false;
     }
     updateDisplay();
   }

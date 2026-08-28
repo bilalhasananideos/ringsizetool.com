@@ -36,52 +36,132 @@ const jsonLd = [
 >
   <div class="w-full">
     <!-- ── Top Announcement Banner ──────────────────────────────────────── -->
-    <div class="w-full bg-gradient-to-r from-[#241A00] via-[#3A2E05] to-[#241A00] border-b border-[#D4AF37]/30 py-2.5 px-4 text-center">
+    <div class="w-full bg-gradient-to-r from-[#241A00] via-[#3A2E05] to-[#241A00] border-b border-[#D4AF37]/35 py-2.5 px-4 text-center">
       <p class="text-xs sm:text-sm font-medium text-[#F7E7A9] flex items-center justify-center gap-2">
-        <span class="text-[#D4AF37]">✨</span>
-        <span><strong>100% Free & Private:</strong> Measure instantly on screen in MM, CM, and Inches — No download needed.</span>
+        <span><strong class="text-white font-semibold">100% Free & Private:</strong> Measure instantly on screen in MM, CM, and Inches — No download needed.</span>
       </p>
     </div>
 
-    <!-- ── Top Hero Banner Section (Matching Reference) ────────────────── -->
-    <section class="relative overflow-hidden bg-gradient-to-b from-[#181613] via-[#141311] to-bg py-16 sm:py-20 border-b border-border/60">
-      <div class="mx-auto w-full max-w-6xl px-6">
-        <div class="grid items-center gap-10 md:grid-cols-[1.1fr_0.9fr] md:gap-12">
+    <!-- ── Creative Luxury Hero Section ─────────────────────────────────── -->
+    <section class="relative overflow-hidden border-b border-border/80 bg-surface py-14 sm:py-20 md:py-24 transition-colors duration-200">
+      <!-- Creative Background Geometry & Ambient Glow Layers -->
+      <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <!-- Top Left Warm Glow -->
+        <div class="absolute -top-32 -left-32 h-[500px] w-[500px] rounded-full bg-accent/10 blur-[100px]"></div>
+        <!-- Center Right Golden Flare -->
+        <div class="absolute top-1/2 -right-24 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-accent/15 blur-[120px]"></div>
+        
+        <!-- Precision Jeweler Blueprint / Measurement SVG Geometry -->
+        <svg class="absolute inset-0 h-full w-full opacity-40 dark:opacity-30" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="hero-grid" width="48" height="48" patternUnits="userSpaceOnUse">
+              <path d="M 48 0 L 0 0 0 48" fill="none" stroke="currentColor" stroke-width="0.75" class="text-border-strong/50" />
+              <circle cx="0" cy="0" r="1.5" fill="currentColor" class="text-accent/60" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hero-grid)" />
+          
+          <!-- Concentric Ring Arcs in Background -->
+          <g class="text-accent/20" stroke="currentColor" fill="none" stroke-width="1.5">
+            <circle cx="85%" cy="50%" r="180" stroke-dasharray="4 8" />
+            <circle cx="85%" cy="50%" r="260" stroke-dasharray="2 12" />
+            <circle cx="85%" cy="50%" r="340" opacity="0.6" />
+            <line x1="85%" y1="10%" x2="85%" y2="90%" stroke-dasharray="6 6" />
+            <line x1="45%" y1="50%" x2="100%" y2="50%" stroke-dasharray="6 6" />
+          </g>
+        </svg>
+
+        <!-- Subtle Top & Bottom Gradient Vignette -->
+        <div class="absolute inset-0 bg-gradient-to-b from-bg/40 via-transparent to-bg/80"></div>
+      </div>
+
+      <div class="relative mx-auto w-full max-w-6xl px-6">
+        <div class="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14">
           <div>
-            <div class="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#241A00]/80 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-[#D4AF37] mb-4">
-              <span>★</span> Accuracy Guaranteed
+            <!-- Creative Eyebrow Badge -->
+            <div class="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-surface-sunk/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-accent mb-6 shadow-xs backdrop-blur-sm">
+              <span>Accuracy Guaranteed · ISO 8653 Standards</span>
             </div>
-            <h1 class="text-[clamp(2.25rem,5vw,3.75rem)] font-bold tracking-tight text-white leading-[1.12]">
-              FIND YOUR RING SIZE WITH OUR <span class="bg-gradient-to-r from-[#E9C349] via-[#F7E7A9] to-[#D4AF37] bg-clip-text text-transparent">RING SIZE CALCULATOR</span>
+
+            <!-- Main Heading with Luxury Typography -->
+            <h1 class="text-[clamp(2.35rem,5.4vw,3.85rem)] font-display font-bold tracking-tight text-text leading-[1.12]">
+              Find your ring size <br class="hidden sm:inline" />
+              <span class="relative inline-block mt-1">
+                <span class="bg-gradient-to-r from-accent via-[#E9C349] to-accent bg-clip-text text-transparent">without a ring sizer</span>
+                <svg class="absolute -bottom-1.5 left-0 w-full text-accent/50" height="6" viewBox="0 0 200 6" fill="none" preserveAspectRatio="none">
+                  <path d="M0 3 Q 50 6, 100 3 T 200 3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+                </svg>
+              </span>
             </h1>
 
-            <p class="mt-5 text-base sm:text-lg leading-relaxed text-neutral-300 max-w-[48ch]">
-              Experience precision measurement with calibrated accuracy. Convert seamlessly between US, UK, EU, Japan, India, MM, CM, and Inches.
+            <p class="mt-6 text-base sm:text-lg leading-relaxed text-text-muted max-w-[50ch]">
+              Hold a bank card against your screen to calibrate, then measure a ring you already own —
+              or your finger with a strip of paper. Nothing is uploaded.
             </p>
 
+            <!-- Action Buttons -->
             <div class="mt-8 flex flex-wrap items-center gap-4">
               <a
                 href="#tool-heading"
-                class="inline-flex h-13 items-center gap-2.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#B38F24] px-8 text-sm font-bold text-[#1A1608] no-underline transition-all duration-200 hover:brightness-110 hover:shadow-[0_6px_28px_rgba(212,175,55,0.4)]"
+                class="inline-flex h-13 items-center gap-2.5 rounded-full bg-accent px-8 text-sm font-bold text-on-accent no-underline transition-all duration-200 hover:bg-accent-hover hover:shadow-[0_8px_30px_rgba(212,175,55,0.35)] active:scale-[0.98]"
               >
                 Start Measuring ↓
               </a>
               <a
                 href="#chart"
-                class="inline-flex h-13 items-center gap-2 rounded-full border border-[#D4AF37]/50 bg-white/5 px-6 text-sm font-semibold text-[#F7E7A9] no-underline transition-all hover:bg-white/10"
+                class="inline-flex h-13 items-center gap-2 rounded-full border-2 border-border-strong bg-surface/80 px-7 text-sm font-semibold text-text no-underline transition-all hover:border-accent hover:bg-surface-sunk shadow-xs"
               >
                 View Size Chart
               </a>
             </div>
 
-            <!-- Proof / Accuracy Note -->
-            <p class="mt-8 border-l-2 border-[#D4AF37] py-1 pl-4 text-xs sm:text-sm leading-relaxed text-neutral-400 max-w-[50ch]">
-              Computed strictly from ISO 8653:2016, BS EN 28653:1993, and JIS S 4700 standards — not copied from unverified tables. <a href="#disagree" class="text-[#E9C349] font-medium underline underline-offset-2">See arithmetic</a>.
+            <!-- 3 Micro Feature Badges -->
+            <div class="mt-7 flex flex-wrap items-center gap-3 text-xs font-medium text-text-muted">
+              <span class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-sunk/60 px-3 py-1.5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-accent" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                100% Private (No Upload)
+              </span>
+              <span class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-sunk/60 px-3 py-1.5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-accent" aria-hidden="true"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                Bank Card 1:1 Scale
+              </span>
+              <span class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-sunk/60 px-3 py-1.5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-accent" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m4.93 4.93 4.24 4.24"></path><path d="m14.83 9.17 4.24-4.24"></path><path d="m14.83 14.83 4.24 4.24"></path><path d="m9.17 14.83-4.24 4.24"></path></svg>
+                MM, CM & Inches
+              </span>
+            </div>
+
+            <!-- Proof Card with Glassmorphism -->
+            <div class="mt-8 rounded-xl border border-accent/30 bg-surface-sunk/80 p-4 shadow-xs backdrop-blur-sm max-w-[54ch]">
+              <p class="text-xs sm:text-sm leading-relaxed text-text-muted">
+                Four ring size sites give <strong class="text-text font-semibold">three different UK answers</strong> for
+                US&nbsp;6. Every number here is computed from the published standard instead.{' '}
+                <a href="#disagree" class="text-accent-text font-semibold underline underline-offset-2 hover:opacity-80"
+                  >See the arithmetic →</a
+                >
+              </p>
+            </div>
+
+            <!-- Prerequisites Note -->
+            <p class="mt-4 text-xs text-text-faint max-w-[54ch] leading-relaxed">
+              <strong class="font-semibold text-text-muted">Prerequisite:</strong> Any standard bank card — every one is
+              85.60&nbsp;×&nbsp;53.98&nbsp;mm (ISO/IEC&nbsp;7810), which is what makes this accurate.
+              A ring that already fits helps; a strip of paper works just as well.
             </p>
           </div>
 
-          <div class="flex justify-center md:justify-end">
-            <div class="overflow-hidden rounded-2xl shadow-2xl border border-[#D4AF37]/30 bg-[#1A1815] p-3">
+          <!-- Right Column: Framed Jewelry Illustration with Glow Ring -->
+          <div class="relative flex justify-center lg:justify-end items-center">
+            <!-- Decorative Orbit Ring -->
+            <div class="absolute -inset-4 rounded-3xl border border-accent/20 pointer-events-none hidden sm:block"></div>
+            
+            <div class="relative w-full max-w-sm sm:max-w-md rounded-2xl border border-border-strong bg-gradient-to-b from-surface to-surface-sunk p-5 sm:p-7 shadow-xl backdrop-blur-md">
+              <!-- Corner Crosshair Ticks -->
+              <div class="absolute top-2 left-2 text-[10px] text-accent/40 select-none font-mono">+</div>
+              <div class="absolute top-2 right-2 text-[10px] text-accent/40 select-none font-mono">+</div>
+              <div class="absolute bottom-2 left-2 text-[10px] text-accent/40 select-none font-mono">+</div>
+              <div class="absolute bottom-2 right-2 text-[10px] text-accent/40 select-none font-mono">+</div>
+
               <HeroIllustration />
             </div>
           </div>
@@ -91,468 +171,370 @@ const jsonLd = [
 
     <!-- ── Center Intro & Tool Section ───────────────────────────────────── -->
     <section id="tool-heading" class="mx-auto w-full max-w-6xl px-6 py-12 sm:py-16">
-      <!-- Centered Section Intro -->
-      <div class="text-center max-w-2xl mx-auto mb-10">
+      <div class="text-center max-w-2xl mx-auto mb-8">
         <p class="section-label">Online Measurement</p>
         <h2 class="text-3xl sm:text-4xl font-display font-semibold text-text">
-          Measure Your Ring Size with Our <br class="hidden sm:inline" /><span class="text-accent">Ring Size Calculator</span>
+          Interactive <span class="text-accent">Ring Sizer</span>
         </h2>
         <p class="mt-3 text-sm sm:text-base leading-relaxed text-text-muted">
-          Select MM, CM, or Inches. Place a ring on screen or use the fine-tuned slider for instant conversion across all global sizing standards.
+          Measure a ring directly on screen or convert between MM, CM, Inches, and all global ring sizes in real time.
         </p>
       </div>
 
-      <!-- Refined Centered Ring Sizer Card -->
       <div class="max-w-3xl mx-auto">
         <RingSizer />
       </div>
     </section>
 
-    <!-- ── Gold Highlight Features Banner (Matching Reference) ──────────── -->
-    <section class="mx-auto w-full max-w-4xl px-6 my-10">
-      <div class="rounded-2xl border border-[#D4AF37]/40 bg-gradient-to-br from-[#2A2207] via-[#1E1905] to-[#141208] p-6 sm:p-8 shadow-lg text-white">
-        <h3 class="text-center font-display text-xl sm:text-2xl font-bold text-[#F7E7A9] mb-6">
-          Why Choose Our Ring Sizing Tool?
-        </h3>
-        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 text-center sm:text-left">
-          <div class="border-b sm:border-b-0 sm:border-r border-[#D4AF37]/20 pb-4 sm:pb-0 sm:pr-4">
-            <div class="text-2xl mb-1">🔒</div>
-            <h4 class="font-semibold text-sm text-[#F7E7A9]">100% Private</h4>
-            <p class="text-xs text-neutral-300 mt-1">Runs purely in your browser. Nothing is uploaded or tracked.</p>
-          </div>
-          <div class="border-b sm:border-b-0 sm:border-r border-[#D4AF37]/20 pb-4 sm:pb-0 sm:pr-4">
-            <div class="text-2xl mb-1">📏</div>
-            <h4 class="font-semibold text-sm text-[#F7E7A9]">Calibrated Accuracy</h4>
-            <p class="text-xs text-neutral-300 mt-1">1:1 Physical bank card scaling ensures exact millimeter precision.</p>
-          </div>
-          <div class="border-b sm:border-b-0 sm:border-r border-[#D4AF37]/20 pb-4 sm:pb-0 sm:pr-4">
-            <div class="text-2xl mb-1">🌍</div>
-            <h4 class="font-semibold text-sm text-[#F7E7A9]">7 Global Scales</h4>
-            <p class="text-xs text-neutral-300 mt-1">US/CA, UK/AU, EU/ISO, Japan, India, FR/IT/ES, and Brazil.</p>
-          </div>
-          <div>
-            <div class="text-2xl mb-1">📜</div>
-            <h4 class="font-semibold text-sm text-[#F7E7A9]">Official Standards</h4>
-            <p class="text-xs text-neutral-300 mt-1">Derived from ISO 8653, BS EN 28653, and JIS S 4700.</p>
-          </div>
+    <!-- ── Main Editorial Content ────────────────────────────────────────── -->
+    <div class="mx-auto w-full max-w-4xl px-6 space-y-20 sm:space-y-24 my-12 sm:my-20">
+
+      <!-- ── Is this number normal? ────────────────────────────────────── -->
+      <section id="normal" class="scroll-mt-20" aria-labelledby="normal-heading">
+        <p class="section-label">Finger size context</p>
+        <h2 id="normal-heading" class="text-2xl sm:text-3xl font-display font-semibold text-text">
+          Is your size normal?
+        </h2>
+
+        <p class="mt-4 text-text-muted leading-relaxed">
+          Almost certainly. Rings are sold from about US {smallest.us} to US {largest.us}, and most
+          adults land in a narrow band inside that.
+        </p>
+
+        <div class="table-scroll mt-6 rounded-2xl border border-border bg-surface shadow-xs">
+          <table class="w-full min-w-[32rem] text-left text-sm">
+            <caption class="sr-only">Most common and typical ring sizes</caption>
+            <thead>
+              <tr class="bg-surface-sunk/80 border-b border-border">
+                <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">&nbsp;</th>
+                <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">Most common</th>
+                <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">Typical range</th>
+                <th scope="col" class="px-4 py-3 font-semibold text-accent text-xs uppercase tracking-wider">Inner diameter</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border/60 tabular">
+              <tr class="transition-colors hover:bg-surface-sunk/40">
+                <th scope="row" class="px-4 py-3.5 font-semibold text-text">Women</th>
+                <td class="px-4 py-3.5 font-medium text-text">US {AVERAGE_US_SIZE.women}</td>
+                <td class="px-4 py-3.5 text-text-muted">US 4 – 8½</td>
+                <td class="px-4 py-3.5 font-mono text-accent">{`${fromDiameter(diameterFromUs(4)).diameterMm.toFixed(1)} – ${fromDiameter(diameterFromUs(8.5)).diameterMm.toFixed(1)} mm`}</td>
+              </tr>
+              <tr class="transition-colors hover:bg-surface-sunk/40">
+                <th scope="row" class="px-4 py-3.5 font-semibold text-text">Men</th>
+                <td class="px-4 py-3.5 font-medium text-text">US {AVERAGE_US_SIZE.men}</td>
+                <td class="px-4 py-3.5 text-text-muted">US 8 – 13</td>
+                <td class="px-4 py-3.5 font-mono text-accent">{`${fromDiameter(diameterFromUs(8)).diameterMm.toFixed(1)} – ${largest.diameterMm.toFixed(1)} mm`}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </div>
-    </section>
 
-    <!-- ── Main Content Container for below sections ─────────────────────── -->
-    <div class="mx-auto w-full max-w-4xl px-6 space-y-24 sm:space-y-32 my-16 sm:my-24">
+        <p class="mt-6 text-sm text-text-muted leading-relaxed">
+          One caveat worth stating plainly: there is no census of finger sizes. These figures come from
+          what jewellers stock and sell, so they describe ring <em>buyers</em>, not people. Treat them
+          as a sanity check, not a verdict. A size 4 and a size 12 are both ordinary.
+        </p>
 
-      <!-- ── Detailed Measurement Methods ───────────────────────────────── -->
+        <p class="mt-3 text-sm text-text-muted leading-relaxed">
+          So <strong class="text-text font-semibold">US 7 is not a large ring.</strong> It is one size above the
+          commonest women's size and two below the commonest men's — squarely in the middle of what
+          every jeweller keeps in stock.
+        </p>
+      </section>
+
+      <!-- ── Two ways to measure ───────────────────────────────────────── -->
+      <div class="section-divider"></div>
       <section id="methods" class="scroll-mt-20" aria-labelledby="methods-heading">
-        <div class="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
-          <p class="section-label">Step-by-Step Guide</p>
-          <h2 id="methods-heading" class="text-3xl sm:text-4xl font-display font-semibold text-text">
-            Detailed Measurement Methods
-          </h2>
-          <p class="mt-3 text-text-muted text-sm sm:text-base leading-relaxed">
-            Choose the method that works best for you. For the most accurate results, we recommend trying at least two methods.
-          </p>
-        </div>
+        <p class="section-label">Step-by-step</p>
+        <h2 id="methods-heading" class="text-2xl sm:text-3xl font-display font-semibold text-text">
+          Two ways to measure
+        </h2>
 
-        <div class="space-y-8">
-          <!-- Method 1: STRING / PAPER -->
-          <div class="card-elevated rounded-2xl border border-border bg-surface p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-8">
-            <!-- Left Badge Box -->
-            <div class="w-full sm:w-52 shrink-0 rounded-xl bg-surface-sunk/60 border border-border/80 p-6 flex flex-col items-center justify-center text-center">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-3">
-                <circle cx="6" cy="6" r="3"></circle>
-                <circle cx="6" cy="18" r="3"></circle>
-                <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
-                <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
-                <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
-              </svg>
-              <span class="text-[10px] font-bold tracking-[0.15em] text-text-faint uppercase">Method 1</span>
-              <span class="mt-1 font-display font-bold text-sm sm:text-base tracking-wide text-text uppercase">String / Paper</span>
-            </div>
-
-            <!-- Right Content -->
-            <div class="flex-1">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-[#A37B19] dark:text-[#E9C349]">Materials Needed</h3>
-              <p class="mt-1 text-sm text-text-muted">A narrow strip of paper or string, a pen, and a ruler with millimeter markings.</p>
-
-              <h3 class="mt-5 text-xs font-bold uppercase tracking-wider text-[#A37B19] dark:text-[#E9C349]">Steps</h3>
-              <ol class="mt-2 list-decimal space-y-1.5 pl-4 text-sm text-text-muted leading-relaxed">
-                <li>Cut a piece of non-stretchy string or paper about 10cm long and 5mm wide.</li>
-                <li>Wrap it snugly around the base of your intended finger.</li>
-                <li>Use a pen to mark the exact point where the ends overlap.</li>
-                <li>Unroll and measure the length in millimeters using your ruler.</li>
-                <li>Enter this circumference into our calculator above to find your size.</li>
-              </ol>
-            </div>
-          </div>
-
-          <!-- Method 2: EXISTING RING -->
-          <div class="card-elevated rounded-2xl border border-border bg-surface p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-8">
-            <!-- Left Badge Box -->
-            <div class="w-full sm:w-52 shrink-0 rounded-xl bg-surface-sunk/60 border border-border/80 p-6 flex flex-col items-center justify-center text-center">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-3">
-                <path d="M6 3h12l4 6-10 12L2 9l4-6z"></path>
-                <path d="M11 3 8 9l4 12 4-12-3-6"></path>
-                <path d="M2 9h20"></path>
-              </svg>
-              <span class="text-[10px] font-bold tracking-[0.15em] text-text-faint uppercase">Method 2</span>
-              <span class="mt-1 font-display font-bold text-sm sm:text-base tracking-wide text-text uppercase">Existing Ring</span>
-            </div>
-
-            <!-- Right Content -->
-            <div class="flex-1">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-[#A37B19] dark:text-[#E9C349]">Materials Needed</h3>
-              <p class="mt-1 text-sm text-text-muted">A ring that currently fits well on the intended finger and a ruler with millimeter markings.</p>
-
-              <h3 class="mt-5 text-xs font-bold uppercase tracking-wider text-[#A37B19] dark:text-[#E9C349]">Steps</h3>
-              <ol class="mt-2 list-decimal space-y-1.5 pl-4 text-sm text-text-muted leading-relaxed">
-                <li>Select a ring that comfortably fits the specific finger you are measuring for.</li>
-                <li>Place the ring flat on a surface.</li>
-                <li>Use a ruler to measure the straight distance across the <strong class="text-text font-semibold">inside</strong> edge of the ring (the inner diameter).</li>
-                <li>Do not include the metal of the ring itself in your measurement.</li>
-                <li>Refer to the diameter column in our Size Chart below to find your match.</li>
-              </ol>
-            </div>
-          </div>
-
-          <!-- Method 3: PRINTABLE CHART -->
-          <div class="card-elevated rounded-2xl border border-border bg-surface p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-8">
-            <!-- Left Badge Box -->
-            <div class="w-full sm:w-52 shrink-0 rounded-xl bg-surface-sunk/60 border border-border/80 p-6 flex flex-col items-center justify-center text-center">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-3">
-                <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                <rect x="6" y="14" width="12" height="8"></rect>
-              </svg>
-              <span class="text-[10px] font-bold tracking-[0.15em] text-text-faint uppercase">Method 3</span>
-              <span class="mt-1 font-display font-bold text-sm sm:text-base tracking-wide text-text uppercase">Printable Chart</span>
-            </div>
-
-            <!-- Right Content -->
-            <div class="flex-1">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-[#A37B19] dark:text-[#E9C349]">Materials Needed</h3>
-              <p class="mt-1 text-sm text-text-muted">A printer, US Letter or A4 paper, scissors, and an existing ring (optional).</p>
-
-              <h3 class="mt-5 text-xs font-bold uppercase tracking-wider text-[#A37B19] dark:text-[#E9C349]">Steps</h3>
-              <ol class="mt-2 list-decimal space-y-1.5 pl-4 text-sm text-text-muted leading-relaxed">
-                <li>Download our comprehensive printable sizing guide.</li>
-                <li>Ensure printer settings are at 100% scale (no scaling or "fit to page").</li>
-                <li>Verify the print scale by measuring the printed reference line with a physical ruler.</li>
-                <li>Either cut out the provided paper sizer or place an existing ring over the printed circles to find the perfect match.</li>
-              </ol>
-
-              <div class="mt-5">
-                <a
-                  href="/ring-size-chart"
-                  class="inline-flex items-center gap-2 rounded-xl border border-[#D4AF37] bg-surface px-5 py-2.5 text-xs font-semibold text-[#8B6E16] dark:text-[#E9C349] transition-all hover:bg-accent-sunk shadow-xs no-underline"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                  </svg>
-                  Download Printable Chart
-                </a>
+        <div class="mt-8 grid gap-6 sm:grid-cols-2">
+          <!-- Method 1: A ring that fits -->
+          <div class="card-elevated rounded-2xl border border-border bg-surface p-6 sm:p-7 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-3">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-on-accent text-xs font-bold">1</span>
+                <h3 class="text-lg font-semibold text-text">A ring that fits</h3>
               </div>
+              <p class="text-sm font-medium text-accent">The more accurate method</p>
+              <p class="mt-3 text-sm text-text-muted leading-relaxed">
+                Take a ring that fits the finger you want to measure on. Lay it flat on your screen and
+                adjust the circle in the tool above until the outer edge of our line touches the
+                <strong class="text-text font-semibold">inside edge</strong> of your ring.
+              </p>
+              <p class="mt-3 text-sm text-text-muted leading-relaxed">
+                Do not include the metal of the ring — you are measuring the space your finger sits in.
+                If you have a ruler, you can also measure the inside diameter in millimetres and type it
+                into method 3 of the tool.
+              </p>
             </div>
           </div>
-        </div>
 
-        <div class="mt-12 rounded-xl border border-border/80 bg-surface-sunk/40 p-6 sm:p-8">
-          <h3 class="text-base font-semibold text-text">Important Tips & What Not to Do</h3>
-          <ul class="mt-3 list-disc space-y-2 pl-6 text-sm text-text-muted leading-relaxed">
-            <li><strong class="text-text">Avoid stretchy string or thread:</strong> It tightens under tension and produces a size that is too small.</li>
-            <li><strong class="text-text">Do not measure when hands are cold:</strong> Cold shrinks fingers; measure at normal room temperature.</li>
-            <li><strong class="text-text">Keep browser zoom at 100%:</strong> If you change zoom after calibrating, recalibrate with your card.</li>
-          </ul>
+          <!-- Method 2: A strip of paper -->
+          <div class="card-elevated rounded-2xl border border-border bg-surface p-6 sm:p-7 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-3">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-on-accent text-xs font-bold">2</span>
+                <h3 class="text-lg font-semibold text-text">A strip of paper</h3>
+              </div>
+              <p class="text-sm font-medium text-accent">Good when you don't have a ring</p>
+              <p class="mt-3 text-sm text-text-muted leading-relaxed">
+                Cut a strip of paper about 1 cm wide. Wrap it snugly around the base of your finger —
+                not tight, but flat against the skin with no slack. Mark the spot where the paper
+                overlaps with a pen.
+              </p>
+              <p class="mt-3 text-sm text-text-muted leading-relaxed">
+                Flatten the strip and measure from the starting end to the mark with a ruler. That length
+                is your <strong class="text-text font-semibold">circumference</strong> — type it into
+                method 2 of the tool.
+              </p>
+            </div>
+            <p class="mt-4 rounded-lg bg-surface-sunk p-3 text-xs text-text-faint">
+              <strong class="text-text-muted">Avoid string if you can:</strong> string stretches when
+              pulled taut and can easily add one or two full ring sizes to the result. Paper does not
+              stretch.
+            </p>
+          </div>
         </div>
       </section>
 
-      <!-- ── Ring Size Chart ─────────────────────────────────────────── -->
+      <!-- ── Ring size conversion chart ─────────────────────────────────── -->
       <div class="section-divider"></div>
-    <section id="chart" class="scroll-mt-20" aria-labelledby="chart-heading">
-      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <p class="section-label">Conversion Table</p>
-          <h2 id="chart-heading" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Complete Ring Size Chart</h2>
-          <p class="mt-2 text-sm sm:text-base text-text-muted">
-            All regional sizes from US {smallest.us} to US {largest.us} with diameter & circumference in MM, CM, and Inches.
-          </p>
+      <section id="chart" class="scroll-mt-20" aria-labelledby="chart-heading">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <p class="section-label">Conversion reference</p>
+            <h2 id="chart-heading" class="text-2xl sm:text-3xl font-display font-semibold text-text">
+              Ring size conversion chart
+            </h2>
+            <p class="mt-2 text-sm text-text-muted">
+              Computed directly from ISO 8653, BS EN 28653, and JIS S 4700 standards.
+            </p>
+          </div>
+          <a
+            href="/ring-size-chart"
+            class="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-text hover:opacity-80 underline underline-offset-2"
+          >
+            Open full printable chart page →
+          </a>
         </div>
 
-        <a
-          href="/ring-size-chart"
-          class="inline-flex shrink-0 items-center gap-2 rounded-xl border border-accent/40 bg-accent-sunk/50 px-4 py-2 text-xs font-semibold text-accent-text hover:bg-accent-sunk transition-all no-underline"
-        >
-          Quarter-Sizes Chart →
-        </a>
-      </div>
-
-      <div class="table-scroll mt-6 rounded-2xl border border-border bg-surface shadow-xs">
-        <table class="w-full min-w-[52rem] text-left text-sm">
-          <caption class="sr-only">
-            Ring size conversion chart: US, UK, EU, Japan and India with diameter and circumference in mm, cm and inches
-          </caption>
-          <thead>
-            <tr class="bg-surface-sunk/80 border-b border-border">
-              <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">US / CA</th>
-              <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">UK / AU</th>
-              <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">EU / ISO</th>
-              <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">Japan</th>
-              <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">India</th>
-              <th scope="col" class="px-4 py-3 font-semibold text-accent text-xs uppercase tracking-wider">Dia (MM)</th>
-              <th scope="col" class="px-4 py-3 font-semibold text-text-muted text-xs uppercase tracking-wider">Dia (CM)</th>
-              <th scope="col" class="px-4 py-3 font-semibold text-text-muted text-xs uppercase tracking-wider">Dia (In)</th>
-              <th scope="col" class="px-4 py-3 font-semibold text-text-muted text-xs uppercase tracking-wider">Circ (MM)</th>
-            </tr>
-          </thead>
-          <tbody class="tabular divide-y divide-border/60">
-            {chart.map((r) => (
-              <tr class="transition-colors hover:bg-surface-sunk/40">
-                <th scope="row" class="px-4 py-3 font-semibold text-text">{r.us}</th>
-                <td class="px-4 py-3 text-text-muted font-medium">{r.uk}</td>
-                <td class="px-4 py-3 text-text-muted">{r.eu}</td>
-                <td class="px-4 py-3 text-text-muted">{r.jp}</td>
-                <td class="px-4 py-3 text-text-muted">{r.in === null ? '—' : r.in}</td>
-                <td class="px-4 py-3 font-mono font-medium text-accent">{r.diameterMm.toFixed(2)} mm</td>
-                <td class="px-4 py-3 font-mono text-text-muted">{(r.diameterMm / 10).toFixed(2)} cm</td>
-                <td class="px-4 py-3 font-mono text-text-muted">{r.diameterIn.toFixed(3)} in</td>
-                <td class="px-4 py-3 font-mono text-text-muted">{r.circumferenceMm.toFixed(2)} mm</td>
+        <div class="table-scroll mt-6 rounded-2xl border border-border bg-surface shadow-xs">
+          <table class="w-full min-w-[52rem] text-left text-sm">
+            <caption class="sr-only">
+              Ring size conversion chart: US, UK, EU, Japan and India with diameter and circumference in mm, cm and inches
+            </caption>
+            <thead>
+              <tr class="bg-surface-sunk/80 border-b border-border">
+                <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">US / CA</th>
+                <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">UK / AU</th>
+                <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">EU / ISO</th>
+                <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">Japan</th>
+                <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">India</th>
+                <th scope="col" class="px-4 py-3 font-semibold text-accent text-xs uppercase tracking-wider">Dia (MM)</th>
+                <th scope="col" class="px-4 py-3 font-semibold text-text-muted text-xs uppercase tracking-wider">Dia (CM)</th>
+                <th scope="col" class="px-4 py-3 font-semibold text-text-muted text-xs uppercase tracking-wider">Dia (In)</th>
+                <th scope="col" class="px-4 py-3 font-semibold text-text-muted text-xs uppercase tracking-wider">Circ (MM)</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody class="tabular divide-y divide-border/60">
+              {chart.map((r) => (
+                <tr class="transition-colors hover:bg-surface-sunk/40">
+                  <th scope="row" class="px-4 py-3 font-semibold text-text">{r.us}</th>
+                  <td class="px-4 py-3 text-text-muted font-medium">{r.uk}</td>
+                  <td class="px-4 py-3 text-text-muted">{r.eu}</td>
+                  <td class="px-4 py-3 text-text-muted">{r.jp}</td>
+                  <td class="px-4 py-3 text-text-muted">{r.in === null ? '—' : r.in}</td>
+                  <td class="px-4 py-3 font-mono font-medium text-accent">{r.diameterMm.toFixed(2)} mm</td>
+                  <td class="px-4 py-3 font-mono text-text-muted">{(r.diameterMm / 10).toFixed(2)} cm</td>
+                  <td class="px-4 py-3 font-mono text-text-muted">{r.diameterIn.toFixed(3)} in</td>
+                  <td class="px-4 py-3 font-mono text-text-muted">{r.circumferenceMm.toFixed(2)} mm</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      <p class="mt-4 text-xs text-text-faint">
-        * Computed from ISO 8653:2016, BS EN 28653:1993, and JIS S 4700:2022 standards. 1 Inch = 25.40 mm.
-      </p>
-    </section>
+        <p class="mt-4 text-xs text-text-faint leading-relaxed">
+          UK sizes run as long stretches of half sizes. That is correct, not a bug: a US step is
+          2.55 mm of circumference and a UK step is 1.25 mm, so the two scales never line up.
+          * Computed strictly from ISO 8653:2016, BS EN 28653:1993, and JIS S 4700:2022 standards. 1 Inch = 25.40 mm.
+        </p>
+      </section>
 
-    <!-- ── The thing only we know ──────────────────────────────────────────
-         Queries: "ring size conversion" · "uk to us ring size" · "ring size in mm"
-         This is the page's original contribution — the discrepancy we verified. -->
-      <!-- ── Deep Dive ───────────────────────────────────────────────── -->
+      <!-- ── Deep Dive ─────────────────────────────────────────────────── -->
       <div class="section-divider"></div>
-      <section class="scroll-mt-20" aria-labelledby="disagree">
-      <p class="section-label">Deep dive</p>
-      <h2 id="disagree" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">
-        Why two ring size charts give you different answers
-      </h2>
+      <section id="disagree" class="scroll-mt-20" aria-labelledby="disagree-heading">
+        <p class="section-label">Deep dive</p>
+        <h2 id="disagree-heading" class="text-2xl sm:text-3xl font-display font-semibold text-text">
+          Why two ring size charts give you different answers
+        </h2>
 
-      <p class="mt-5 max-w-[62ch] text-text-muted">
-        Because most of them are copies of copies. We checked the sites currently ranking for this
-        search, and they contradict each other — and in one case themselves.
-      </p>
+        <p class="mt-4 text-text-muted leading-relaxed">
+          Search for a conversion chart and you will find dozens of tables that contradict each other.
+          For a US 6, four popular charts give three different UK sizes: some say L, some say L&nbsp;½,
+          some say M.
+        </p>
 
-      <ul class="mt-6 max-w-[62ch] list-disc space-y-3 pl-6 text-text-muted">
-        <li>For a {six.diameterMm.toFixed(2)} mm inner diameter, three ranking sites give three
-          different UK sizes: L, L½ and M.</li>
-        <li>The page ranking first for <em>ring size calculator</em> reports 16.50 mm as EU 52 on its
-          millimetre slider and the same 1.65 cm as EU 51.8 on its centimetre slider.</li>
-        <li>Its two on-page charts disagree with each other about US 5 — one says 16.2 mm, the other
-          15.7 mm — and the first one skips sizes 6 and 8 altogether.</li>
-      </ul>
+        <p class="mt-3 text-text-muted leading-relaxed">
+          The discrepancy is real, and it is not an error in anyone&rsquo;s math. It comes from three
+          things that ring size pages almost never explain.
+        </p>
 
-      <p class="mt-6 max-w-[62ch] text-text-muted">
-        So we do not keep a chart. We keep one number — inner diameter in millimetres — and derive
-        everything else from it with the published formula. Two of our numbers cannot disagree,
-        because there is only ever one number.
-      </p>
+        <h3 class="mt-8 text-lg font-semibold text-text">The UK standard doesn't say what you think it says</h3>
+        <p class="mt-3 text-text-muted leading-relaxed">
+          The British standard (BS&nbsp;EN&nbsp;28653:1993, which identical to ISO&nbsp;8653) defines
+          size A as a 37.5&nbsp;mm circumference, with every whole letter adding exactly
+          <strong class="text-text font-semibold">1.25&nbsp;mm</strong> of circumference. A US size 6
+          has an inner diameter of 16.51&nbsp;mm, which gives a circumference of
+          <strong class="text-text font-semibold">51.87&nbsp;mm</strong>.
+        </p>
+        <p class="mt-3 text-text-muted leading-relaxed">
+          Subtract 37.5 from 51.87 and divide by 1.25, and you get 11.49 steps above A. Step 11 is L
+          (51.25&nbsp;mm); step 12 is M (52.50&nbsp;mm). 11.49 lands
+          <strong class="text-text font-semibold">dead in the middle</strong>, just 0.01&nbsp;mm from L&nbsp;½.
+        </p>
+        <p class="mt-3 text-text-muted leading-relaxed">
+          A chart that rounds down gives you L. A chart that rounds up gives you M. A chart that keeps
+          half-sizes gives you L&nbsp;½. None of those three charts is &ldquo;wrong&rdquo; — but a ring
+          made to size M is 1.25&nbsp;mm larger around the finger than a ring made to size L, and that is
+          enough to turn a good fit into a ring that slips off over the knuckle.
+        </p>
 
-      <h3 class="mt-10 text-lg">The arithmetic, in full</h3>
+        <h3 class="mt-8 text-lg font-semibold text-text">India, France, Italy, Spain and Brazil are one scale</h3>
+        <p class="mt-3 text-text-muted leading-relaxed">
+          This is the part no other ring size page seems to say out loud. France, Italy, Spain,
+          Switzerland and Brazil all number rings the same way: take the inner circumference in
+          millimetres and subtract 40. Brazil&rsquo;s standard, ABNT NBR 16058, is aligned to
+          ISO&nbsp;8653 and gives the same answer — the Brazilian trade rule is literally &ldquo;add 40
+          to the size to get the perimeter&rdquo;. So a French size 12, an Italian 12 and a Brazilian
+          aro 12 are the same physical ring. Our table shows them in separate columns because that is
+          what people search for, but the number will always match.
+        </p>
 
-      <div class="table-scroll mt-4">
-        <table class="w-full min-w-[36rem] text-left text-sm">
-          <caption class="sr-only">Conversion rules and their sources</caption>
-          <thead>
-            <tr class="bg-surface-sunk">
-              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">System</th>
-              <th scope="col" class="px-3 py-2 font-medium">Rule</th>
-              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Source</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="border-t border-border">
-              <th scope="row" class="px-3 py-3 font-medium">US / Canada</th>
-              <td class="px-3 py-3 tabular">diameter = 0.8128 n + 11.633 mm</td>
-              <td class="px-3 py-3 text-text-muted">de facto — no standards body</td>
-            </tr>
-            <tr class="border-t border-border">
-              <th scope="row" class="px-3 py-3 font-medium">UK / Australia</th>
-              <td class="px-3 py-3 tabular">A = 37.5 mm circumference, +1.25 mm a letter</td>
-              <td class="px-3 py-3 text-text-muted">BS EN 28653:1993</td>
-            </tr>
-            <tr class="border-t border-border">
-              <th scope="row" class="px-3 py-3 font-medium">EU</th>
-              <td class="px-3 py-3 tabular">size = inner circumference in mm</td>
-              <td class="px-3 py-3 text-text-muted">ISO 8653:2016</td>
-            </tr>
-            <tr class="border-t border-border">
-              <th scope="row" class="px-3 py-3 font-medium">FR / IT / ES / CH</th>
-              <td class="px-3 py-3 tabular">circumference − 40</td>
-              <td class="px-3 py-3 text-text-muted">same scale as ISO, renumbered</td>
-            </tr>
-            <tr class="border-t border-border">
-              <th scope="row" class="px-3 py-3 font-medium">Japan</th>
-              <td class="px-3 py-3 tabular">size 1 = 13 mm diameter, +⅓ mm a size</td>
-              <td class="px-3 py-3 text-text-muted">JIS S 4700:2022</td>
-            </tr>
-            <tr class="border-t border-border">
-              <th scope="row" class="px-3 py-3 font-medium">India</th>
-              <td class="px-3 py-3">no formula — lookup table</td>
-              <td class="px-3 py-3 text-text-muted">no standard exists</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <p class="mt-6 max-w-[62ch] text-text-muted">
-        You will often see the US rule written as
-        <span class="tabular">circumference = 2.55 n + 36.5 mm</span>. That is the same rule, rounded:
-        multiply the diameter formula by π and you get 2.5535 n + 36.549. We use the unrounded form,
-        which is why our millimetres carry two decimals rather than one.
-      </p>
-
-      <h3 class="mt-10 text-lg">Why our UK letter may differ from your jeweller&rsquo;s</h3>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        Ask four ring size sites what US 6 is in UK letters and you get three answers:
-        <span class="tabular">L</span>, <span class="tabular">L½</span> and <span class="tabular">M</span>.
-        We checked. Ours is <span class="tabular">L½</span>, taken straight from BS EN 28653:1993 —
-        size A is 37.5 mm of inner circumference and every letter adds 1.25 mm.
-      </p>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        The disagreement is not arithmetic. Those charts are internally consistent too: one US
-        quarter-size is 0.638 mm of circumference and one UK half-letter is 0.625 mm, so the two
-        scales genuinely track each other. The gap comes from the <em>letter sequence</em>. British
-        scales do not all include the same half sizes — the chart we compared omits I½ — and one
-        missing half-step shifts everything above it by half a letter.
-      </p>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        We could have quietly shifted our formula to match the most common chart. We have not,
-        because that would mean replacing a standard with somebody&rsquo;s copy of a copy. Instead
-        we give you the letter the standard produces and tell you it can vary. If your jeweller
-        works from a different chart, hand them the circumference in millimetres — that number
-        means the same thing on every chart in the world.
-      </p>
-
-      <h3 class="mt-10 text-lg">India, France, Italy, Spain and Brazil are one scale</h3>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        This is the part no other ring size page seems to say out loud. France, Italy, Spain,
-        Switzerland and Brazil all number rings the same way: take the inner circumference in
-        millimetres and subtract 40. Brazil&rsquo;s standard, ABNT NBR 16058, is aligned to
-        ISO&nbsp;8653 and gives the same answer — the Brazilian trade rule is literally &ldquo;add 40
-        to the size to get the perimeter&rdquo;. So a French size 12, an Italian 12 and a Brazilian
-        aro 12 are the same physical ring. Our table shows them in separate columns because that is
-        what people search for, but the number will always match.
-      </p>
-
-      <h3 class="mt-10 text-lg">Where we are genuinely unsure: India</h3>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        India has no sizing standard — there is no BIS specification for ring sizes, so there is
-        nothing to be wrong about. What we did instead of copying somebody&rsquo;s chart was compare
-        the published tables of four Indian jewellers: Jewelove, RishiRich Jewels, Gems Mart
-        Jewellers and Sukkhi. All four turn out to use the same &ldquo;circumference minus 40&rdquo;
-        rule as France and Brazil, and they agree on every row they publish — Sukkhi&rsquo;s table
-        runs from size 1 to 37 and fits the rule exactly. That is what we compute.
-      </p>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        The catch is Tanishq, the largest jeweller in India, whose published chart runs roughly one
-        size smaller than that convention. We could not confirm the offset across their full range,
-        because Tanishq blocks requests from Pakistan, where this site is built — so we are telling
-        you what we know rather than papering over it. Every competitor we audited prints one Indian
-        number as though it were settled. We print ours next to the diameter in millimetres, and
-        that millimetre figure is the one to give your jeweller. It is the only unambiguous answer.
-      </p>
-    </section>
+        <h3 class="mt-8 text-lg font-semibold text-text">Where we are genuinely unsure: India</h3>
+        <p class="mt-3 text-text-muted leading-relaxed">
+          India has no sizing standard — there is no BIS specification for ring sizes, so there is
+          nothing to be wrong about. What we did instead of copying somebody&rsquo;s chart was compare
+          the published tables of four Indian jewellers: Jewelove, RishiRich Jewels, Gems Mart
+          Jewellers and Sukkhi. All four turn out to use the same &ldquo;circumference minus 40&rdquo;
+          rule as France and Brazil, and they agree on every row they publish — Sukkhi&rsquo;s table
+          runs from size 1 to 37 and fits the rule exactly. That is what we compute.
+        </p>
+        <p class="mt-3 text-text-muted leading-relaxed">
+          The catch is Tanishq, the largest jeweller in India, whose published chart runs roughly one
+          size smaller than that convention. We could not confirm the offset across their full range,
+          because Tanishq blocks requests from Pakistan, where this site is built — so we are telling
+          you what we know rather than papering over it. Every competitor we audited prints one Indian
+          number as though it were settled. We print ours next to the diameter in millimetres, and
+          that millimetre figure is the one to give your jeweller. It is the only unambiguous answer.
+        </p>
+      </section>
 
       <!-- ── Edge cases ────────────────────────────────────────────────── -->
       <div class="section-divider"></div>
-      <section class="scroll-mt-20" aria-labelledby="cases">
+      <section id="cases" class="scroll-mt-20" aria-labelledby="cases-heading">
         <p class="section-label">Edge cases</p>
-        <h2 id="cases" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Cases the number alone won't cover</h2>
+        <h2 id="cases-heading" class="text-2xl sm:text-3xl font-display font-semibold text-text">
+          Cases the number alone won't cover
+        </h2>
 
-      <h3 class="mt-8 text-lg">Your knuckle is wider than the base of your finger</h3>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        Measure both, and take the size that clears the knuckle. A ring that fits the base perfectly
-        but will not pass the knuckle is not wearable; a ring that clears the knuckle and sits a
-        little loose is. If the gap between the two is more than about a full size, a jeweller can
-        fit sizing beads inside the band — that solves it properly, and no calculator can.
-      </p>
+        <div class="mt-6 space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-text">Your knuckle is wider than the base of your finger</h3>
+            <p class="mt-2 text-sm text-text-muted leading-relaxed">
+              Measure both, and take the size that clears the knuckle. A ring that fits the base perfectly
+              but will not pass the knuckle is not wearable; a ring that clears the knuckle and sits a
+              little loose is. If the gap between the two is more than about a full size, a jeweller can
+              fit sizing beads inside the band — that solves it properly, and no calculator can.
+            </p>
+          </div>
 
-      <h3 class="mt-8 text-lg">The band is wide</h3>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        A wide band covers more of the finger and feels tighter at the same diameter. The usual
-        advice is to add a quarter to a half size above roughly 6 mm of width.
-      </p>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        We will not dress that up as a calculation. There is no formula for it — the correction
-        depends on how soft the finger is and how rounded the inside edge of the band is, and no
-        standard covers either. Anyone giving you an exact figure for this has invented it. Try the
-        half size up if the band is wide and the fit is borderline.
-      </p>
+          <div>
+            <h3 class="text-lg font-semibold text-text">The band is wide</h3>
+            <p class="mt-2 text-sm text-text-muted leading-relaxed">
+              A wide band covers more of the finger and feels tighter at the same diameter. The usual
+              advice is to add a quarter to a half size above roughly 6 mm of width.
+            </p>
+            <p class="mt-2 text-sm text-text-muted leading-relaxed">
+              We will not dress that up as a calculation. There is no formula for it — the correction
+              depends on how soft the finger is and how rounded the inside edge of the band is, and no
+              standard covers either. Anyone giving you an exact figure for this has invented it. Try the
+              half size up if the band is wide and the fit is borderline.
+            </p>
+          </div>
 
-      <h3 class="mt-8 text-lg">Fingers change size during the day</h3>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        Warmth, salt, exercise and altitude all swell fingers; cold shrinks them. The swing is real
-        enough to cross a half size, which is why a ring can spin in the morning and stick by
-        evening. Measure at room temperature, in the middle of the day, and if you get two different
-        answers, take the larger.
-      </p>
+          <div>
+            <h3 class="text-lg font-semibold text-text">Fingers change size during the day</h3>
+            <p class="mt-2 text-sm text-text-muted leading-relaxed">
+              Warmth, salt, exercise and altitude all swell fingers; cold shrinks them. The swing is real
+              enough to cross a half size, which is why a ring can spin in the morning and stick by
+              evening. Measure at room temperature, in the middle of the day, and if you get two different
+              answers, take the larger.
+            </p>
+          </div>
 
-      <h3 class="mt-8 text-lg">You are sizing someone else's finger, secretly</h3>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        Borrow a ring they already wear on the right finger and measure it with method 1 above. The
-        finger matters: a ring worn on the right hand is usually a quarter to a half size different
-        from the same finger on the left, and non-ring fingers are not comparable at all. If you can
-        only get a ring from the wrong finger, buy the ring resizable and size it after.
-      </p>
+          <div>
+            <h3 class="text-lg font-semibold text-text">You are sizing someone else's finger, secretly</h3>
+            <p class="mt-2 text-sm text-text-muted leading-relaxed">
+              Borrow a ring they already wear on the right finger and measure it with method 1 above. The
+              finger matters: a ring worn on the right hand is usually a quarter to a half size different
+              from the same finger on the left, and non-ring fingers are not comparable at all. If you can
+              only get a ring from the wrong finger, buy the ring resizable and size it after.
+            </p>
+          </div>
 
-      <h3 class="mt-8 text-lg">Some rings cannot be resized at all</h3>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        Eternity rings set with stones the whole way round, tension settings, and rings in tungsten,
-        titanium, ceramic or stainless steel are effectively fixed — there is no plain metal to cut
-        and no safe way to work the material. For any of those, and for an engagement ring, confirm
-        with a jeweller before you buy. An on-screen measurement is a good estimate; it is not a
-        fitting.
-      </p>
-    </section>
+          <div>
+            <h3 class="text-lg font-semibold text-text">Some rings cannot be resized at all</h3>
+            <p class="mt-2 text-sm text-text-muted leading-relaxed">
+              Eternity rings set with stones the whole way round, tension settings, and rings in tungsten,
+              titanium, ceramic or stainless steel are effectively fixed — there is no plain metal to cut
+              and no safe way to work the material. For any of those, and for an engagement ring, confirm
+              with a jeweller before you buy. An on-screen measurement is a good estimate; it is not a
+              fitting.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <!-- ── FAQ ──────────────────────────────────────────────────────── -->
       <div class="section-divider"></div>
-      <section class="scroll-mt-20" aria-labelledby="faq-heading">
-      <p class="section-label">FAQ</p>
-      <h2 id="faq-heading" class="text-[clamp(1.75rem,4vw,2.5rem)]">
-        Questions people <span class="text-accent">actually ask</span>
-      </h2>
-      <p class="mt-4 max-w-[62ch] text-text-muted">
-        Taken word for word from Google&rsquo;s &ldquo;People also ask&rdquo;. Nothing here is
-        invented to pad the page.
-      </p>
+      <section id="faq-heading" class="scroll-mt-20" aria-labelledby="faq-title">
+        <p class="section-label">FAQ</p>
+        <h2 id="faq-title" class="text-2xl sm:text-3xl font-display font-semibold text-text">
+          Questions people <span class="text-accent">actually ask</span>
+        </h2>
+        <p class="mt-3 text-sm text-text-muted">
+          Taken word for word from Google&rsquo;s &ldquo;People also ask&rdquo;. Nothing here is
+          invented to pad the page.
+        </p>
 
-      <div class="mt-8 divide-y divide-border border-y border-border">
-        {FAQS.map((f) => (
-          <details class="group">
-            <summary
-              class="flex cursor-pointer items-start justify-between gap-4 py-4 font-medium
-                     transition-colors duration-150 hover:text-accent"
-            >
-              <span>{f.q}</span>
-              <svg
-                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="1.75" stroke-linecap="round"
-                class="mt-1.5 shrink-0 text-text-faint transition-transform duration-200
-                       group-open:rotate-45"
-                aria-hidden="true"
+        <div class="mt-8 divide-y divide-border border-y border-border">
+          {FAQS.map((f) => (
+            <details class="group">
+              <summary
+                class="flex cursor-pointer items-start justify-between gap-4 py-4 font-medium text-text
+                       transition-colors duration-150 hover:text-accent select-none"
               >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-            </summary>
-            <p class="max-w-[68ch] pb-5 pt-1 text-text-muted">{f.a}</p>
-          </details>
-        ))}
-      </div>
-    </section>
+                <span class="text-sm sm:text-base">{f.q}</span>
+                <svg
+                  width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round"
+                  class="mt-1 shrink-0 text-text-faint transition-transform duration-200
+                         group-open:rotate-45"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </summary>
+              <p class="max-w-[68ch] pb-5 pt-1 text-sm text-text-muted leading-relaxed">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
     </div>
   </div>
 </Layout>

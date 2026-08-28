@@ -1,5 +1,6 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
+import Logo from './Logo.astro';
 import { SITE_NAME, NAV } from '../config';
 
 const path = Astro.url.pathname;
@@ -10,13 +11,7 @@ const path = Astro.url.pathname;
        never silently wrap the header into two lines. -->
   <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-3.5 sm:px-8">
     <a href="/" class="flex shrink-0 items-center gap-2.5 text-text no-underline group">
-      <span class="flex h-9 w-9 items-center justify-center rounded-full border border-accent/30 bg-accent-sunk transition-colors duration-200 group-hover:border-accent/60">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="2" aria-hidden="true" class="text-accent">
-          <circle cx="12" cy="12" r="7.5" />
-          <circle cx="12" cy="12" r="3" />
-        </svg>
-      </span>
+      <Logo size={34} class="transition-transform duration-200 group-hover:scale-105" />
       <span class="font-semibold tracking-tight text-base whitespace-nowrap">{SITE_NAME}</span>
     </a>
 

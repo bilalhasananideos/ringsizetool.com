@@ -66,21 +66,43 @@
    The previous #8A857A was 3.29:1 on --surface-sunk. Verified on all three
    light surfaces: bg 5.17, surface 5.39, sunk 4.82. Do not lighten it. */
 :root {
-  --bg:            #F9F9F9;
+  --bg:            #FBFBFA;
   --surface:       #FFFFFF;
-  --surface-sunk:  #F3F3F3;
+  --surface-sunk:  #F5F3ED;
   --text:          #1A1C1C;
-  --text-muted:    #4D4635;
-  --text-faint:    #6E6656;
-  --border:        #E5E5E5;
-  --border-strong: #D0C5AF;
-  --accent:        #735C00;
-  --accent-text:   #735C00;
+  --text-muted:    #524C3E;
+  --text-faint:    #766F60;
+  --border:        #E8E4D9;
+  --border-strong: #D9CEA9;
+  --accent:        #D4AF37;
+  --accent-text:   #B8860B;
   --accent-bright: #D4AF37;
-  --accent-hover:  #5A4800;
-  --accent-sunk:   #FBF3DC;
-  --on-accent:        #FFFFFF;
-  --on-accent-bright: #241A00;
+  --accent-hover:  #C59B27;
+  --accent-sunk:   #FDF8EC;
+  --on-accent:        #1A1608;
+  --on-accent-bright: #1A1608;
+  --danger:        #BA1A1A;
+  --success:       #3A6B45;
+
+  color-scheme: light;
+}
+
+:root[data-theme="light"] {
+  --bg:            #FBFBFA;
+  --surface:       #FFFFFF;
+  --surface-sunk:  #F5F3ED;
+  --text:          #1A1C1C;
+  --text-muted:    #524C3E;
+  --text-faint:    #766F60;
+  --border:        #E8E4D9;
+  --border-strong: #D9CEA9;
+  --accent:        #D4AF37;
+  --accent-text:   #B8860B;
+  --accent-bright: #D4AF37;
+  --accent-hover:  #C59B27;
+  --accent-sunk:   #FDF8EC;
+  --on-accent:        #1A1608;
+  --on-accent-bright: #1A1608;
   --danger:        #BA1A1A;
   --success:       #3A6B45;
 
