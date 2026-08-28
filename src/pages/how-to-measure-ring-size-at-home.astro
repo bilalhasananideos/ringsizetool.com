@@ -1,0 +1,358 @@
+---
+/**
+ * /how-to-measure-ring-size-at-home — the method page.
+ *
+ * Why this page exists, precisely: `how to measure ring size at home` is
+ * >10,000/mo at KD 2, and `how to measure ring size` is >10,000 at KD 18. The
+ * site had no page for either — only a homepage section — while its <h1> was
+ * pointed at a >100 keyword. See RESEARCH.md, 28 Aug keyword pass.
+ *
+ * NOT to be confused with /how-to-measure-ring-size-without-a-ring-sizer, which
+ * STATUS.md decided against and which stays decided against: that keyword is
+ * >100 and all ten of its variants are <100.
+ *
+ * MUST NOT duplicate the homepage. The homepage now carries a two-sentence
+ * summary of the methods and links here; the full instructions live only here.
+ * The `HowTo` JSON-LD moved here with them — the homepage must not keep
+ * declaring a procedure whose steps have gone.
+ */
+import Layout from '../layouts/Layout.astro';
+import RingSizer from '../components/RingSizer.astro';
+import { NOINDEX_SITE, SITE_URL } from '../config';
+import { fromCircumference, AVERAGE_US_SIZE, diameterFromUs, fromDiameter } from '../data/ringSizes';
+import { breadcrumbSchema, howToSchema } from '../data/faq';
+
+const PAGE_URL = `${SITE_URL}/how-to-measure-ring-size-at-home`;
+
+/* The answer table. Dozens of searches are one behaviour — someone wrapped a
+ * strip of paper, measured it, and wants a size: "what ring size is 7 cm
+ * circumference", "what ring size is 2.5 inches circumference", "what is 6 cm
+ * in mm ring size". One generated table answers all of them. Never a page each;
+ * that is how a site ends up with hundreds of thin pages. */
+/* Stops at 7.0 cm deliberately. 7.5 cm computes to US 15, past the top of
+ * CHART_ROWS (US 14, "the range actually sold") - printing a size this site's
+ * own chart does not list is exactly the drift the house rules prevent.
+ * Anyone above 7 cm gets the tool, which reports its own limits honestly. */
+const STRIP_CM = [4.5, 5.0, 5.5, 6.0, 6.5, 7.0];
+const stripRows = STRIP_CM.map((cm) => ({ cm, r: fromCircumference(cm * 10) }));
+
+const avgWomen = fromDiameter(diameterFromUs(AVERAGE_US_SIZE.women));
+const avgMen = fromDiameter(diameterFromUs(AVERAGE_US_SIZE.men));
+
+const jsonLd = [
+  howToSchema(PAGE_URL),
+  breadcrumbSchema([
+    { name: 'Ring Sizer', url: SITE_URL },
+    { name: 'How to Measure Ring Size at Home', url: PAGE_URL },
+  ]),
+];
+
+const SECTIONS = [
+  { href: '#ring', label: 'From a ring' },
+  { href: '#paper', label: 'From your finger' },
+  { href: '#string', label: 'Why not string' },
+  { href: '#units', label: 'In cm or inches' },
+  { href: '#table', label: 'Strip length → size' },
+  { href: '#without', label: 'Without measuring' },
+  { href: '#when', label: 'When to measure' },
+];
+---
+<Layout
+  title="How to Measure Ring Size at Home — 2 Accurate Methods | Ring Size Tool"
+  description="Measure your ring size at home in about two minutes, with a bank card and either a ring that fits or a strip of paper. No printer and no ring sizer needed, in mm, cm or inches."
+  noindex={NOINDEX_SITE}
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+
+    <nav aria-label="Breadcrumb" class="text-sm text-text-faint">
+      <a href="/" class="text-accent-text underline underline-offset-2">Ring Sizer</a>
+      <span aria-hidden="true"> · </span>How to measure ring size at home
+    </nav>
+
+    <header class="mt-6">
+      <h1 class="max-w-[22ch] text-[clamp(2.25rem,5.5vw,3.5rem)]">
+        How to measure your <span class="text-accent">ring size at home</span>
+      </h1>
+
+      <p class="mt-5 max-w-[60ch] text-lg text-text-muted">
+        Two methods, both about two minutes. One needs a ring that already fits; the other needs a
+        strip of paper. Both need a bank card, because that is what makes the screen below measure
+        in real millimetres instead of pixels.
+      </p>
+
+      <p class="mt-6 border-l-2 border-accent py-1 pl-4 text-sm text-text-muted">
+        Measuring is the easy part. The part that goes wrong is measuring
+        the <strong class="text-text">inside</strong> of the ring rather than the outside, and
+        measuring the finger at the wrong time of day. Both are covered below.
+      </p>
+
+      <nav aria-label="On this page" class="mt-7 flex flex-wrap gap-2 text-sm">
+        {SECTIONS.map((s) => (
+          <a
+            href={s.href}
+            class="inline-flex min-h-11 items-center rounded-full border border-border bg-surface-sunk/50 px-4 text-text-muted no-underline transition-colors hover:border-accent hover:text-text"
+          >
+            {s.label}
+          </a>
+        ))}
+      </nav>
+    </header>
+
+    <!-- The tool first. Somebody who searched "how to measure ring size at
+         home" wants to do it, not read about doing it. -->
+    <section class="mt-12" aria-labelledby="measure-now">
+      <h2 id="measure-now" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Measure it now</h2>
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Calibrate once with any bank card, then use whichever method you have to hand. Nothing is
+        uploaded and nothing is stored except your screen&rsquo;s scale, which stays in your browser.
+      </p>
+      <div class="mt-8">
+        <RingSizer />
+      </div>
+    </section>
+
+    <!-- ── Method 1 ─────────────────────────────────────────────────────────
+         Query: "how to measure ring size at home", "measure ring size with a
+         ring you own". The more accurate of the two, so it goes first. -->
+    <section class="mt-16" aria-labelledby="ring">
+      <h2 id="ring" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Method 1 — a ring that already fits</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        This is the more accurate method, because a ring is a rigid object and a finger is not.
+        Use a ring worn on the same finger of the same hand — hands differ, and so do fingers.
+      </p>
+
+      <ol class="mt-6 space-y-4 text-text-muted">
+        <li class="rounded-xl border border-border bg-surface p-5">
+          <strong class="text-text">1. Calibrate the screen.</strong> Hold any bank card upright
+          against the screen and drag the slider until the outline matches its edges. Every card is
+          85.60&nbsp;×&nbsp;53.98&nbsp;mm by ISO/IEC&nbsp;7810, which is what turns pixels into
+          millimetres. Keep browser zoom at 100%.
+        </li>
+        <li class="rounded-xl border border-border bg-surface p-5">
+          <strong class="text-text">2. Lay the ring on the circle.</strong> Adjust the circle until
+          its outer edge touches the <strong class="text-text">inside</strong> edge of your ring.
+        </li>
+        <li class="rounded-xl border border-border bg-surface p-5">
+          <strong class="text-text">3. Read every size at once.</strong> The result is inner
+          diameter, and every national size computed from it.
+        </li>
+      </ol>
+
+      <p class="mt-6 max-w-[62ch] rounded-xl bg-surface-sunk p-4 text-sm text-text-faint">
+        <strong class="text-text-muted">The commonest mistake:</strong> measuring the outside of the
+        band. You are measuring the space your finger occupies, not the metal around it. On a wide,
+        thick band the difference is easily a full size.
+      </p>
+    </section>
+
+    <!-- ── Method 2 ─────────────────────────────────────────────────────────
+         Query: "how to measure ring size with paper", "measure ring size at
+         home without a ring". -->
+    <section class="mt-16" aria-labelledby="paper">
+      <h2 id="paper" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Method 2 — a strip of paper</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Use this when there is no ring to copy. You are measuring the <strong class="text-text">circumference</strong>
+        — the distance around the finger — and the
+        tool converts it for you.
+      </p>
+
+      <ol class="mt-6 space-y-4 text-text-muted">
+        <li class="rounded-xl border border-border bg-surface p-5">
+          <strong class="text-text">1. Cut a strip about 1&nbsp;cm wide.</strong> Narrower strips
+          twist and read short; wider ones will not sit flat.
+        </li>
+        <li class="rounded-xl border border-border bg-surface p-5">
+          <strong class="text-text">2. Wrap it round the base of the finger.</strong> Snug and flat
+          against the skin, with no slack and no pull. Mark where it overlaps.
+        </li>
+        <li class="rounded-xl border border-border bg-surface p-5">
+          <strong class="text-text">3. Check it passes the knuckle.</strong> Before unwrapping, slide
+          the loop off over the knuckle. If it will not go, the ring will not either — widen it until
+          it just passes, and use that.
+        </li>
+        <li class="rounded-xl border border-border bg-surface p-5">
+          <strong class="text-text">4. Flatten and measure to the mark</strong>, then set the tool
+          above to <em>Circumference</em> and type the length in.
+        </li>
+      </ol>
+    </section>
+
+    <!-- ── String ───────────────────────────────────────────────────────────
+         Query: "measure ring size with string" (KD 0). Answered honestly:
+         the method works badly, and saying so is the differentiator. -->
+    <section class="mt-16" aria-labelledby="string">
+      <h2 id="string" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Why string gives the wrong answer</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        String, thread, dental floss and ribbon are all suggested constantly, and all share one
+        problem: they stretch. Pulled taut round a finger, a length of string reads shorter than the
+        finger actually is, and the error runs one way — always too small.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        The arithmetic is unforgiving. One full US size is
+        {(diameterFromUs(7) - diameterFromUs(6)).toFixed(2)}&nbsp;mm of diameter, which is only
+        {(Math.PI * (diameterFromUs(7) - diameterFromUs(6))).toFixed(2)}&nbsp;mm of circumference —
+        about two and a half millimetres. Stretch a string by that much, which takes almost no
+        force, and you have lost a whole size.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Paper does not stretch. If string is genuinely all you have, use it to mark the length and
+        then measure the string flat against a ruler without tension — and treat the answer as
+        approximate.
+      </p>
+    </section>
+
+    <!-- ── Units ────────────────────────────────────────────────────────────
+         Query: "how to measure ring size in cm" (>1000), "how to measure ring
+         size in inches" (>100). -->
+    <section class="mt-16" aria-labelledby="units">
+      <h2 id="units" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Measuring in centimetres or inches</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Use whatever your ruler is marked in — the tool takes all three, and they are the same
+        measurement written differently. Set the unit switcher above and type your number in.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        One warning about inches. A quarter US size is
+        {(diameterFromUs(6.25) - diameterFromUs(6)).toFixed(4)}&nbsp;mm of diameter, which is about
+        {((diameterFromUs(6.25) - diameterFromUs(6)) / 25.4).toFixed(3)}&nbsp;inches. An inch ruler
+        marked in sixteenths cannot resolve that, and neither can a figure written to two decimal
+        places. If you have a choice, measure in millimetres.
+      </p>
+    </section>
+
+    <!-- ── Answer table ─────────────────────────────────────────────────────
+         Query family: "what ring size is 7 cm circumference", "what ring size
+         is 2.5 inches circumference", "what is 6 cm in mm ring size", "if my
+         finger is 2.5 inches what is my ring size". Dozens of these, each
+         small. One generated table, not a page each. -->
+    <section class="mt-16" aria-labelledby="table">
+      <h2 id="table" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">What your strip length means</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Common paper-strip lengths and the sizes they come to. Every row is computed from the
+        published standards, not copied from a chart. For anything between these, use the tool.
+      </p>
+
+      <div class="table-scroll mt-6">
+        <table class="w-full min-w-[34rem] text-left text-sm">
+          <caption class="sr-only">
+            Finger circumference in centimetres, millimetres and inches, converted to inner diameter
+            and to US, UK and EU/ISO ring sizes.
+          </caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">Strip length</th>
+              <th scope="col" class="px-3 py-2 font-medium">In mm</th>
+              <th scope="col" class="px-3 py-2 font-medium">In inches</th>
+              <th scope="col" class="px-3 py-2 font-medium">Diameter</th>
+              <th scope="col" class="px-3 py-2 font-medium">US</th>
+              <th scope="col" class="px-3 py-2 font-medium">UK</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">EU / ISO</th>
+            </tr>
+          </thead>
+          <tbody class="tabular">
+            {stripRows.map(({ cm, r }) => (
+              <tr class="border-t border-border">
+                <th scope="row" class="px-3 py-2.5 font-medium text-text">{cm.toFixed(1)} cm</th>
+                <td class="px-3 py-2.5">{r.circumferenceMm.toFixed(0)} mm</td>
+                <td class="px-3 py-2.5">{r.circumferenceIn.toFixed(2)} in</td>
+                <td class="px-3 py-2.5">{r.diameterMm.toFixed(2)} mm</td>
+                <td class="px-3 py-2.5">{r.us ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.uk ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.eu ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-4 max-w-[62ch] text-sm text-text-faint">
+        An em dash means that scale does not define a size there — it is not a gap in our data. Every
+        system has a bottom and a top, and we would rather print nothing than invent a number.
+      </p>
+    </section>
+
+    <!-- ── Without measuring ────────────────────────────────────────────────
+         Query: "how to know ring size without measuring" (>1000), and the
+         secretly-sizing family. -->
+    <section class="mt-16" aria-labelledby="without">
+      <h2 id="without" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">If you cannot measure at all</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Usually this means buying for someone else without asking. Ranked by how well they work:
+      </p>
+
+      <ul class="mt-6 space-y-4 text-text-muted">
+        <li class="rounded-xl border border-border bg-surface p-5">
+          <strong class="text-text">Borrow a ring they already wear.</strong> Measure it with method
+          1 and put it back. This is the only approach that is actually accurate. Note which finger
+          it came from.
+        </li>
+        <li class="rounded-xl border border-border bg-surface p-5">
+          <strong class="text-text">Press one into soap or clay</strong> and measure the inner edge
+          of the impression. Works, loses a little precision.
+        </li>
+        <li class="rounded-xl border border-border bg-surface p-5">
+          <strong class="text-text">Ask someone who would know</strong> — a sibling, a close friend.
+          Less romantic, far more reliable than any guess.
+        </li>
+        <li class="rounded-xl border border-border bg-surface p-5">
+          <strong class="text-text">Fall back on the average.</strong>
+          US&nbsp;{avgWomen.us} ({avgWomen.diameterMm.toFixed(2)}&nbsp;mm) and
+          US&nbsp;{avgMen.us} ({avgMen.diameterMm.toFixed(2)}&nbsp;mm) are the commonly cited averages for women and
+          men. This is a guess dressed as a number, and it is the reason engagement rings get
+          resized so often — but if you must guess, guess here, and buy from somewhere that resizes.
+        </li>
+      </ul>
+
+      <p class="mt-6 max-w-[62ch] text-sm text-text-faint">
+        Tracing round the outside of a finger with a pen does not work, and neither does comparing
+        hand size. Both are widely repeated and neither survives contact with a ruler.
+      </p>
+    </section>
+
+    <!-- ── When ─────────────────────────────────────────────────────────────
+         Query: "how tight should a ring be" is Reddit-shaped and not worth a
+         page, but the underlying question belongs somewhere real. -->
+    <section class="mt-16" aria-labelledby="when">
+      <h2 id="when" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">When to measure, and how tight is right</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Fingers are not a fixed size. They swell in heat, after exercise, after salt, and late in the
+        day; they shrink in cold. The swing across a single day is easily half a size, which is more
+        than the difference the tool is resolving.
+      </p>
+
+      <ul class="mt-6 max-w-[62ch] list-disc space-y-2 pl-5 text-text-muted">
+        <li>Measure at the end of the day, at normal room temperature.</li>
+        <li>Measure the same finger on the same hand you will wear the ring on.</li>
+        <li>Measure two or three times on different days and take the largest.</li>
+      </ul>
+
+      <p class="mt-6 max-w-[62ch] text-text-muted">
+        A ring fits when it goes on with slight resistance, sits without pinching, and needs a small
+        deliberate tug to come off. If it slides off freely it is too big — losing a ring is worse
+        than a snug one. If your knuckle is much wider than the base of your finger, size to the
+        knuckle: the ring has to get past it.
+      </p>
+    </section>
+
+    <!-- ── Next ─────────────────────────────────────────────────────────── -->
+    <section class="mt-16 rounded-2xl border border-border bg-surface-sunk/40 p-6 sm:p-8" aria-labelledby="next">
+      <h2 id="next" class="text-xl font-semibold">No screen to hand?</h2>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        <a href="/printable-ring-sizer" class="text-accent-text underline underline-offset-2">Print a paper ring sizer</a>
+        instead — it carries a scale-check square so you can prove your printer did not shrink the
+        page, which most printable sizers quietly skip.
+      </p>
+    </section>
+
+  </div>
+</Layout>

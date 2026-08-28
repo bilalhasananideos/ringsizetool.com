@@ -128,7 +128,7 @@ export const faqPageSchema = () => ({
 export const howToSchema = (url: string) => ({
   '@context': 'https://schema.org',
   '@type': 'HowTo',
-  name: 'How to measure your ring size without a ring sizer',
+  name: 'How to measure your ring size at home',
   description:
     'Calibrate your screen against a bank card, then measure a ring you already own or your finger with a strip of paper.',
   totalTime: 'PT2M',
