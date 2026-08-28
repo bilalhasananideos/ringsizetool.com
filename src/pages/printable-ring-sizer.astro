@@ -1,0 +1,369 @@
+---
+/**
+ * /printable-ring-sizer — a paper ring sizer that actually measures correctly
+ * when printed.
+ *
+ * Why this page exists: "printable ring sizer" and "ring size chart printable"
+ * are separate searches from the on-screen tool, and they are the ONE case
+ * where a competitor already does something right — brite.co prints a check
+ * line so the reader can confirm their printer did not scale the page. Most
+ * printable sizers do not, which makes them silently wrong by 3-6%: browsers
+ * default to "fit to page" and shrink everything.
+ *
+ * So: match the check line, then beat them on what follows it — a gauge with
+ * every size, both a ring-hole gauge and a finger strip, and numbers generated
+ * from the same module the rest of the site uses.
+ *
+ * THE ONE RULE FOR THIS PAGE: every printed dimension is declared in `mm`,
+ * never px. A CSS px is 1/96 in only by definition at 96 DPI; print engines
+ * scale it. `mm` is honoured as a physical length. If you add anything to the
+ * printable sheet and size it in px, it will come out the wrong size and the
+ * whole page becomes a liar.
+ */
+import Layout from '../layouts/Layout.astro';
+import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
+import { CHART_ROWS, fromDiameter, diameterFromUs, UK_NOTE } from '../data/ringSizes';
+import { breadcrumbSchema } from '../data/faq';
+
+/* The check square. 50 mm is chosen so a 30 cm ruler measures it in one go and
+   a 1 mm printing error is a visible 2%. */
+const CHECK_MM = 50;
+
+/* Ring-hole gauge: whole US sizes only. Quarter sizes would put circles 0.2 mm
+   apart, which no printer resolves and no reader can distinguish — printing
+   them would be precision this medium does not have. The on-screen tool is
+   where quarter sizes belong. */
+const GAUGE = Array.from({ length: 12 }, (_, i) => fromDiameter(diameterFromUs(3 + i)));
+
+/* Finger strip: the wrap-a-paper-strip method measures CIRCUMFERENCE, so the
+   strip is marked in circumference, not diameter. Getting that backwards is
+   the classic error in printable sizers.
+
+   The second, subtler error - which this page made on its first draft - is
+   sizing the strip by the RANGE of circumferences it reports (33 mm) instead
+   of by the DISTANCE the reader wraps. A tick labelled 62 has to sit 62 mm
+   from the cut end, or the strip reports nothing at all. So the strip starts
+   at zero and runs past the largest size it covers. */
+const STRIP = CHART_ROWS.filter((r) => r.usNumeric !== null && Number.isInteger(r.usNumeric));
+const STRIP_MAX = Math.ceil(STRIP[STRIP.length - 1].circumferenceMm) + 4;
+/* Where real fingers land, for the "you should end up around here" note. */
+const STRIP_LOW = Math.floor(STRIP[0].circumferenceMm);
+const STRIP_HIGH = Math.ceil(STRIP[STRIP.length - 1].circumferenceMm);
+
+const title = `Printable Ring Sizer — Free PDF-Free Paper Gauge | ${SITE_NAME}`;
+const description =
+  `Print a paper ring sizer that measures correctly. Includes a ${CHECK_MM} mm scale-check ` +
+  `square so you can prove your printer did not shrink the page, plus a ring-hole gauge and ` +
+  `a finger strip marked in millimetres.`;
+
+const jsonLd = [
+  breadcrumbSchema([
+    { name: 'Ring Sizer', url: SITE_URL },
+    { name: 'Printable Ring Sizer', url: `${SITE_URL}/printable-ring-sizer` },
+  ]),
+];
+---
+
+<Layout title={title} description={description} noindex={NOINDEX_SITE} jsonLd={jsonLd}>
+  <main id="main" class="mx-auto w-full max-w-4xl px-6 py-12 sm:px-8 sm:py-16">
+    <h1 class="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-text">
+      Printable ring sizer
+    </h1>
+
+    <p class="mt-4 max-w-[62ch] text-text-muted leading-relaxed">
+      Print this page, check the square with a ruler, then measure. The check square is the part
+      that matters: browsers shrink pages to fit the paper by default, and a sizer printed 4%
+      small reads about a size and a half too tight. Every printable sizer that skips this step
+      is guessing.
+    </p>
+
+    <!-- Print instructions: screen only. On paper they would waste the space
+         the gauge needs, and the reader is already holding the sheet. -->
+    <section class="no-print mt-8 rounded-2xl border border-border bg-surface-sunk/40 p-6">
+      <h2 class="text-lg font-semibold text-text">Before you print</h2>
+      <ol class="mt-3 list-decimal space-y-2 pl-5 text-text-muted leading-relaxed">
+        <li>
+          In the print dialog set <strong class="text-text">Scale</strong> to
+          <strong class="text-text">100%</strong> — not &ldquo;Fit to page&rdquo;, not
+          &ldquo;Shrink to fit&rdquo;. This is the single step that decides whether the sheet is
+          accurate.
+        </li>
+        <li>Use A4 or US Letter. Either works; the gauge fits both.</li>
+        <li>
+          Measure the printed square with a ruler. It must be
+          <strong class="text-text">{CHECK_MM} mm</strong> on every side. If it is not, your
+          printer scaled the page — fix the scale setting and print again rather than trying to
+          correct for it.
+        </li>
+      </ol>
+      <p class="mt-4 text-sm text-text-faint">
+        Nothing is uploaded and there is no PDF to download — this is the page itself, printed.
+      </p>
+      <button
+        type="button"
+        data-print
+        class="mt-5 inline-flex min-h-11 cursor-pointer items-center rounded-full bg-accent-bright px-6 font-semibold text-on-accent transition-opacity hover:opacity-90"
+      >
+        Print this sheet
+      </button>
+    </section>
+
+    <!-- ── The printable sheet ──────────────────────────────────────────────
+         Everything below is sized in mm and must stay that way. -->
+    <div class="print-sheet mt-10">
+      <!-- 1. Scale check -->
+      <section class="ps-block">
+        <h2 class="ps-h">1 · Check the scale first</h2>
+        <p class="ps-p">
+          Measure this square. Every side must be exactly {CHECK_MM} mm. If it is not, the sheet
+          is scaled and every size below it will be wrong.
+        </p>
+        <div class="ps-check-wrap">
+          <div class="ps-check" aria-hidden="true"></div>
+          <p class="ps-check-label">{CHECK_MM} mm × {CHECK_MM} mm</p>
+        </div>
+        <p class="ps-p ps-note">
+          A ruler is enough. If you do not have one, a standard bank card is 85.60 mm long and
+          53.98 mm wide (ISO/IEC 7810) — the square should be a little shorter than the card&rsquo;s
+          short edge is wide, plus a hair under 4 mm.
+        </p>
+      </section>
+
+      <!-- 2. Ring-hole gauge -->
+      <section class="ps-block">
+        <h2 class="ps-h">2 · Measure a ring you already own</h2>
+        <p class="ps-p">
+          Lay a ring over the circles. The right one is the circle whose outline just disappears
+          inside the ring&rsquo;s inner edge. If the ring sits between two, take the larger.
+        </p>
+        <ul class="ps-gauge">
+          {GAUGE.map((g) => (
+            <li class="ps-gauge-item">
+              <span class="ps-hole" style={`width:${g.diameterMm}mm;height:${g.diameterMm}mm`} aria-hidden="true"></span>
+              <span class="ps-gauge-label">
+                <strong>US {g.us}</strong>
+                <span class="ps-gauge-sub">
+                  {g.diameterMm.toFixed(1)} mm · UK {g.uk ?? '—'} · EU {g.eu ?? '—'} · JP {g.jp ?? '—'}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- 3. Finger strip -->
+      <section class="ps-block ps-break">
+        <h2 class="ps-h">3 · Or measure your finger</h2>
+        <p class="ps-p">
+          Cut along the strip. Wrap it around the base of your finger, snug but not tight, and
+          read the millimetre mark where the end meets the strip. That figure is your
+          circumference — find it in the table below.
+        </p>
+        <div class="ps-strip-wrap">
+          <div class="ps-strip" style={`width:${STRIP_MAX}mm`}>
+            {/* Tick at n mm sits exactly n mm from the left-hand (cut) end.
+                That is what makes the strip a ruler rather than a decoration. */}
+            {Array.from({ length: STRIP_MAX + 1 }, (_, mm) => {
+              const major = mm % 5 === 0;
+              const inRange = mm >= STRIP_LOW && mm <= STRIP_HIGH;
+              return (
+                <span
+                  class={`ps-tick${major ? ' ps-tick-major' : ''}${inRange ? ' ps-tick-live' : ''}`}
+                  style={`left:calc(${mm}mm - var(--ps-strip-border))`}
+                  aria-hidden="true"
+                >{major ? <span class="ps-tick-num">{mm}</span> : null}</span>
+              );
+            })}
+            <span class="ps-strip-start" aria-hidden="true">Start wrapping from this end</span>
+          </div>
+          <p class="ps-check-label">
+            {`Circumference in millimetres, measured from the left end · cut along the outline · most adult fingers land between ${STRIP_LOW} and ${STRIP_HIGH} mm`}
+          </p>
+        </div>
+
+        <div class="table-scroll">
+        <table class="ps-table">
+          <caption class="ps-p">Circumference to ring size</caption>
+          <thead>
+            <tr><th>Circumference</th><th>US</th><th>UK</th><th>EU</th><th>JP</th><th>Diameter</th></tr>
+          </thead>
+          <tbody>
+            {STRIP.map((r) => (
+              <tr>
+                <td>{r.circumferenceMm.toFixed(1)} mm</td>
+                <td><strong>{r.us}</strong></td>
+                <td>{r.uk ?? '—'}</td>
+                <td>{r.eu ?? '—'}</td>
+                <td>{r.jp ?? '—'}</td>
+                <td>{r.diameterMm.toFixed(1)} mm</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+        <p class="ps-p ps-note">{UK_NOTE}</p>
+      </section>
+    </div>
+
+    <!-- Screen-only: send people to the tool that does not depend on a printer -->
+    <section class="no-print mt-12 border-t border-border pt-8">
+      <h2 class="font-display text-2xl font-semibold text-text">No printer?</h2>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        The on-screen sizer calibrates against a bank card instead of a printer, which removes the
+        scaling problem entirely, and it carries quarter sizes that paper cannot resolve.
+      </p>
+      <a
+        href="/"
+        class="mt-4 inline-flex min-h-11 items-center font-semibold text-accent-text underline underline-offset-2 hover:opacity-80"
+      >
+        Measure on screen instead →
+      </a>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  /* ── The printable sheet ───────────────────────────────────────────────────
+     EVERY physical dimension here is mm. Do not convert any of it to px, rem
+     or any relative unit: this block's whole purpose is that a printed
+     millimetre is a real millimetre. Screen rendering is the secondary case
+     and is allowed to look approximate. */
+
+  .print-sheet { color: var(--color-text); }
+
+  .ps-block { margin-bottom: 12mm; }
+  .ps-h {
+    font-family: var(--font-display, serif);
+    font-size: 5mm;
+    font-weight: 600;
+    margin-bottom: 2mm;
+  }
+  .ps-p {
+    font-size: 3.4mm;
+    line-height: 1.55;
+    max-width: 150mm;
+    color: var(--color-text-muted);
+    margin-bottom: 3mm;
+  }
+  .ps-note { font-size: 3mm; color: var(--color-text-faint); }
+
+  /* 1 · scale check */
+  .ps-check-wrap { margin: 4mm 0; }
+  .ps-check {
+    width: 50mm;
+    height: 50mm;
+    border: 0.4mm solid var(--color-text);
+    /* No border-radius: a square with rounded corners cannot be measured
+       edge-to-edge with a ruler, which is the entire point of it. */
+  }
+  .ps-check-label { font-size: 3mm; color: var(--color-text-faint); margin-top: 1.5mm; }
+
+  /* 2 · ring-hole gauge */
+  .ps-gauge {
+    list-style: none;
+    padding: 0;
+    margin: 4mm 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6mm 8mm;
+  }
+  .ps-gauge-item { display: flex; align-items: center; gap: 3mm; }
+  .ps-hole {
+    display: block;
+    flex: none;
+    border: 0.3mm solid var(--color-text);
+    border-radius: 50%;
+    /* The BORDER marks the ring's inner edge, so it must be thin and the box
+       must be content-box: with border-box the stroke would eat into the
+       diameter and every hole would read small. */
+    box-sizing: content-box;
+  }
+  .ps-gauge-label { font-size: 3.2mm; line-height: 1.4; }
+  .ps-gauge-label strong { display: block; font-size: 3.6mm; }
+  .ps-gauge-sub { color: var(--color-text-faint); font-size: 2.8mm; }
+
+  /* 3 · finger strip */
+  .ps-strip-wrap { margin: 9mm 0 6mm; }
+  .ps-strip {
+    /* The reader cuts along the outline, so distances must be measured from the
+       OUTSIDE of it. `left` positions against the padding edge, which is inside
+       the border, so every tick is pulled back by exactly the border width. */
+    --ps-strip-border: 0.3mm;
+    position: relative;
+    height: 12mm;
+    border: var(--ps-strip-border) dashed var(--color-text-muted);
+    box-sizing: content-box;   /* same reason as .ps-hole */
+  }
+  .ps-tick {
+    position: absolute;
+    top: 0;
+    width: 0;
+    height: 3mm;
+    border-left: 0.2mm solid var(--color-text);
+  }
+  .ps-tick-major { height: 6mm; border-left-width: 0.3mm; }
+  /* Ticks outside the plausible human range stay on the strip - the reader may
+     genuinely land there - but recede, so the eye goes to the useful span. */
+  .ps-tick { opacity: 0.45; }
+  .ps-tick-live { opacity: 1; }
+  /* Above the strip, not inside it: at bottom:1mm this collided with the tick
+     numbers, which sit at top:6.5mm on a 12 mm strip. */
+  .ps-strip-start {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 1mm);
+    font-size: 2.6mm;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+    white-space: nowrap;
+  }
+  .ps-tick-num {
+    position: absolute;
+    top: 6.5mm;
+    left: 0;
+    transform: translateX(-50%);
+    font-size: 2.6mm;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* table */
+  .ps-table { border-collapse: collapse; font-size: 3mm; margin-top: 4mm; }
+  .ps-table caption { text-align: left; }
+  .ps-table th, .ps-table td {
+    border: 0.2mm solid var(--color-border);
+    padding: 1mm 2.5mm;
+    text-align: left;
+    font-variant-numeric: tabular-nums;
+  }
+  .ps-table th { font-weight: 600; }
+
+  @media print {
+    /* Real page geometry. Without an @page rule the browser applies its own
+       margins, which differ per browser and shift nothing that matters — but
+       stating it means the sheet is identical everywhere. */
+    @page { size: A4 portrait; margin: 12mm; }
+
+    /* Ink, and contrast: the gauge outlines must survive a cheap printer, so
+       force black on white rather than trusting the theme variables, which may
+       be mid-grey or (in dark mode) near-white on near-black. */
+    .print-sheet, .print-sheet * { color: #000 !important; background: #fff !important; }
+    .ps-check, .ps-hole, .ps-tick, .ps-tick-major { border-color: #000 !important; }
+    .ps-strip { border-color: #555 !important; }
+    .ps-table th, .ps-table td { border-color: #000 !important; }
+
+    /* A horizontal scroll container has no meaning on paper and would clip the
+       table at the page edge instead of letting it lay out. */
+    .table-scroll { overflow: visible !important; }
+
+    /* Nothing may split across a page break mid-measurement. */
+    .ps-block { break-inside: avoid; }
+    .ps-break { break-before: page; }
+    .ps-gauge-item, .ps-strip-wrap, .ps-table tr { break-inside: avoid; }
+  }
+</style>
+
+<script>
+  document.querySelector<HTMLButtonElement>('[data-print]')
+    ?.addEventListener('click', () => window.print());
+</script>

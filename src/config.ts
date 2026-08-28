@@ -26,6 +26,7 @@ export const NOINDEX_SITE = true;
 export const NAV = [
   { href: '/', label: 'Ring Sizer' },
   { href: '/ring-size-chart', label: 'Chart' },
+  { href: '/printable-ring-sizer', label: 'Printable' },
 ] as const;
 
 export const FOOTER_LINKS = [

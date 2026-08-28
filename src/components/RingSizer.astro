@@ -137,7 +137,24 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 
       <!-- Left Column: Interactive Ring Circle Guide & Live Readout -->
       <div class="flex flex-col items-center justify-center">
-        <div class="relative flex h-64 w-64 sm:h-72 sm:w-72 items-center justify-center">
+        <div class="relative flex h-64 w-64 sm:h-72 sm:w-72 items-center justify-center overflow-hidden rounded-xl">
+
+          <!-- Graph Paper Grid Background (SVG pattern) -->
+          <svg class="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- Small cell: 11px -->
+              <pattern id="grid-small" x="0" y="0" width="11" height="11" patternUnits="userSpaceOnUse">
+                <path d="M 11 0 L 0 0 0 11" fill="none" stroke="currentColor" stroke-width="0.4" class="text-border/60"/>
+              </pattern>
+              <!-- Large cell: 55px (every 5 small cells) -->
+              <pattern id="grid-large" x="0" y="0" width="55" height="55" patternUnits="userSpaceOnUse">
+                <rect width="55" height="55" fill="url(#grid-small)"/>
+                <path d="M 55 0 L 0 0 0 55" fill="none" stroke="currentColor" stroke-width="1" class="text-border-strong/50"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid-large)"/>
+          </svg>
+
           <!-- Outer dashed guide circle with crosshair ticks -->
           <div class="absolute inset-3 rounded-full border border-dashed border-border-strong/70 pointer-events-none"></div>
 
@@ -154,7 +171,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
           <!-- Scalable Golden Ring Circle -->
           <div
             data-ring-circle
-            class="rounded-full border-[3px] border-[#D4AF37] shadow-[0_0_20px_rgba(212,175,55,0.25)] transition-all duration-75"
+            class="rounded-full border-[3px] border-[#D4AF37] shadow-[0_0_20px_rgba(212,175,55,0.35)] transition-all duration-75"
             style="width:62.4px;height:62.4px"
           ></div>
         </div>
