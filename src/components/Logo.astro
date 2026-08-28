@@ -1,4 +1,16 @@
 ---
+/**
+ * The wordmark's ring glyph.
+ *
+ * Sourced from /images/logo-128.webp, NOT logo.webp: the full-size file is
+ * 581x574 and 145 KB for a mark that renders at 48-56 px, on every page. The
+ * 128 px version is 13 KB and still covers a 2x display at the largest size
+ * the header uses.
+ *
+ * The alt text is empty on purpose. This mark always appears immediately
+ * beside the site name in text (Header and Footer both), so naming it again
+ * makes a screen reader read the brand twice. It is decorative here.
+ */
 interface Props {
   size?: number;
   class?: string;
@@ -7,8 +19,9 @@ interface Props {
 const { size = 54, class: className = '' } = Astro.props;
 ---
 <img
-  src="/images/logo.webp"
-  alt="Ring Size Tool Logo"
+  src="/images/logo-128.webp"
+  alt=""
+  aria-hidden="true"
   width={size}
   height={size}
   class:list={['aspect-square object-contain shrink-0', className]}

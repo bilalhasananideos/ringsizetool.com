@@ -1,6 +1,7 @@
 # ringsizetool.com — status
 
-Last updated: 28 Aug 2026 · **Stage: tool + homepage + chart page built, correctness verified.
+Last updated: 28 Aug 2026 · **Stage: tool + homepage + chart page + printable page built.
+Size logic audited against the published standards and 106 assertions.
 Awaiting the owner's read before anything ships.**
 
 ---
@@ -87,44 +88,57 @@ All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the a
 - `web-design-guidelines` skill audit passed
 - **4 regressions from the visual rewrite fixed** (see Gotchas) — calibrate-card visibility, numeric
   entry, live region, ARIA on the unit toggle
+- **Logo + favicon — DONE** (this line previously sat under "Next" and was wrong). `Logo.astro`,
+  `favicon.png`, `favicon.ico`, `favicon.svg`, and Header/Footer already render the mark
+- **Upper-range guards on every size system** — the file's own "nothing invents a number" policy
+  was enforced at the low end only, so the slider's top (25 mm) reported EU 79 / JP 37 / UK Z+7½,
+  none of which exist. Bounds confirmed against ISO 8653:2016 (41–76), JIS S 4700:2022 (1–35) and
+  BS EN 28653:1993 (A–Z+6). India gets its own ceiling of 37, not ISO's 36 — it is not ISO
+- **6 tool bugs fixed** — boot never called `setMode()` so the number field rendered empty;
+  switching units mutated the measurement (mm→cm→in→circ→mm drifted 16.51 to 16.49, flipping JP
+  12→11); out-of-range typed input desynced field/slider/readout; inches readout was 2 dp against
+  a 0.001 in step; circumference mode had a dead zone below `DIA_MIN`; SSR defaults were hand-typed
+  literals against CLAUDE.md's explicit rule
+- **`UK_NOTE` / `INDIA_NOTE` now actually render** — they were exported and imported by nothing.
+  A `<details>` in the tool carries them, next to the two numbers the site is least sure about
+- **`verify` 58 → 106 assertions** — upper bounds, UK rounding ties, UK letter indexing,
+  `fromCircumference` end-to-end, `formatUs` at zero, `sizeContext` band boundaries
+- **`/printable-ring-sizer`** — 50 mm scale-check square, ring-hole gauge (whole US sizes only),
+  finger strip marked in circumference from zero, full table. Every printed dimension in `mm`
+- **`/og.png` generated** (1200×630). `Layout.astro` had defaulted to it since the beginning while
+  the file did not exist, so every page emitted a broken social card
+- **Logo weight** — `Logo.astro` now uses a 128 px derivative (13 KB) instead of the 581×574
+  original (145 KB) that was loading on every page for a 48–56 px mark
 
 ## Next, in order ⬜
 
-1. **Owner reads the current homepage and chart page** — `npm run build && npm run preview`.
-   Nothing ships until this happens.
-2. **`/printable-ring-sizer`** — print CSS with real `mm` units + a print-scale check square
-   (brite.co already has one *with* a check line — match that, then beat it on the chart)
-3. **`/how-to-measure-ring-size-without-a-ring-sizer`** — check whether this still makes sense as a
-   separate page now that the homepage's own copy covers similar ground; avoid cannibalisation
-4. Logo + favicon (SVG, hand-drawn) · Lighthouse pass
-5. Deploy to Cloudflare Pages — **site stays `noindex`, submit nothing** until the domain is bought
+1. **Owner reads the homepage, the chart page and `/printable-ring-sizer`** —
+   `npm run build && npm run preview`. Nothing ships until this happens.
+   For the printable page: print it and measure the square with a ruler. It must be 50 mm.
+2. **Decisions waiting on the owner** (see Open questions below) — touch-target sizes, whether
+   US should have a ceiling, what happens at the very bottom of the slider, and whether
+   `logo.png` / `logo.svg` / `favicon.svg` should be deleted.
+3. **Lighthouse pass.** Not run yet. `og.png` is 105 KB and `hero-ring-hand.webp` 135 KB — both
+   are candidates if the score needs it.
+4. `/how-to-measure-ring-size-without-a-ring-sizer` — **decided against for now** (28 Aug 2026).
+   The homepage's ~3,000 words already cover the methods; a separate page would cannibalise it.
+   Revisit only if Search Console shows the query landing on nothing.
+5. **Deploy to Cloudflare Pages** — `wrangler` is not in `package.json`, so `npm run deploy`
+   depends on a global/npx binary. Decide that before the first deploy.
+   Site stays `noindex`, submit nothing, until the domain is bought.
 
-Add each new page to `NAV` in `config.ts` only once it exists.
+---
 
-## Gotchas found the hard way
+## Open questions for the owner ❓
 
-- **Two sessions editing the same files caused a real, serious bug once already.** A visual
-  rewrite (c700f0f) left the calibrate card `hidden` in static markup with no code path to un-hide
-  it for a first-time visitor — every new visitor got an uncalibrated 96 DPI guess with no way to
-  discover the calibration step. Fixed in `df09ce0`. **If you're rewriting RingSizer.astro again,
-  re-check this specific thing**: clear `localStorage`, reload, and confirm the calibrate card is
-  visible before you do anything else.
-- **No numeric text input existed after that same rewrite** — only sliders. Restored: a paired
-  `<input type=number>` next to both the calibration slider and the ring slider.
-- `build.format: 'file'` makes `Astro.url.pathname` `/index.html`. The canonical is normalised in
-  `Layout.astro` — do not "simplify" that back.
-- India has no official ring-size standard; UK letter charts vary by up to half a size depending on
-  which sequence a jeweller uses. Both are handled by showing the computed value **and saying so**
-  rather than picking one chart and presenting it as certain. Do not "fix" this by matching a
-  competitor's number — see RESEARCH.md's "UK half-letter offset" section for why ours is right.
-- Astro eats a newline inside `{}` interpolation — `roughly\n{value}` renders as `roughly1.7`. Use a
-  template literal or `{' '}` when an expression starts or ends a line.
+These are real decisions, not oversights. Each one was left alone deliberately rather than
+changed unilaterally.
 
-## Commands
+| Question | Detail |
+|---|---|
+| **Touch targets** | Most of the tool's controls are under the 44×44 px minimum CLAUDE.md sets: mode pills 32 px tall, step buttons 32×32, the "Calibrate" link 16 px. This is pre-existing and part of the approved Aurelian Precision look, so resizing it is a design call. It will be flagged by any accessibility audit. |
+| **Should US have a ceiling?** | At 25 mm the tool reports US 16½. US has no governing standard, so there is no published ceiling to cite — but `CHART_ROWS` stops at US 14 ("the range actually sold"), so 16½ is past our own chart. Capping it would be a judgement, not a standard. |
+| **The bottom of the slider answers nothing** | `DIA_MIN` is 11 mm and US 0 is 11.6332 mm, so between 11 and 11.63 mm every system correctly shows "—". Six em dashes at the slider's own minimum reads like a broken tool even though it is the honest answer. Raising `DIA_MIN` to 11.64 would fix the optics. |
+| **Dead asset files** | `public/images/logo.png` (353 KB) and `logo.svg` are referenced by nothing, and `favicon.svg` lost its `<link>` when the raster favicon went in. They deploy but are never requested. Left in place rather than deleted without asking. |
+| **The logo is now a raster** | It was a 107-line inline SVG; it is now a WebP. That trades theme-awareness and resolution independence for whatever the new mark looks like. Worth a conscious yes. |
 
-```bash
-npm run verify    # 58 conversion + regression assertions
-npm run build     # sitemap and robots only exist after this
-npm run preview   # test against this, not dev
-npm run deploy    # Cloudflare Pages
-```
