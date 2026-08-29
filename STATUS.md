@@ -388,9 +388,21 @@ session at a time.**
 `f37270f`, added while removing three false claims from that page (it described GA4, Cloudflare
 Web Analytics and AdSense, none installed, plus an EEA/UK consent choice that did not exist). The
 sentence *"if that changes, this page will say so before it does"* was a judgement call to stop
-the file drifting back. **The owner can have it removed.** What cannot be removed is the
-obligation: adding analytics means editing that page the same day, because the law requires it,
-not because of the sentence.
+the file drifting back.
+
+**Owner's decision, 30 Aug: the sentence stays for now, and comes out on the day analytics is
+added.** So when that day comes, in ONE commit:
+
+1. Delete the promise sentence from the Analytics section of `src/pages/privacy.astro`.
+2. Name what was actually installed, in its place — and do the same in the Advertising section
+   if ads arrive.
+3. Bump `LAST_UPDATED` in that file.
+
+Three steps, one commit, so the promise is never removed without the replacement landing with it.
+
+The duty and the sentence are separate: a privacy policy has to describe the site as it is
+because the law requires it, not because of anything written here. Deleting the sentence removes
+a promise, not the obligation.
 
 **Cloudflare obfuscates the contact address.** `contact@ringsizetool.com` is absent from the
 served HTML as a plain string — it appears as `__cf_email__` with a `data-cfemail` hex blob and is
