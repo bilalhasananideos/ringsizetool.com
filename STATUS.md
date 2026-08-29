@@ -191,6 +191,75 @@ for f in sorted(glob.glob('dist/*.html')):
 
 ---
 
+## 🚀 Going live — the order matters more than the checklist
+
+Written 29 Aug 2026 because the owner is ready to launch and wants to keep adding pages
+afterwards. **Launching early and adding gradually is the right call** — the pages that exist are
+worth indexing now, and Google needs months on a new domain regardless. What follows is not
+"wait", it is "do these in this order".
+
+### 🔴 Three things are wired to a domain that does not exist yet
+
+`SITE_URL` is `https://ringsizetool.com` and three things already emit it:
+
+| What | Where | If you deploy to `*.pages.dev` today |
+|---|---|---|
+| Canonical tags | `Layout.astro`, every page | Every page declares itself canonical at a domain that does not resolve |
+| Sitemap `<loc>` entries | `dist/sitemap-0.xml`, auto-generated | Lists 11 URLs that 404 |
+| `robots.txt` | `public/robots.txt` | Says `Allow: /` and points at a sitemap on that domain |
+
+While `NOINDEX_SITE` is `true` this is harmless — the robots meta wins and nothing gets indexed.
+It stops being harmless the moment noindex comes off. **Never flip `NOINDEX_SITE` on a
+`*.pages.dev` URL.** A canonical pointing at a dead domain is the one SEO mistake here that is
+genuinely hard to undo: Google will index the pages.dev host, find canonicals it cannot fetch,
+and you spend months teaching it the real URL.
+
+### The safe launch order
+
+1. **Buy the domain.** Everything below is blocked on this, and nothing above it matters.
+2. Deploy to Cloudflare Pages (`npm run deploy` — `wrangler` is now in `node_modules` and the
+   script exists). Site is still `noindex`; this is a private dress rehearsal.
+3. Attach the custom domain in the Cloudflare dashboard. Confirm `https://ringsizetool.com`
+   serves the site and the `*.pages.dev` URL redirects to it, not the other way round.
+4. **Do the two physical checks** (below). They gate the site's only real claim.
+5. **Only now** set `NOINDEX_SITE = false` in `src/config.ts`, rebuild, redeploy. Confirm in the
+   built HTML that `noindex` is gone and the positive robots directive is there.
+6. Search Console: verify the domain property, submit `sitemap-index.xml`. Not before step 5 —
+   submitting a noindexed site teaches Google nothing and wastes the first crawl.
+7. Then add pages one at a time. Each new page is picked up by the sitemap automatically.
+
+### Two checks only the owner can do, and they gate the whole pitch
+
+Neither has been done. Both test the claim the entire site is built on — that the numbers are
+right — and neither can be verified from code:
+
+- **A real bank card against the calibration gauge, on a real phone.** The narrow-screen layout
+  has only ever been checked by measuring the DOM at 375 px.
+- **Print `/printable-ring-sizer` and measure the square with a ruler. It must be 50 mm.**
+
+If either is wrong, the site is confidently wrong, which is worse than being late.
+
+### Not blockers — ship without them, add after
+
+- **Lighthouse** — never run. `og.png` 105 KB, `hero-ring-hand.webp` 135 KB are the candidates.
+- **Ads / AdSense** — needs traffic and approval anyway; applying to an unindexed site is wasted.
+- **`ring size adjuster`** affiliate section — real (>1,000/mo, the only affiliate path in the
+  keyword data) but a monetisation decision, not a launch item.
+- **The remaining keyword work** — `actual ring size chart on screen` (>1,000, and the one keyword
+  our calibration answers better than anyone), the `oura` / `pandora` brand pages, and the
+  three-unit-URLs question in item 2 below.
+- **`eu ring size chart` volume**, and re-pulling `uk ring size chart` for GB and
+  `indian ring size chart` for IN — the 28 Aug pass was US-only and understates both.
+
+### ⚠️ Process, not code: stop running two sessions on this repo
+
+Two Claude sessions have been editing these files at the same time, and on 29 Aug it cost real
+work: one session's `/average-ring-size` commit swallowed another's staged changes, `package.json`
+rewrote itself twice mid-task, and `ringModes.ts` changed underneath an in-flight edit. **Run one
+session at a time.**
+
+---
+
 ## Next, in order ⬜
 
 1. **Owner reads the homepage, the chart page and `/printable-ring-sizer`** —
