@@ -55,11 +55,14 @@ const STRIP_HIGH = Math.ceil(STRIP[STRIP.length - 1].circumferenceMm);
  * "printable ring sizer pdf" would have bounced. The no-download fact belongs
  * in the description, where it reads as the advantage it is; the title carries
  * the print-scale check, which is the thing almost no competitor has. */
-const title = `Printable Ring Sizer — Paper Gauge With a Print-Scale Check | ${SITE_NAME}`;
+/* "chart" and "free" are in the title because half this keyword cluster uses
+   them - printable ring size chart, ring size chart printable and free
+   printable ring sizer are each real searches, and all three are true of this
+   page. Kept under 60 characters so nothing is truncated out of the SERP. */
+const title = `Free Printable Ring Sizer and Size Chart | ${SITE_NAME}`;
 const description =
-  `Print a paper ring sizer that measures correctly — no PDF, no download, just this page. ` +
-  `A ${CHECK_MM} mm scale-check square proves your printer did not shrink it, and you get a ` +
-  `ring-hole gauge and a finger strip marked in millimetres.`;
+  `Print a paper ring sizer and ring size chart that measure correctly. A ${CHECK_MM} mm ` +
+  `check square proves your printer did not shrink the page. No PDF, no download.`;
 
 const jsonLd = [
   breadcrumbSchema([

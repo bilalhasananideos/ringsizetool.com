@@ -3,7 +3,9 @@ import Layout from '../layouts/Layout.astro';
 import RingSizer from '../components/RingSizer.astro';
 import HeroIllustration from '../components/HeroIllustration.astro';
 import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
-import { CHART_ROWS, AVERAGE_US_SIZE, diameterFromUs, fromDiameter, INDIA_MAX } from '../data/ringSizes';
+import { CHART_ROWS, AVERAGE_US_SIZE, diameterFromUs, fromDiameter, INDIA_MAX,
+         ISO_MIN, ISO_MAX, JP_MAX, MM_PER_INCH } from '../data/ringSizes';
+import { DIA_MIN_MM, DIA_MAX_MM } from '../data/ringModes';
 import { FAQS, faqPageSchema, webAppSchema, breadcrumbSchema } from '../data/faq';
 
 /* The chart below is generated, never typed. Half-size steps from US 3 to 13 —
@@ -19,6 +21,16 @@ const largest = fromDiameter(diameterFromUs(13));
 
 const inRange = (r: typeof six) => r.circumferenceIn.toFixed(1);
 
+/* Figures quoted in the "about this ring sizer" prose. Derived, so the copy
+   cannot drift from the tool the way competitors' copy drifts from their own
+   charts — which is the single claim this site is built on. */
+const CARD_SHORT_MM = 53.98;                       // ISO/IEC 7810 ID-1, held upright
+const quarterMm = diameterFromUs(6.25) - diameterFromUs(6);
+const fullSizeMm = diameterFromUs(7) - diameterFromUs(6);
+const rangeLow = fromDiameter(DIA_MIN_MM);
+const rangeHigh = fromDiameter(DIA_MAX_MM);
+const cardPx96 = Math.round(CARD_SHORT_MM * 96 / MM_PER_INCH);
+
 /* Structured data. Built from the same modules the page renders from, so the
    visible answer and the schema answer can never disagree. */
 const jsonLd = [
@@ -31,8 +43,8 @@ const jsonLd = [
 ];
 ---
 <Layout
-  title="Ring Sizer — Measure Your Ring Size on Screen | Ring Size Tool"
-  description="Free ring sizer. Measure your ring size at home with a bank card and your screen — no printer, no ring sizer needed. US, UK, EU, Japan and India sizes instantly."
+  title="Ring Sizer — Find Your Ring Size Online | Ring Size Tool"
+  description="Free online ring sizer. Calibrate your screen with a bank card, then measure a ring or your finger. No printer, no download. US, UK, EU, Japan and India sizes."
   noindex={NOINDEX_SITE}
   jsonLd={jsonLd}
 >
@@ -198,6 +210,147 @@ const jsonLd = [
 
     <!-- ── Main Editorial Content ────────────────────────────────────────── -->
     <div class="mx-auto w-full max-w-4xl px-6 space-y-20 sm:space-y-24 my-12 sm:my-20">
+
+      <!-- ── About this ring sizer ─────────────────────────────────────────
+           Queries: "ring sizer" (>10,000), "online ring sizer" / "ring sizer
+           online", "virtual ring sizer", "ring sizer tool", "free ring sizer",
+           "ring size calculator", "ring size measurements" — all >1000, and
+           none of them had a section naming them. The page had a tool and a
+           chart but never explained the tool, which is the thing the biggest
+           keyword actually asks about. See RESEARCH.md, 28 Aug keyword pass. -->
+      <section id="about-tool" class="scroll-mt-20" aria-labelledby="about-tool-heading">
+        <p class="section-label">About the tool</p>
+        <h2 id="about-tool-heading" class="text-2xl sm:text-3xl font-display font-semibold text-text">
+          How this ring sizer works
+        </h2>
+
+        <p class="mt-4 max-w-[68ch] text-text-muted leading-relaxed">
+          Most online ring sizers ask you to hold a ring against a picture on your screen. That
+          cannot work, and the reason is simple arithmetic: a screen has no fixed relationship
+          between pixels and millimetres. The same image is physically larger on a 24-inch monitor
+          than on a laptop, larger again on a 4K display running at a different scaling factor, and
+          different once more if your browser is zoomed to 110%. An image that is correct on the
+          developer's machine is wrong on almost everyone else's, and nothing on the page tells the
+          visitor that it is wrong.
+        </p>
+
+        <h3 class="mt-8 text-lg font-semibold text-text">Calibrating against a bank card</h3>
+
+        <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
+          This ring size calculator solves that before it measures anything. Every payment card in
+          the world is manufactured to <strong class="text-text">ISO/IEC&nbsp;7810&nbsp;ID-1</strong>:
+          85.60&nbsp;×&nbsp;{CARD_SHORT_MM}&nbsp;mm, to a tolerance of a tenth of a millimetre. Bank
+          cards, credit cards, most driving licences and most national ID cards are all the same
+          object dimensionally. So you hold one against the screen, drag the slider until the
+          outline matches its edges, and the tool now knows exactly how many pixels your display
+          puts in a millimetre — on a standard 96&nbsp;DPI screen that is about {cardPx96}&nbsp;pixels
+          across the card, but the point is that it no longer has to assume.
+        </p>
+
+        <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
+          That number is saved in your browser, so you calibrate once. Everything the tool draws
+          afterwards — the ring circle, the millimetre grid behind it, the 10&nbsp;mm scale bar — is
+          scaled from it. If you change screens or zoom level, recalibrate and everything moves with
+          you.
+        </p>
+
+        <h3 class="mt-8 text-lg font-semibold text-text">Three ways to give it a measurement</h3>
+
+        <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
+          Once calibrated, the virtual ring sizer takes whatever you have:
+        </p>
+
+        <ul class="mt-4 max-w-[68ch] list-disc space-y-2 pl-5 text-text-muted leading-relaxed">
+          <li>
+            <strong class="text-text">A ring that already fits.</strong> Lay it on the circle and
+            match the circle to the ring's inside edge. This is the most accurate route, because a
+            ring is rigid and a finger is not.
+          </li>
+          <li>
+            <strong class="text-text">A finger you have measured.</strong> Wrap a strip of paper
+            round the base of the finger, mark the overlap, measure it flat, and type that in as a
+            circumference.
+          </li>
+          <li>
+            <strong class="text-text">A number from somewhere else.</strong> A jeweller's reading, a
+            caliper, a size printed inside an old band — type it straight into the field.
+          </li>
+        </ul>
+
+        <p class="mt-4 max-w-[68ch] text-text-muted leading-relaxed">
+          The two switchers above the readout are deliberately separate. One asks
+          <em>what you measured</em> — inside diameter or inside circumference — and the other asks
+          <em>which unit</em> you want, millimetres, centimetres or inches. Those are independent
+          questions, and putting them in one row of buttons, as this tool once did, quietly makes
+          some combinations unreachable. If your ruler is marked in inches and you measured around
+          the finger, that combination exists here.
+        </p>
+
+        <h3 class="mt-8 text-lg font-semibold text-text">What the conversions are built from</h3>
+
+        <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
+          Every size shown is computed from the published standard for that country, not copied from
+          another site's chart. EU sizes come from <strong class="text-text">ISO&nbsp;8653</strong>,
+          where the size <em>is</em> the inner circumference in millimetres, defined from {ISO_MIN} to {ISO_MAX}.
+          Japan comes from <strong class="text-text">JIS&nbsp;S&nbsp;4700</strong>, which runs 1 to {JP_MAX}. UK letters come from
+          <strong class="text-text">BS&nbsp;EN&nbsp;28653</strong>, one letter per 1.25&nbsp;mm of
+          circumference. The US scale has no governing standard at all — it is a trade convention,
+          and we say so rather than implying otherwise.
+        </p>
+
+        <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
+          This matters more than it sounds. Because the numbers are computed rather than transcribed,
+          no two readings on this site can disagree with each other, and the tool cannot drift from
+          the chart. Run the same diameter through diameter mode, circumference mode, centimetres and
+          inches and you get the same size every time — which is not true of every ring sizer chart
+          published, including some by very large jewellers.
+        </p>
+
+        <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
+          The slider covers {rangeLow.diameterMm.toFixed(2)}&nbsp;mm to {rangeHigh.diameterMm.toFixed(2)}&nbsp;mm
+          of inner diameter, which is the exact band where
+          all seven systems answer. Beyond it, sizes stop being defined — and where a scale does not
+          define a size, this tool prints an em dash instead of inventing one.
+        </p>
+
+        <h3 class="mt-8 text-lg font-semibold text-text">How accurate is it, honestly</h3>
+
+        <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
+          The arithmetic is exact; your hands are not. A full US size is {fullSizeMm.toFixed(2)}&nbsp;mm
+          of diameter and a quarter size is {quarterMm.toFixed(4)}&nbsp;mm — small enough that a
+          slightly sloppy calibration, a ring
+          sitting at an angle on the glass, or a paper strip pulled half a millimetre tight will
+          move the answer. Measure twice. Where the result falls between two sizes, and the ring is
+          a gift or cannot be resized, take it to a jeweller with a steel mandrel; that is the one
+          thing no screen can replace.
+        </p>
+
+        <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
+          Fingers also change through the day — heat, salt and exercise swell them, cold shrinks
+          them, and the swing across a single day is easily half a size. Measure in the evening at
+          normal room temperature, on the hand the ring will actually be worn on.
+        </p>
+
+        <h3 class="mt-8 text-lg font-semibold text-text">Free, and nothing leaves your browser</h3>
+
+        <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
+          There is no account, no email gate and no PDF to download. The whole ring sizer tool runs
+          as JavaScript on this page: your measurement is never sent anywhere, because there is
+          nowhere for it to be sent. The only thing stored is your screen's calibration, kept in your
+          own browser so you do not have to redo it, and removable by clearing this site's data.
+        </p>
+
+        <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
+          If you would rather work on paper, the
+          <a href="/printable-ring-sizer" class="text-accent-text underline underline-offset-2">printable ring sizer</a>
+          prints a paper gauge with a scale-check square, so you can prove your printer did not
+          shrink the page — the failure that makes most printable sizers quietly wrong. For the full
+          conversion tables see the
+          <a href="/ring-size-chart" class="text-accent-text underline underline-offset-2">ring size chart</a>,
+          and for step-by-step instructions there is a guide to
+          <a href="/how-to-measure-ring-size-at-home" class="text-accent-text underline underline-offset-2">measuring your ring size at home</a>.
+        </p>
+      </section>
 
       <!-- ── Is this number normal? — summary only ─────────────────────
            The table and the provenance moved to /average-ring-size, which

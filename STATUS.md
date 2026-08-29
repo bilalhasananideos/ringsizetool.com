@@ -161,6 +161,36 @@ All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the a
     became "2.50" under the cursor. It now syncs on commit (blur/Enter), like the ring field
   - dead `set('[data-out-br]', …)` — no Brazil element exists in the markup
 
+## ⚠️ Astro gotcha that has now bitten three times
+
+**Astro deletes the newline between text and a following `{expression}` or tag.** Write this:
+
+```
+    A full US size is
+    {fullSizeMm.toFixed(2)}&nbsp;mm of diameter
+```
+
+and the page renders "A full US size is0.81 mm of diameter". Same for a `<strong>` on the next
+line: "measuring the" + newline + `<strong>inside</strong>` renders as "theinside".
+
+It is invisible in the source, invisible in the diff, and only shows up in the rendered text — so
+`npm run build` passing means nothing here. **Keep the word and the expression on the same source
+line**, even where that makes the line long.
+
+Sweep for it after any prose edit:
+
+```bash
+python3 -c "
+import re,html,glob
+for f in sorted(glob.glob('dist/*.html')):
+    s=re.sub(r'<script.*?</script>','',open(f).read(),flags=re.S)
+    t=html.unescape(re.sub(r'\s+',' ',re.sub(r'<[^>]+>',' ',s)))
+    j=[m for m in re.findall(r'\S{0,18}[a-z]\d[\d.]*\S{0,6}', t) if not re.search(r'(ISO|IEC|EN|JIS|BS|[A-Z]\d|4K|-\d|/\d|\d[a-z])', m)]
+    if j: print(f, j[:6])"
+```
+
+---
+
 ## Next, in order ⬜
 
 1. **Owner reads the homepage, the chart page and `/printable-ring-sizer`** —

@@ -58,8 +58,8 @@ const SECTIONS = [
 ];
 ---
 <Layout
-  title="How to Measure Ring Size at Home — 2 Accurate Methods | Ring Size Tool"
-  description="Measure your ring size at home in about two minutes, with a bank card and either a ring that fits or a strip of paper. No printer and no ring sizer needed, in mm, cm or inches."
+  title="How to Measure Ring Size at Home | Ring Size Tool"
+  description="Measure your ring size at home in two minutes with a bank card and either a ring that fits or a strip of paper. Works in mm, cm or inches. No printer needed."
   noindex={NOINDEX_SITE}
   jsonLd={jsonLd}
 >
@@ -193,9 +193,8 @@ const SECTIONS = [
       </p>
 
       <p class="mt-4 max-w-[62ch] text-text-muted">
-        The arithmetic is unforgiving. One full US size is
-        {(diameterFromUs(7) - diameterFromUs(6)).toFixed(2)}&nbsp;mm of diameter, which is only
-        {(Math.PI * (diameterFromUs(7) - diameterFromUs(6))).toFixed(2)}&nbsp;mm of circumference —
+        The arithmetic is unforgiving. One full US size is {(diameterFromUs(7) - diameterFromUs(6)).toFixed(2)}&nbsp;mm
+        of diameter, which is only {(Math.PI * (diameterFromUs(7) - diameterFromUs(6))).toFixed(2)}&nbsp;mm of circumference —
         about two and a half millimetres. Stretch a string by that much, which takes almost no
         force, and you have lost a whole size.
       </p>
@@ -219,9 +218,8 @@ const SECTIONS = [
       </p>
 
       <p class="mt-4 max-w-[62ch] text-text-muted">
-        One warning about inches. A quarter US size is
-        {(diameterFromUs(6.25) - diameterFromUs(6)).toFixed(4)}&nbsp;mm of diameter, which is about
-        {((diameterFromUs(6.25) - diameterFromUs(6)) / 25.4).toFixed(3)}&nbsp;inches. An inch ruler
+        One warning about inches. A quarter US size is {(diameterFromUs(6.25) - diameterFromUs(6)).toFixed(4)}&nbsp;mm
+        of diameter, which is about {((diameterFromUs(6.25) - diameterFromUs(6)) / 25.4).toFixed(3)}&nbsp;inches. An inch ruler
         marked in sixteenths cannot resolve that, and neither can a figure written to two decimal
         places. If you have a choice, measure in millimetres.
       </p>
