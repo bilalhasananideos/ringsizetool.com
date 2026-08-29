@@ -4,7 +4,7 @@
 
 export const SITE_NAME = 'Ring Size Tool';
 export const SITE_URL = 'https://ringsizetool.com';
-export const EMAIL = 'hello@ringsizetool.com';
+export const EMAIL = 'contact@ringsizetool.com';
 
 /**
  * ⚠️ SITE-WIDE NOINDEX

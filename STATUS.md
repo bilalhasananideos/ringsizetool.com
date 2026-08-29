@@ -227,6 +227,29 @@ itself, and the canonicals would be fighting the DNS.
 Decide before the noindex comes off, not after. Changing canonical host once Google has indexed
 one is the expensive kind of change.
 
+### ✅ DONE 29–30 Aug — the domain, the pipeline, and the host rules
+
+- **`https://ringsizetool.com` is live** on Cloudflare Pages, SSL active. The apex is the
+  canonical host, which is what `SITE_URL`, every canonical tag, the sitemap and `robots.txt`
+  already assumed — so nothing had to change to match it.
+- **Auto-deploy works.** Push to `main` → verify → build → noindex check → deploy. First run
+  carried 31 commits up in one go.
+- **`www` → apex, 301.** Redirect Rule with a wildcard, `https://www.ringsizetool.com/*` →
+  `https://ringsizetool.com/${1}`, query string preserved. The `${1}` matters: without it every
+  page collapses onto the homepage.
+- **`Always Use HTTPS` is on**, and it fixed a real bug rather than being a nicety. The redirect
+  rule's pattern begins with `https://`, so `http://www…` never matched it — Cloudflare then
+  looked for a `www` origin, found none (www is not a Pages custom domain) and returned **522**.
+  The apex was fine because Pages handles its own HTTP upgrade. Found by testing, not by reading.
+- **Minimum TLS raised to 1.2** from the 1.0 default.
+
+Verified end to end: `http://www…/ring-size-chart`, `http://apex/…`, `https://www…?query` all
+land on the apex page, 200, path and query intact, every hop a 301.
+
+⚠️ **Do not add `www` as a second Pages custom domain.** It would serve the same content on both
+hosts — duplicate content the site inflicts on itself, with the canonicals fighting DNS. The
+redirect rule is the correct mechanism.
+
 ### ⏸ PENDING — auto-deploy is built but not switched on
 
 `.github/workflows/deploy.yml` exists and is committed. Push to `main` runs
@@ -266,14 +289,15 @@ wanted there too, this same workflow is the pattern — with `wrangler deploy` i
    submitting a noindexed site teaches Google nothing and wastes the first crawl.
 7. Then add pages one at a time. Each new page is picked up by the sitemap automatically.
 
-### ⬜ `hello@ringsizetool.com` does not exist yet
+### ⬜ `contact@ringsizetool.com` has no mailbox yet
 
-`/contact`, `/privacy`, `/about` and `EMAIL` in `src/config.ts` all publish it. The domain was
-registered 28 Aug, so nothing is receiving that mailbox — **every message sent to it today
-bounces**, and the contact page invites exactly the corrections this site most wants to hear.
+`/contact`, `/privacy` and `/terms` publish it, all from `EMAIL` in `src/config.ts` — one
+constant, so the address is changed in one place. It was `hello@`; the owner chose `contact@`
+on 30 Aug, which is the more standard form and states its purpose.
 
-Fix is free and takes minutes: Cloudflare dashboard → the `ringsizetool.com` zone → **Email** →
-**Email Routing** → route `hello@` to a real inbox. No mail server, no cost.
+Nothing is receiving it yet: Cloudflare zone → **Email** → **Email Routing** → verify a real
+inbox as the destination, then route `contact@ringsizetool.com` to it. Free, no mail server.
+Worth adding a **catch-all** in the same screen so `hello@` and `info@` are not lost.
 
 Do it before the noindex comes off. A published address that bounces is worse than none.
 
