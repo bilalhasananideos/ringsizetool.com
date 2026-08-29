@@ -382,6 +382,42 @@ session at a time.**
 
 ---
 
+## Notes worth keeping — decisions and traps, 30 Aug 2026
+
+**Who wrote the privacy policy's analytics promise.** Not the owner — it came from commit
+`f37270f`, added while removing three false claims from that page (it described GA4, Cloudflare
+Web Analytics and AdSense, none installed, plus an EEA/UK consent choice that did not exist). The
+sentence *"if that changes, this page will say so before it does"* was a judgement call to stop
+the file drifting back. **The owner can have it removed.** What cannot be removed is the
+obligation: adding analytics means editing that page the same day, because the law requires it,
+not because of the sentence.
+
+**Cloudflare obfuscates the contact address.** `contact@ringsizetool.com` is absent from the
+served HTML as a plain string — it appears as `__cf_email__` with a `data-cfemail` hex blob and is
+decoded by a Cloudflare script in the browser. Anti-scraping, on by default, working as intended.
+Do not "fix" it, and do not conclude a deploy failed because grep finds nothing.
+
+**Astro eats the newline before `{expression}` and before a tag.** Nine occurrences were found and
+fixed on 29–30 Aug (`"A full US size is\n{fullSizeMm}"` rendered as `is0.81`). Invisible in the
+source and in the diff; the build passes either way. Keep the word and the expression on one
+source line, and re-run the sweep in the gotcha section above after any prose edit.
+
+**Two `.gitignore` layers.** The factory root ignores `sites/`, because each site is its own
+repository. A `git commit` run from the factory root silently commits nothing from the site — it
+happened once this session and the work looked committed when it was not. Always commit from
+inside `sites/<domain>/`.
+
+**Destination email addresses are account-wide in Cloudflare.** `bilal.fre.679@gmail.com` is now
+verified on the account, so every future site in the factory can route to it without verifying
+again. Prefer one inbox with Gmail filters over a new mailbox per site — `taxcalcpkofficial@` is
+the counter-example of how that ages.
+
+**The 60-day transfer lock.** `ringsizetool.com` was registered 28 Aug 2026, so it cannot move
+registrar or Cloudflare account until roughly 27 Oct. If these sites are ever to sit under a
+business identity rather than a personal Gmail, that is the earliest it can be done.
+
+---
+
 ## Next, in order ⬜
 
 1. **Owner reads the homepage, the chart page and `/printable-ring-sizer`** —
