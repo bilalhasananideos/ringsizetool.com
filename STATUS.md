@@ -214,6 +214,19 @@ It stops being harmless the moment noindex comes off. **Never flip `NOINDEX_SITE
 genuinely hard to undo: Google will index the pages.dev host, find canonicals it cannot fetch,
 and you spend months teaching it the real URL.
 
+### ⬜ Open: www or apex only? — owner deferred, 29 Aug
+
+`SITE_URL` is `https://ringsizetool.com` (apex, no www) and every canonical already emits that,
+so **apex-only is the zero-work option and the one everything is currently consistent with.**
+
+The only argument for adding `www.ringsizetool.com` is that someone typing it by hand should not
+hit a dead page. If it is added it must be a **redirect to the apex**, never a second host serving
+the same pages — two hosts serving identical content is duplicate content the site inflicts on
+itself, and the canonicals would be fighting the DNS.
+
+Decide before the noindex comes off, not after. Changing canonical host once Google has indexed
+one is the expensive kind of change.
+
 ### The safe launch order
 
 1. **Buy the domain.** Everything below is blocked on this, and nothing above it matters.
