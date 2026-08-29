@@ -11,7 +11,11 @@ https://:project.pages.dev/*
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: SAMEORIGIN
 
-/assets/*
+# Astro emits hashed filenames into /_astro/, not /assets/ - this rule said
+# /assets/*, which matches nothing this site serves, so the CSS, JS and images
+# were shipping with no immutable header at all. The hash in the filename is
+# what makes a year-long cache safe: change a file and its URL changes.
+/_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
 /fonts/*
