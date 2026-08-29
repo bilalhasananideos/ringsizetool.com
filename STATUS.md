@@ -227,6 +227,31 @@ itself, and the canonicals would be fighting the DNS.
 Decide before the noindex comes off, not after. Changing canonical host once Google has indexed
 one is the expensive kind of change.
 
+### ⏸ PENDING — auto-deploy is built but not switched on
+
+`.github/workflows/deploy.yml` exists and is committed. Push to `main` runs
+`npm ci` → `npm run verify` → `npm run build` → a noindex check → `wrangler pages deploy`.
+**It cannot run until two GitHub secrets exist**, and only the owner can create the first:
+
+| Secret | Value |
+|---|---|
+| `CLOUDFLARE_API_TOKEN` | Cloudflare → Manage account → **Account API tokens** → Create Custom Token. Permissions: **Account · Cloudflare Pages · Edit** and **Account · Account Settings · Read**. Nothing more — this token lives on GitHub. |
+| `CLOUDFLARE_ACCOUNT_ID` | `b9c4a5166afe57f87b65c8bb1d795f1c` |
+
+```bash
+gh secret set CLOUDFLARE_ACCOUNT_ID --body b9c4a5166afe57f87b65c8bb1d795f1c --repo bilalhasananideos/ringsizetool.com
+gh secret set CLOUDFLARE_API_TOKEN --repo bilalhasananideos/ringsizetool.com
+```
+
+⚠️ **24 local commits are unpushed.** The first push after the secrets land deploys all of them
+at once. That is fine — the site stays `noindex` — but expect the live site to jump forward.
+
+**Correction to a belief worth killing:** taxcalcpk.com does **not** auto-deploy. All ten of its
+Worker deployments report `Source: Unknown (deployment)`, i.e. a hand-run `wrangler deploy`, and
+its repo (`bilalfre679-cyber/studio`, branch `AddSkill`) has no workflow file. If push-to-deploy is
+wanted there too, this same workflow is the pattern — with `wrangler deploy` instead of
+`pages deploy`.
+
 ### The safe launch order
 
 1. **Buy the domain.** Everything below is blocked on this, and nothing above it matters.
