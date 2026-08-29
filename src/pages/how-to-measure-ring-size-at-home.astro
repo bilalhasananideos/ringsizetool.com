@@ -17,10 +17,11 @@
  * declaring a procedure whose steps have gone.
  */
 import Layout from '../layouts/Layout.astro';
+import FaqSection from '../components/FaqSection.astro';
 import RingSizer from '../components/RingSizer.astro';
 import { NOINDEX_SITE, SITE_URL } from '../config';
 import { fromCircumference, AVERAGE_US_SIZE, diameterFromUs, fromDiameter } from '../data/ringSizes';
-import { breadcrumbSchema, howToSchema } from '../data/faq';
+import { breadcrumbSchema, howToSchema, METHOD_FAQS, faqPageSchema } from '../data/faq';
 
 const PAGE_URL = `${SITE_URL}/how-to-measure-ring-size-at-home`;
 
@@ -40,6 +41,7 @@ const avgWomen = fromDiameter(diameterFromUs(AVERAGE_US_SIZE.women));
 const avgMen = fromDiameter(diameterFromUs(AVERAGE_US_SIZE.men));
 
 const jsonLd = [
+  faqPageSchema(METHOD_FAQS),
   howToSchema(PAGE_URL),
   breadcrumbSchema([
     { name: 'Ring Sizer', url: SITE_URL },
@@ -351,6 +353,9 @@ const SECTIONS = [
         page, which most printable sizers quietly skip.
       </p>
     </section>
+
+
+    <FaqSection faqs={METHOD_FAQS} heading="Measuring ring size: common questions" id="faq" />
 
   </div>
 </Layout>

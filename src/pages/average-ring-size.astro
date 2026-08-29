@@ -20,9 +20,10 @@
  * competitor states 6 and 9 as fact.
  */
 import Layout from '../layouts/Layout.astro';
+import FaqSection from '../components/FaqSection.astro';
 import { NOINDEX_SITE, SITE_URL } from '../config';
 import { AVERAGE_US_SIZE, diameterFromUs, fromDiameter, CHART_ROWS } from '../data/ringSizes';
-import { breadcrumbSchema } from '../data/faq';
+import { breadcrumbSchema, AVERAGE_FAQS, faqPageSchema } from '../data/faq';
 
 const PAGE_URL = `${SITE_URL}/average-ring-size`;
 
@@ -45,6 +46,7 @@ const largest = sold[sold.length - 1];
 const oneSizeMm = diameterFromUs(7) - diameterFromUs(6);
 
 const jsonLd = [
+  faqPageSchema(AVERAGE_FAQS),
   breadcrumbSchema([
     { name: 'Ring Sizer', url: SITE_URL },
     { name: 'Average Ring Size', url: PAGE_URL },
@@ -231,6 +233,9 @@ const jsonLd = [
         </a>
       </p>
     </section>
+
+
+    <FaqSection faqs={AVERAGE_FAQS} heading="Average ring size questions" id="faq" />
 
   </div>
 </Layout>

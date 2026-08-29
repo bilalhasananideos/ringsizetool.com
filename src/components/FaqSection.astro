@@ -1,0 +1,52 @@
+---
+/**
+ * A page's FAQ block. The markup lived only on the homepage; four other pages
+ * needed the same thing, so it is a component rather than four copies that
+ * drift apart.
+ *
+ * The caller is responsible for passing `faqPageSchema(theSameArray)` into its
+ * Layout's jsonLd. Rendering questions here without emitting the schema, or
+ * emitting schema for questions that are not on the page, are both Google
+ * structured-data violations — the markup and the schema must match exactly.
+ */
+import type { Faq } from '../data/faq';
+
+interface Props {
+  faqs: Faq[];
+  /** Overridable so each page's FAQ heading can carry its own keyword. */
+  heading?: string;
+  id?: string;
+}
+
+const { faqs, heading = 'Questions people actually ask', id = 'faq' } = Astro.props;
+---
+<section id={id} class="mt-16 scroll-mt-20" aria-labelledby={`${id}-title`}>
+  <h2 id={`${id}-title`} class="text-[clamp(1.75rem,3.5vw,2.25rem)]">{heading}</h2>
+
+  <p class="mt-3 max-w-[62ch] text-sm text-text-muted">
+    Taken word for word from Google&rsquo;s &ldquo;People also ask&rdquo;. Nothing here is invented
+    to pad the page.
+  </p>
+
+  <div class="mt-8 divide-y divide-border border-y border-border">
+    {faqs.map((f) => (
+      <details class="group">
+        <summary
+          class="flex min-h-11 cursor-pointer select-none items-start justify-between gap-4 py-4
+                 font-medium text-text transition-colors duration-150 hover:text-accent"
+        >
+          <span class="text-sm sm:text-base">{f.q}</span>
+          <svg
+            width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round"
+            class="mt-1 shrink-0 text-text-faint transition-transform duration-200 group-open:rotate-45"
+            aria-hidden="true"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </summary>
+        <p class="max-w-[68ch] pb-5 pt-1 text-sm leading-relaxed text-text-muted">{f.a}</p>
+      </details>
+    ))}
+  </div>
+</section>

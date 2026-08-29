@@ -15,9 +15,10 @@
  * site is self-inflicted duplicate content.
  */
 import Layout from '../layouts/Layout.astro';
+import FaqSection from '../components/FaqSection.astro';
 import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
 import { CHART_ROWS, AVERAGE_US_SIZE } from '../data/ringSizes';
-import { breadcrumbSchema } from '../data/faq';
+import { breadcrumbSchema, CHART_FAQS, faqPageSchema } from '../data/faq';
 
 /* Every row is generated. Never type a size into this file. */
 const rows = CHART_ROWS;
@@ -32,6 +33,7 @@ const first = rows[0];
 const last = rows[rows.length - 1];
 
 const jsonLd = [
+  faqPageSchema(CHART_FAQS),
   breadcrumbSchema([
     { name: 'Ring Sizer', url: SITE_URL },
     { name: 'Ring Size Chart', url: `${SITE_URL}/ring-size-chart` },
@@ -368,5 +370,8 @@ const SECTIONS = [
         {' '}instead and the reading is taken for you.
       </p>
     </aside>
+
+    <FaqSection faqs={CHART_FAQS} heading="Ring size chart questions" id="faq" />
+
   </div>
 </Layout>
