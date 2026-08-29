@@ -131,17 +131,22 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       <div class="cal-stage -mx-6 sm:-mx-8 md:mx-0 overflow-x-auto rounded-xl md:border md:border-dashed md:border-border md:bg-surface-sunk/50">
         <div class="flex flex-col items-center justify-center px-0 py-2 md:p-6">
 
-          <!-- Narrow: width gauge. Ticks mark the two points that must touch
-               the card's short edges; everything between them is 53.98 mm. -->
-          <div data-cal-gauge class="md:hidden shrink-0 px-1">
-            <div class="cal-gauge relative flex items-end justify-center rounded-lg border border-dashed border-accent bg-accent-sunk/30">
-              <span class="cal-gauge-tick left-0"></span>
-              <span class="cal-gauge-tick right-0"></span>
+          <!-- Narrow: the same 53.98 mm, measured DOWN the screen instead of
+               across it. A phone is about 60 mm wide and 130 mm tall, so the
+               card's short edge only ever fits vertically once the screen is
+               calibrated — laid across, it needs 432 px at the 8 px/mm ceiling
+               and there is nowhere near that much width. Turned 90° it fits at
+               every calibration with room to spare, and the card does not care
+               which way up it is held. -->
+          <div data-cal-gauge class="md:hidden shrink-0">
+            <div class="cal-gauge relative mx-auto flex items-center justify-center rounded-lg border border-dashed border-accent bg-accent-sunk/30">
+              <span class="cal-gauge-tick top-0"></span>
+              <span class="cal-gauge-tick bottom-0"></span>
               <span class="cal-gauge-rule"></span>
-              <span class="relative z-10 mb-1 bg-surface px-2 text-[10px] font-mono text-accent-text pointer-events-none select-none">53.98 mm</span>
+              <span class="relative z-10 bg-surface px-1 text-[10px] font-mono text-accent-text pointer-events-none select-none">53.98 mm</span>
             </div>
-            <p class="mt-2 text-center text-[11px] text-text-faint">
-              Lay a bank card's <strong class="text-text-muted">short edge</strong> across the gauge
+            <p class="mt-3 max-w-[22rem] text-center text-[11px] text-text-faint">
+              Hold a bank card against the screen and line its <strong class="text-text-muted">short edge</strong> up between the two bars
             </p>
           </div>
 
@@ -408,29 +413,32 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     border-radius: calc(var(--cal-mm) * var(--calCornerMm));
   }
 
-  /* The narrow-viewport reference: width only, because width is the only
-   * dimension the visitor is ever asked to match. Height is a fixed 16 mm so
-   * the gauge stays short enough to sit on screen beside the slider. */
+  /* The narrow-viewport reference. Only ONE dimension is ever matched, so the
+   * gauge spends its height on the 53.98 mm and its width on being visible:
+   * 18 mm, with a floor so it does not become a hairline at low calibrations.
+   * Height, not width, because that is the axis a phone has to spare. */
   .cal-gauge {
-    width: calc(var(--cal-mm) * var(--calCardMm));
-    height: calc(var(--cal-mm) * 16);
-    min-height: 2.75rem;
+    height: calc(var(--cal-mm) * var(--calCardMm));
+    width: calc(var(--cal-mm) * 18);
+    min-width: 3.5rem;
   }
 
+  /* The two bars ARE the measurement: outer edge to outer edge is 53.98 mm,
+   * which is also how the ring circle is read. One rule for both. */
   .cal-gauge-tick {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 2px;
+    left: 0;
+    right: 0;
+    height: 2px;
     background: var(--accent);
   }
 
   .cal-gauge-rule {
     position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    height: 1px;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
     background: var(--accent);
     opacity: 0.55;
   }
