@@ -266,6 +266,17 @@ wanted there too, this same workflow is the pattern — with `wrangler deploy` i
    submitting a noindexed site teaches Google nothing and wastes the first crawl.
 7. Then add pages one at a time. Each new page is picked up by the sitemap automatically.
 
+### ⬜ `hello@ringsizetool.com` does not exist yet
+
+`/contact`, `/privacy`, `/about` and `EMAIL` in `src/config.ts` all publish it. The domain was
+registered 28 Aug, so nothing is receiving that mailbox — **every message sent to it today
+bounces**, and the contact page invites exactly the corrections this site most wants to hear.
+
+Fix is free and takes minutes: Cloudflare dashboard → the `ringsizetool.com` zone → **Email** →
+**Email Routing** → route `hello@` to a real inbox. No mail server, no cost.
+
+Do it before the noindex comes off. A published address that bounces is worse than none.
+
 ### Two checks only the owner can do, and they gate the whole pitch
 
 Neither has been done. Both test the claim the entire site is built on — that the numbers are
