@@ -289,17 +289,19 @@ wanted there too, this same workflow is the pattern — with `wrangler deploy` i
    submitting a noindexed site teaches Google nothing and wastes the first crawl.
 7. Then add pages one at a time. Each new page is picked up by the sitemap automatically.
 
-### ⬜ `contact@ringsizetool.com` has no mailbox yet
+### ✅ `contact@ringsizetool.com` receives mail — 30 Aug
 
-`/contact`, `/privacy` and `/terms` publish it, all from `EMAIL` in `src/config.ts` — one
-constant, so the address is changed in one place. It was `hello@`; the owner chose `contact@`
-on 30 Aug, which is the more standard form and states its purpose.
+Cloudflare Email Routing, free, no mail server. MX, SPF and DKIM are live and verified in DNS;
+`contact@` routes to `bilal.fre.679@gmail.com`, and a `hello@` rule covers the address that was
+briefly published before the rename.
 
-Nothing is receiving it yet: Cloudflare zone → **Email** → **Email Routing** → verify a real
-inbox as the destination, then route `contact@ringsizetool.com` to it. Free, no mail server.
-Worth adding a **catch-all** in the same screen so `hello@` and `info@` are not lost.
+**Catch-all is deliberately left on Drop.** A catch-all turns the whole domain into a spam target —
+`admin@`, `sales@`, and every random string a spammer tries would land in the inbox. Two explicit
+rules cover both addresses that were ever published, and nothing else is open.
 
-Do it before the noindex comes off. A published address that bounces is worse than none.
+`EMAIL` in `src/config.ts` is the single source for the address; `/contact`, `/privacy` and
+`/terms` all read from it. Cloudflare obfuscates it in the served HTML (`__cf_email__`), so the
+plain string is absent from the page source by design — that is anti-scraping, not a bug.
 
 ### Two checks only the owner can do, and they gate the whole pitch
 
