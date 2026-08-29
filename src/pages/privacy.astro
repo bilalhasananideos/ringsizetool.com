@@ -1,47 +1,91 @@
 ---
+/**
+ * Privacy policy.
+ *
+ * ⚠️ This file used to describe Google Analytics 4, Cloudflare Web Analytics
+ * and AdSense, plus an EEA/UK consent choice. **None of them existed.** It also
+ * omitted the one thing the site genuinely stores — the screen calibration.
+ *
+ * The rule for this page: it describes what the site does TODAY, in the
+ * present tense, and nothing else. On a site whose entire pitch is that its
+ * numbers are verified rather than copied, a policy listing cookies that are
+ * never set is the same failure in a different file. If analytics or ads are
+ * added, this page changes in the same commit — not after.
+ */
 import Layout from '../layouts/Layout.astro';
 import Prose from '../components/Prose.astro';
 import { SITE_NAME, EMAIL, NOINDEX_SITE } from '../config';
+import { PPM_STORE_KEY } from '../data/calibration';
+
+/* Dated from the commit that made it true, not auto-generated: a policy whose
+   date moves on every build tells the reader nothing about when it changed. */
+const LAST_UPDATED = '29 August 2026';
 ---
-<Layout title={`Privacy Policy — ${SITE_NAME}`} description={`How ${SITE_NAME} handles your data.`} noindex={NOINDEX_SITE}>
+<Layout
+  title={`Privacy Policy — ${SITE_NAME}`}
+  description={`${SITE_NAME} collects nothing. The tool runs in your browser, no account, no analytics, no advertising. What is stored on your device, and why.`}
+  noindex={NOINDEX_SITE}
+>
   <Prose title="Privacy Policy">
-    <p><strong>Last updated:</strong> <!-- TODO: date --></p>
+    <p><strong>Last updated:</strong> {LAST_UPDATED}</p>
 
     <h2>The short version</h2>
     <p>
-      The tool runs entirely in your browser. Anything you measure or upload stays on your device
-      and is never sent to us.
+      We collect nothing. There is no account, no sign-up, no analytics and no advertising on this
+      site today. The tool runs entirely in your browser, so the measurements you type are never
+      sent anywhere — there is no server here to send them to.
     </p>
 
     <h2>What is stored on your device</h2>
+    <p>Two small values, both in your browser&rsquo;s local storage, neither of which leaves it:</p>
     <ul>
-      <li><strong>Theme preference</strong> — light, dark or system, kept in your browser's local storage.</li>
-      <li><!-- TODO: list anything else, e.g. a saved calibration value. Remove if none. --></li>
+      <li>
+        <strong>Your theme preference</strong> — light, dark or system, so the page does not flash
+        the wrong colour on your next visit.
+      </li>
+      <li>
+        <strong>Your screen calibration</strong> (<code>{PPM_STORE_KEY}</code>) — a single number,
+        how many pixels your display puts in a millimetre, so you do not have to hold a bank card
+        against the screen every time.
+      </li>
     </ul>
-    <p>This never leaves your browser. Clearing site data removes it.</p>
+    <p>
+      Clearing this site&rsquo;s data in your browser removes both. Nothing else is written, and no
+      cookies are set.
+    </p>
 
     <h2>Analytics</h2>
-    <ul>
-      <li><strong>Google Analytics 4</strong> — page views and general usage. Sets cookies.</li>
-      <li><strong>Cloudflare Web Analytics</strong> — cookieless, no personal data.</li>
-    </ul>
+    <p>
+      <strong>None.</strong> There is no Google Analytics, no Cloudflare Web Analytics and no other
+      measurement script on this site. If that changes, this page will say so before it does, and
+      will name whatever is added.
+    </p>
 
     <h2>Advertising</h2>
     <p>
-      <!-- TODO: remove this section entirely until AdSense is actually approved and live. -->
-      Google AdSense may set cookies to show relevant ads. You can manage this at
-      <a href="https://adssettings.google.com" rel="nofollow noopener">Google Ad Settings</a>.
-      Visitors in the EEA and UK are shown a consent choice before any advertising cookie is set.
+      <strong>None.</strong> There are no ads and no advertising cookies today. This site is
+      intended to carry advertising eventually; when it does, this section will name the network,
+      and visitors in the EEA and UK will be asked for consent before any advertising cookie is
+      set — not afterwards.
+    </p>
+
+    <h2>Hosting</h2>
+    <p>
+      The site is served by Cloudflare Pages. Like any web host, Cloudflare processes the technical
+      details of each request — IP address, browser, and which page was asked for — to deliver the
+      page and protect against attacks. That happens at the network level, we do not read it, and
+      it is the only third party involved in serving this site. Their handling is covered by
+      <a href="https://www.cloudflare.com/privacypolicy/" rel="nofollow noopener">Cloudflare&rsquo;s privacy policy</a>.
     </p>
 
     <h2>Your choices</h2>
     <p>
-      Clear site data in your browser to remove everything stored locally. Use your browser's
-      tracking protection to block analytics. In the EEA and UK you can change your consent choice
-      at any time.
+      Clear this site&rsquo;s data to remove the theme and calibration values. Since nothing is
+      collected, there is nothing to request, correct or delete on our side — we hold no record
+      that you were ever here.
     </p>
 
     <h2>Contact</h2>
-    <p><a href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
+    <p>Questions about any of this: <a href={`mailto:${EMAIL}`}>{EMAIL}</a></p>
   </Prose>
 </Layout>

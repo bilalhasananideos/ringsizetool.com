@@ -1,17 +1,89 @@
 ---
+/**
+ * About.
+ *
+ * ⚠️ This page shipped as a skeleton: three empty sections and the sentence
+ * "Ring Size Tool is a free tool that ." rendered to visitors. It is the page
+ * a reader opens to decide whether to trust the numbers, so it says what the
+ * method is AND where it is weakest — the second half is what makes the first
+ * half believable.
+ *
+ * Numbers are derived, same rule as everywhere else on this site.
+ */
 import Layout from '../layouts/Layout.astro';
 import Prose from '../components/Prose.astro';
 import { SITE_NAME, NOINDEX_SITE } from '../config';
+import { diameterFromUs, ISO_MIN, ISO_MAX, JP_MAX } from '../data/ringSizes';
+
+const quarterMm = diameterFromUs(6.25) - diameterFromUs(6);
+const CARD_SHORT_MM = 53.98;   // ISO/IEC 7810 ID-1
 ---
-<Layout title={`About — ${SITE_NAME}`} description="Who builds this tool and why." noindex={NOINDEX_SITE}>
+<Layout
+  title={`About — ${SITE_NAME}`}
+  description={`Who builds ${SITE_NAME}, how the sizes are calculated from the published standards rather than copied from other charts, and where the method is least accurate.`}
+  noindex={NOINDEX_SITE}
+>
   <Prose title="About">
-    <p>{SITE_NAME} is a free tool that <!-- TODO: one sentence, the exact problem it solves -->.</p>
+    <p>
+      {SITE_NAME} is a free ring sizer that measures on your own screen, by first calibrating
+      against a bank card so it knows how large a millimetre actually is on your display.
+    </p>
+
     <h2>Why it exists</h2>
-    <p><!-- TODO: the real reason. What was wrong with the existing options? Be specific — this is
-    where a reader decides whether to trust the numbers. --></p>
+    <p>
+      Because the ring size charts already online disagree with each other, and several disagree
+      with themselves. While researching this, four well-known sizing pages gave three different
+      UK answers for the same US size. One site&rsquo;s chart page and its own downloadable PDF
+      printed different Japanese sizes for the same measurement. Another states that a quarter US
+      size is 0.4 mm of diameter — those are the half-size figures; a quarter size is {quarterMm.toFixed(4)} mm.
+    </p>
+    <p>
+      None of that is malice. It is what happens when charts are copied from other charts for long
+      enough. So nothing here is copied. Every value is computed from the published standard —
+      ISO 8653 for EU sizes, defined from {ISO_MIN} to {ISO_MAX} mm of inner circumference;
+      JIS S 4700 for Japan, 1 to {JP_MAX}; BS EN 28653 for UK letters. Each of those calculations
+      has assertions in the repository that fail the build if a number drifts, and the site cannot
+      deploy while they fail.
+    </p>
+    <p>
+      Where no standard exists — the US scale is a trade convention, and India has no standards
+      body defining ring sizes at all — the page says so rather than presenting a number as
+      settled.
+    </p>
+
     <h2>How it works</h2>
-    <p><!-- TODO: the method and its limits, in plain words. Say where it is less accurate. --></p>
+    <p>
+      A screen has no fixed relationship between pixels and millimetres: the same image is
+      physically larger on a monitor than a laptop, and different again at 110% browser zoom. So
+      the tool asks you to match an outline to a bank card, which is manufactured to
+      ISO/IEC 7810 ID-1 at 85.60 × {CARD_SHORT_MM} mm worldwide. From that one match it knows your
+      display&rsquo;s true scale, and everything it draws afterwards is sized from it.
+    </p>
+    <p>
+      You then either lay a ring you own on the calibrated circle, or measure your finger with a
+      strip of paper and type the length in. Both produce an inner diameter, which is the only
+      measurement every national size system is actually built from.
+    </p>
+
+    <h2>Where it is less accurate</h2>
+    <p>
+      The arithmetic is exact; the inputs are not. A quarter US size is {quarterMm.toFixed(4)} mm
+      of diameter, so a slightly loose calibration, a ring sitting at an angle on the glass, or a
+      paper strip pulled half a millimetre tight will all move the result. Fingers also swell and
+      shrink through the day by roughly half a size.
+    </p>
+    <p>
+      So: measure more than once, and measure in the evening. If the answer lands between two
+      sizes and the ring cannot be resized, a jeweller with a steel mandrel is more reliable than
+      any screen, including this one. This tool is built to get you close enough to buy with
+      confidence, not to replace a physical gauge.
+    </p>
+
     <h2>Contact</h2>
-    <p>Questions or corrections: <a href="/contact">get in touch</a>.</p>
+    <p>
+      Questions or corrections: <a href="/contact">get in touch</a>. If a number here looks wrong,
+      that is the most useful message we can receive — tell us what you measured and what the tool
+      returned.
+    </p>
   </Prose>
 </Layout>

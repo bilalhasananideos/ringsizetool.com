@@ -1,5 +1,22 @@
 ---
+/**
+ * 404.
+ *
+ * A dead end sends the visitor back to Google, where they land on a competitor.
+ * The list below is not decoration: it is every page worth arriving on, so a
+ * mistyped or stale URL still ends somewhere useful. Built from NAV plus the
+ * reference pages so a new route cannot be forgotten here.
+ *
+ * `noindex` is hardcoded true rather than following NOINDEX_SITE - an error
+ * page must never be indexed, even once the site itself is.
+ */
 import Layout from '../layouts/Layout.astro';
+import { NAV } from '../config';
+
+const DESTINATIONS = [
+  ...NAV,
+  { href: '/average-ring-size', label: 'Average Ring Size' },
+];
 ---
 <Layout title="Page not found (404)" description="That page does not exist." noindex={true}>
   <div class="mx-auto w-full max-w-[68ch] px-5 py-24 text-center">
@@ -9,5 +26,21 @@ import Layout from '../layouts/Layout.astro';
     <a href="/" class="mt-8 inline-flex h-11 items-center rounded-lg bg-accent px-5 text-surface no-underline transition-colors duration-150 hover:bg-accent-hover">
       Go to the tool
     </a>
+
+    <nav aria-label="Other pages" class="mt-10 border-t border-border pt-8">
+      <p class="text-sm text-text-muted">Or try one of these:</p>
+      <ul class="mt-4 flex flex-wrap justify-center gap-2">
+        {DESTINATIONS.map((d) => (
+          <li>
+            <a
+              href={d.href}
+              class="inline-flex min-h-11 items-center rounded-full border border-border bg-surface-sunk/50 px-4 text-sm text-text-muted no-underline transition-colors hover:border-accent hover:text-text"
+            >
+              {d.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
   </div>
 </Layout>

@@ -1,11 +1,14 @@
 ---
+/* Dated from the commit that made it true, not auto-generated: a date that
+   moves on every build tells the reader nothing about when the terms changed. */
+const LAST_UPDATED = '29 August 2026';
 import Layout from '../layouts/Layout.astro';
 import Prose from '../components/Prose.astro';
 import { SITE_NAME, EMAIL, NOINDEX_SITE } from '../config';
 ---
 <Layout title={`Terms of Service — ${SITE_NAME}`} description={`Terms for using ${SITE_NAME}.`} noindex={NOINDEX_SITE}>
   <Prose title="Terms of Service">
-    <p><strong>Last updated:</strong> <!-- TODO: date --></p>
+    <p><strong>Last updated:</strong> {LAST_UPDATED}</p>
 
     <h2>Accuracy — read this before you rely on a result</h2>
     <p>
