@@ -1,0 +1,76 @@
+# Push to main -> the site updates. Nothing is deployed by hand.
+#
+# The important step here is `npm run verify`, not the deploy. This site's only
+# claim is that its numbers are computed from the published standards rather
+# than copied, and 187 assertions are what hold that up. They run BEFORE the
+# build, so a broken conversion cannot reach the live site: the job fails and
+# the previous deployment stays up.
+#
+# The Pages project is Direct Upload (`wrangler pages deploy`), not a
+# Git-connected project. That is deliberate - a Git-connected project cannot be
+# converted from Direct Upload, so switching would mean a new project, a new
+# pages.dev subdomain, and re-attaching the custom domain. This keeps both.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # Pull requests get the same gate, but never deploy.
+  pull_request:
+    branches: [main]
+  # Lets you re-run a deploy from the Actions tab without an empty commit.
+  workflow_dispatch:
+
+concurrency:
+  # A newer push makes an in-flight deploy pointless. Cancel it rather than
+  # racing two uploads into the same project.
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm ci` respects the lockfile exactly. `npm install` would be free to
+      # resolve a different tree than the one tested locally.
+      - run: npm ci
+
+      - name: Verify the size data
+        run: npm run verify
+
+      - run: npm run build
+
+      # A page that ships with `noindex` when the site is meant to be live -
+      # or without it while the site is meant to be private - is the one SEO
+      # mistake here that is expensive to undo. Fail loudly either way.
+      - name: Check the noindex flag matches config
+        run: |
+          EXPECTED=$(grep -oE 'NOINDEX_SITE = (true|false)' src/config.ts | awk '{print $3}')
+          FOUND=$(grep -l 'name="robots" content="noindex' dist/*.html | wc -l | tr -d ' ')
+          TOTAL=$(ls dist/*.html | wc -l | tr -d ' ')
+          echo "NOINDEX_SITE=$EXPECTED - $FOUND of $TOTAL pages carry noindex"
+          if [ "$EXPECTED" = "true" ] && [ "$FOUND" != "$TOTAL" ]; then
+            echo "::error::NOINDEX_SITE is true but only $FOUND of $TOTAL pages are noindexed"; exit 1
+          fi
+          if [ "$EXPECTED" = "false" ] && [ "$FOUND" != "0" ]; then
+            echo "::error::NOINDEX_SITE is false but $FOUND pages still carry noindex"; exit 1
+          fi
+
+      - name: Deploy to Cloudflare Pages
+        # Pushes to main only. A PR gets the checks above and stops there.
+        if: github.event_name != 'pull_request'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=ringsizetool --branch=main
