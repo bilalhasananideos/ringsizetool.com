@@ -50,11 +50,16 @@ const STRIP_MAX = Math.ceil(STRIP[STRIP.length - 1].circumferenceMm) + 4;
 const STRIP_LOW = Math.floor(STRIP[0].circumferenceMm);
 const STRIP_HIGH = Math.ceil(STRIP[STRIP.length - 1].circumferenceMm);
 
-const title = `Printable Ring Sizer — Free PDF-Free Paper Gauge | ${SITE_NAME}`;
+/* "Free PDF-Free Paper Gauge" read as an offer of a free PDF, and there is no
+ * PDF anywhere on this page - it IS the printable, printed. Anyone arriving on
+ * "printable ring sizer pdf" would have bounced. The no-download fact belongs
+ * in the description, where it reads as the advantage it is; the title carries
+ * the print-scale check, which is the thing almost no competitor has. */
+const title = `Printable Ring Sizer — Paper Gauge With a Print-Scale Check | ${SITE_NAME}`;
 const description =
-  `Print a paper ring sizer that measures correctly. Includes a ${CHECK_MM} mm scale-check ` +
-  `square so you can prove your printer did not shrink the page, plus a ring-hole gauge and ` +
-  `a finger strip marked in millimetres.`;
+  `Print a paper ring sizer that measures correctly — no PDF, no download, just this page. ` +
+  `A ${CHECK_MM} mm scale-check square proves your printer did not shrink it, and you get a ` +
+  `ring-hole gauge and a finger strip marked in millimetres.`;
 
 const jsonLd = [
   breadcrumbSchema([

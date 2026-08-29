@@ -116,6 +116,17 @@ All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the a
 - `web-design-guidelines` skill audit passed
 - **4 regressions from the visual rewrite fixed** (see Gotchas) — calibrate-card visibility, numeric
   entry, live region, ARIA on the unit toggle
+- **Two keyword pages built** (28 Aug 2026), from the keyword pass in RESEARCH.md:
+  - **`/how-to-measure-ring-size-at-home`** — >10,000/mo at KD 2, plus `how to measure ring size`
+    at >10,000. The homepage's methods section is now a summary linking to it, and `howToSchema()`
+    moved with the steps — a page must not declare a procedure it no longer contains. Carries one
+    generated table of paper-strip lengths that absorbs the whole "what ring size is 7 cm
+    circumference" family; deliberately one table, not a page each.
+  - **`/average-ring-size`** — three >1,000 keywords, `for women` at KD 0. The sourcing blocker
+    was resolved by **admitting there is no source**: searched 28 Aug 2026, every citation traces
+    back to a jeweller's own retail data or to another blog. `AVERAGE_US_SIZE` carries that
+    finding as a comment and the page says it out loud. Every competitor states 6 and 9 as fact;
+    saying otherwise is the differentiator, the same move as `UK_NOTE` and `INDIA_NOTE`.
 - **Logo + favicon — DONE** (this line previously sat under "Next" and was wrong). `Logo.astro`,
   `favicon.png`, `favicon.ico`, `favicon.svg`, and Header/Footer already render the mark
 - **Upper-range guards on every size system** — the file's own "nothing invents a number" policy
@@ -154,35 +165,40 @@ All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the a
 
 1. **Owner reads the homepage, the chart page and `/printable-ring-sizer`** —
    `npm run build && npm run preview`. Nothing ships until this happens.
-   For the printable page: print it and measure the square with a ruler. It must be 50 mm.
-2. **Decisions waiting on the owner** (see Open questions below) — touch-target sizes, whether
-   US should have a ceiling, what happens at the very bottom of the slider, and whether
-   `logo.png` / `logo.svg` / `favicon.svg` should be deleted.
-3. **Lighthouse pass.** Not run yet. `og.png` is 105 KB and `hero-ring-hand.webp` 135 KB — both
+   Two checks nobody but the owner can do:
+   - **On a real phone**, hold a bank card against the calibration gauge. The whole narrow-screen
+     redesign (29 Aug) rests on this; it has only been verified by measuring the DOM at 375 px.
+   - **Print `/printable-ring-sizer` and measure the square with a ruler.** It must be 50 mm.
+
+2. **Decide: three unit URLs, or one page with query parameters.** The competitor runs
+   `Ring Sizer in MM` / `in CM` / `in Inches` as three separate pages; we serve all six modes
+   from one behind `?measure=&unit=`, which Google does not index as distinct pages. This is a
+   real ranking difference and nothing addresses it. `RingSizer` already takes `measure`/`unit`
+   props so a page can mount pre-set, so the routes are cheap — but it is new scope and an SEO
+   judgement, not a bug fix. **Owner's call.**
+
+3. **Surface the calibration.** It is the site's entire accuracy argument and the only thing the
+   competitor cannot match — and once the drawer is closed, nothing on the page says it happened.
+   A "✓ 1:1 on your screen" marker beside the readout. Also feeds
+   `actual ring size chart on screen` (>1,000/mo), still unwritten.
+
+4. **Lighthouse pass.** Still not run. `og.png` is 105 KB and `hero-ring-hand.webp` 135 KB — both
    are candidates if the score needs it.
-4. `/how-to-measure-ring-size-without-a-ring-sizer` — **still decided against** (28 Aug 2026).
+
+5. `/how-to-measure-ring-size-without-a-ring-sizer` — **still decided against** (28 Aug 2026).
    Confirmed by volume the same day: that exact keyword is only >100 and all ten of its variants
    are <100. The homepage covers the methods and a page here would cannibalise it for nothing.
-   **Do not confuse this with item 5.**
-5. **Both new keyword pages are now BUILT** (28 Aug 2026) — awaiting the owner's read like
-   everything else. They came out of the keyword pass in RESEARCH.md:
-   - `/how-to-measure-ring-size-at-home` — >10,000/mo at KD 2, plus `how to measure ring size`
-     at >10,000. The homepage's methods section is now a summary linking to it, and
-     `howToSchema()` moved with the steps (a page must not declare a procedure it no longer
-     contains). Carries one generated table of paper-strip lengths that absorbs the whole
-     "what ring size is 7 cm circumference" family — deliberately one table, not a page each.
-   - `/average-ring-size` — three >1,000 keywords, `for women` at KD 0. The sourcing blocker was
-     resolved by **admitting there is no source**: searched 28 Aug 2026, every citation traces to
-     a jeweller's own retail data or to another blog. `AVERAGE_US_SIZE` now carries that finding
-     as a comment, and the page says it out loud. Every competitor states 6 and 9 as fact; this
-     is the differentiator, the same move as `UK_NOTE` and `INDIA_NOTE`.
-6. **Remaining from the keyword plan, not started:** the `/ring-size-chart` unit toggle (cm is
-   absent from that page while `ring size chart in cm` is >1,000), a section for
-   `actual ring size chart on screen` (>1,000, and the one keyword our calibration answers better
-   than anyone), a title/H1 pass on `/printable-ring-sizer` (its title currently reads
-   "Free PDF-Free Paper Gauge" — a copy bug), and then the `oura` / `pandora` brand pages.
+   **Do not confuse this with the built pages below.**
+
+6. **Remaining from the keyword plan, not started:** the `oura` and `pandora` brand pages.
+   (The `/ring-size-chart` cm column and the `/printable-ring-sizer` title were on this list and
+   are now done — 29 Aug.)
+
 7. **Deploy to Cloudflare Pages** — `wrangler` is not in `package.json`, so `npm run deploy`
    depends on a global/npx binary. Decide that before the first deploy.
+   ⚠️ Running `npm run verify` has twice caused npm to add `wrangler` as a devDependency and
+   rewrite `package-lock.json` on its own. That churn has been reverted each time, not committed.
+   Settle the dependency deliberately rather than letting npm settle it.
    Site stays `noindex`, submit nothing, until the domain is bought.
 
 ---
