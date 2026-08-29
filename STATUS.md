@@ -303,6 +303,53 @@ rules cover both addresses that were ever published, and nothing else is open.
 `/terms` all read from it. Cloudflare obfuscates it in the served HTML (`__cf_email__`), so the
 plain string is absent from the page source by design — that is anti-scraping, not a bug.
 
+### ⬜ Where to register the site — and what waits for the noindex flip
+
+Split into two groups, because the gate matters. **Verification** proves you own the domain and
+can be done today. **Submission** tells a search engine to crawl, and is wasted — or worse,
+teaches it the site is noindexed — until `NOINDEX_SITE = false` has shipped.
+
+| Service | Do it | Why it matters here |
+|---|---|---|
+| **Google Search Console** | Verify **now**, submit sitemap **after** | The single most important one. `README.md`'s kill criterion is measured in GSC impressions — under 500/month by month 4 and the domain is not renewed. Without it there is no data to make that call on. Use the **Domain property** (`ringsizetool.com`, covers www and http too), verified by DNS TXT — the domain is on Cloudflare, so it is a two-minute copy-paste into the same DNS screen used for Email Routing. |
+| **Bing Webmaster Tools** | Verify **now**, submit **after** | Free, and it has an **"Import from Google Search Console"** button that carries the verification and sitemap across in one click. Bing is small directly, but it also feeds DuckDuckGo and ChatGPT's search — cheap reach for one click. |
+| **IndexNow** | Turn on **after** noindex is off | Cloudflare has a one-toggle IndexNow integration (zone → Caching or the Cloudflare IndexNow app). It pings Bing and Yandex the moment a page changes instead of waiting for a crawl. Free, and it suits this site because pages will keep being added after launch. |
+| **Ahrefs Webmaster Tools** | Verify **now** | Free for a domain you own, and it unlocks Site Audit and full backlink data for that domain — the paid-tier view of your own site. The keyword research in RESEARCH.md was done on the free Keyword Generator and Difficulty Checker; AWT is the piece that watches the site itself. |
+| **Analytics** | ⚠️ see below | Not yet installed, and the privacy policy says so out loud. |
+| **Google AdSense** | Much later | Needs real traffic and a review. Applying to a site with no indexed pages wastes the application. `ring size adjuster` (>1,000/mo) is the one affiliate path in the keyword data and is the likelier first revenue, not ads. |
+
+#### Analytics: pick Cloudflare Web Analytics, not GA4
+
+Both are free. The difference that matters for this site:
+
+- **Cloudflare Web Analytics is cookieless.** No cookies means **no consent banner** — nothing to
+  build, nothing to maintain, and no EEA/UK exposure. It is already in the stack, one toggle on the
+  zone, and it does not slow the page down.
+- **GA4 sets cookies.** In the EEA and UK that legally requires a consent banner *before* the
+  script runs. This site has no consent mechanism, and building one is real work for data a
+  cookieless tool already gives.
+
+GSC covers what actually drives decisions here anyway — impressions, queries, positions. GA4 would
+add on-site behaviour that a five-page tool site does not need to make its month-4 call.
+
+🔴 **Whichever is chosen, `src/pages/privacy.astro` changes in the SAME commit.** It currently
+states there is no analytics *and promises* the page will name any before it is added. Adding a
+script without that edit puts the site back in the position it was found in — a privacy policy
+describing a site that does not exist.
+
+#### Order
+
+1. Owner's two physical checks, and the owner's read of the pages.
+2. `NOINDEX_SITE = false` → push (deploys itself).
+3. Confirm the live HTML has no `noindex` and the positive robots directive is present.
+4. GSC: submit `https://ringsizetool.com/sitemap-index.xml`. Request indexing on the homepage.
+5. Bing: import from GSC.
+6. IndexNow toggle.
+7. Analytics, with the privacy edit, whenever it is wanted — it is not a launch blocker.
+
+Verification (GSC, Bing, Ahrefs) can all be done before step 2 and is the sensible thing to do
+while the physical checks are outstanding.
+
 ### Two checks only the owner can do, and they gate the whole pitch
 
 Neither has been done. Both test the claim the entire site is built on — that the numbers are
