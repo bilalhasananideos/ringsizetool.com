@@ -1,9 +1,11 @@
 # ringsizetool.com — status
 
-Last updated: 28 Aug 2026 · **Stage: tool + homepage + chart page + printable page built.
-Size logic audited against the published standards and 155 assertions.
-The tool has now been driven end-to-end in a real browser (28 Aug) — two bugs found there
-and fixed. Awaiting the owner's read before anything ships.**
+Last updated: 29 Aug 2026 · **Stage: tool + homepage + chart page + printable page built.
+Size logic audited against the published standards and 187 assertions.
+The tool has been driven end-to-end in a real browser twice (28 and 29 Aug). The 29 Aug pass
+came from the owner's own manual test of all six modes against every chart row, and found four
+more defects — all in the layer BETWEEN the slider and the maths module, none in the maths.
+Awaiting the owner's read before anything ships.**
 
 ---
 
@@ -14,10 +16,17 @@ conversations) without coordination, editing the same files. One session did a l
 rewrite of the tool (commit `c700f0f`) to match a reference design more closely; the other found
 and fixed 4 real regressions that rewrite silently introduced (commit `df09ce0`).
 
-**`npm run verify` passing is NOT the same as the tool working.** The maths module has 155
-assertions; the component script in `RingSizer.astro` has none, and both bugs found on 28 Aug
-lived there — the ± buttons and the calibration field, neither reachable from `verify`. If you
-change anything in that script, open the page and click it.
+**`npm run verify` passing is NOT the same as the tool working.** This has now been true twice.
+On 28 Aug both bugs lived in `RingSizer.astro`, which `verify` cannot reach. On 29 Aug all 155
+assertions passed while centimetre mode returned the wrong size for 17 of the 21 chart rows —
+because every assertion fed the maths module exact floats, and a visitor cannot. They read a
+printed, rounded number and type it back.
+
+`verify` now walks every chart row through every mode the way a person would, which is what
+closed that gap. It still cannot click anything: **if you change the component script, open the
+page and drive it.** Note when you do that a backgrounded tab freezes CSS transitions, so
+`getComputedStyle` on anything with `transition-all` returns the OLD value — two "bugs" on
+29 Aug were that artifact, not defects. Disable transitions before measuring.
 
 **Before starting any work: `git log --oneline -10` and read the last few commit messages in
 full.** They are written to be self-contained — each one explains what changed and why, so you
@@ -100,8 +109,10 @@ All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the a
   keyword is Easy at >100,000/mo; the #1 competitor's version is an unreadable PNG image).
   ⚠️ This line used to claim **"a unit toggle"**. There is none: the table has eleven fixed
   columns (`ring-size-chart.astro:108-126`) and `#units` is a prose section, not a control.
-  **Centimetres appear nowhere on the page** while `ring size chart in cm` / `ring size chart cm`
-  are >1,000 each — see the plan in RESEARCH.md's 28 Aug keyword pass
+  ✅ **Centimetres added 29 Aug** (`Ø cm`, 3 dp) — `ring size chart in cm` / `ring size chart cm`
+  are >1,000 each. Three decimals, not two: at 2 dp a centimetre column carries 0.1 mm of
+  resolution and a UK half size is 0.199 mm of diameter, so 2 dp cannot name the sizes in the
+  row beside it
 - `web-design-guidelines` skill audit passed
 - **4 regressions from the visual rewrite fixed** (see Gotchas) — calibrate-card visibility, numeric
   entry, live region, ARIA on the unit toggle
@@ -183,10 +194,64 @@ Five of seven answered by the owner directly; one required research first.
 | Question | Resolution |
 |---|---|
 | **Should US have a ceiling?** | **No cap. Researched, not guessed** — specialty "big & tall" jewellers (e.g. justmensrings.com) genuinely sell US 16–20; only `CHART_ROWS` (the buyable-range display chart) stops at 14, which is a display choice, not a standard. Unlike EU/JP/UK — which **do** have a governing standard and genuinely produce a fictional number past their range — US has none, so 16½ at the slider's max is a real, purchasable size, not an invented one. Capping it would have been the wrong fix. |
-| **Slider bottom showing all "—"** | ✅ Fixed. `DIA_MIN_MM` raised from 11 to **11.64** in `ringModes.ts` — the control's own minimum now always shows a real size on every system, instead of six correct-but-broken-looking em dashes. |
+| **Slider bottom showing all "—"** | ✅ Fixed twice. First raised to 11.64 (28 Aug), which fixed the bottom but left the TOP showing "US 16½" beside three em dashes. Superseded 29 Aug: `DIA_MIN_MM`/`DIA_MAX_MM` are now **derived** from ISO 8653's rounding band (12.8916–24.3475 mm) rather than chosen, so all seven systems answer at every one of the 4,889 reachable slider positions. Note the band is closed at the bottom and OPEN at the top, because `Math.round` breaks ties upward and 76.5 mm of circumference is EU 77. |
 | **Dead asset files** | ✅ Fixed. `public/images/logo.png` (353 KB) and `logo.svg` deleted — confirmed unreferenced by any file in `src/`. `favicon.svg` was already gone; that note was stale. |
 | **Logo as WebP vs SVG** | ✅ Confirmed — WebP is fine. Owner accepted the trade (theme-awareness/resolution-independence for a raster mark) at 48–56px display size. |
-| **Touch targets** | Not yet revisited — switcher pills are 44px, step buttons (32×32) and the "Calibrate" link (16px) are not. Still open if anyone picks this up. |
-| **Pills have no arrow-key nav** | Not yet revisited — `role=radiogroup`/`radio` present but no roving tabindex. Operable via Tab+Enter, not blocking. ~15 lines in `RingSizer.astro` if addressed. |
-| **cm mode 10× coarser than its own comment claims** | Not yet revisited — `ringModes.ts`'s `PRECISION` comment overstates cm's actual display precision (0.1mm, not 0.01mm). Either raise cm to 3dp or fix the comment. |
+| **Touch targets** | ⚠️ **This entry was wrong, and the "44px rule" it assumed is not WCAG.** Checked against the spec 29 Aug: SC 2.5.8 Target Size (Minimum) is **24×24 CSS px at Level AA**; 44×44 is SC 2.5.5, Level **AAA**. The 32×32 step buttons therefore always passed AA, and the "Calibrate" link sits in a sentence, which is SC 2.5.8's explicit *Inline* exception. Done anyway as polish: ± buttons are 44px on touch and 36px from `sm` up, and the Calibrate link's target is padded without moving the layout. Do not record this as an AA failure. |
+| **Pills have no arrow-key nav** | ✅ Fixed 29 Aug. Roving tabindex plus arrow keys that move focus and selection together, per the ARIA authoring practices — one tab stop per group, wrapping at both ends. Worth noting the markup had claimed `role="radiogroup"` for some time while behaving as six unrelated buttons, which is worse than not claiming it: a screen-reader user is told to expect arrows that are not there. (Roving tabindex is not itself mandatory — `aria-activedescendant` is an equally valid mechanism — but the *behaviour* is.) |
+| **cm mode 10× coarser than its own comment claims** | ✅ Fixed 29 Aug, and it was not cosmetic — this note was filed as a comment bug and turned out to be the largest defect on the site. cm is now 3 dp. See below. |
 
+---
+
+## 29 Aug 2026 — the owner's manual pass
+
+The owner drove all six modes by hand against every row of the chart. Four defects, **none of
+them in `ringSizes.ts`** — its maths was verified against ISO 8653, BS EN 28653, JIS S 4700 and
+the CSS spec and was correct throughout. Everything broken sat in the layer between the slider
+and the maths.
+
+| Defect | Root cause |
+|---|---|
+| cm mode named the wrong size for 17 of 21 chart rows | 2 dp of centimetres is 0.1 mm of resolution. A UK half size is 0.199 mm of diameter and a Japanese size is 0.333 mm — cm could not *express* the sizes the tool prints. Now 3 dp. |
+| 1.65 cm reported JP 11, 16.5 mm reported JP 12 | `toDia` divided by a per-unit fraction and `1.65 / 0.1 === 16.499999999999996`. 16.5 mm is exactly the JP 11/12 boundary. Multiplying by 10 is exact. |
+| Inches could not reach US 11 | 0.005 in steps from an irrational lower bound: the slider stopped at 0.808 and reported 20.53 mm for a size whose diameter is 20.574 mm. Now 0.001 in. |
+| Calibration unusable on a phone | The card outline was sized by JS with no max-width, no overflow and **not one media query in the component**. At a real phone's ~6.1 px/mm the ID-1 card is 329 × 522 px. Narrow screens now get the same 53.98 mm turned 90°, which is the axis a phone has room on. |
+
+### Two things the owner reported that were NOT defects
+
+Both are worth keeping written down, because they will look like bugs again.
+
+- **"Calculator says 64.62, chart says 64.64."** Different physical values. The chart's US 11 row
+  is 20.574 mm; the slider was set to 20.57. Rounding, not error.
+- **US 6¼ reads back as EU 52 instead of 53.** Its circumference is 52.5061 mm — six thousandths
+  above the EU 52/53 boundary. Printing the diameter at 2 dp loses 0.0032 mm. Nothing short of
+  4 dp fixes it, and "16.7132 mm" claims a precision nobody holding a ring against glass has.
+  The tool is unaffected (chart and calculator both derive from `diameterFromUs`); only manually
+  retyping the printed figure hits it. Pinned in `verify` as a known limit.
+
+### And one proposed fix that made things worse
+
+The obvious remedy for the float bug — quantising millimetres to a small epsilon — was measured
+before being applied and **increased** failures in circumference/cm from 4 to 6, because blanket
+quantisation pushes values off ties in the wrong direction. Targeted exact arithmetic is the fix.
+Measure this class of change; do not reason about it.
+
+---
+
+## Competitive note — three URLs vs one
+
+Reviewed a competitor's sizer on 29 Aug. Their numbers are worse than ours (their slider reports
+US 4 at "11.00 mm diameter", where the US scale is *negative*; their EU column shows 46.8 and
+67.2, and EU/ISO sizes are integers; their "¼ size ≈ 0.4 mm / 1.26 mm circumference" is exactly
+2× the real figures of 0.2032 / 0.638, i.e. they published half-size numbers as quarter-size).
+**Nothing from that chart, or any competitor chart, has been copied.**
+
+But they run `Ring Sizer in MM` / `in CM` / `in Inches` as **three separate URLs**, and we serve
+all six modes from one page behind `?measure=&unit=` query parameters, which Google does not
+index as distinct pages. That is a real ranking difference and it is not addressed. Worth a
+decision before launch — the `RingSizer` component already takes `measure`/`unit` props precisely
+so a page can mount pre-set, so the routes would be cheap.
+
+One more thing that is invisible today: **we calibrate and they do not**, which is the whole
+accuracy argument, and the tool says so nowhere once the drawer is closed. A "✓ 1:1 on your
+screen" marker next to the readout would surface it.
