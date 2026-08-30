@@ -250,24 +250,17 @@ land on the apex page, 200, path and query intact, every hop a 301.
 hosts — duplicate content the site inflicts on itself, with the canonicals fighting DNS. The
 redirect rule is the correct mechanism.
 
-### ⏸ PENDING — auto-deploy is built but not switched on
+### ✅ Auto-deploy is LIVE — verified 30 Aug
 
-`.github/workflows/deploy.yml` exists and is committed. Push to `main` runs
+Both GitHub secrets exist (`CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, set 29 Aug) and
+`.github/workflows/deploy.yml` has run green on every push since. Push to `main` runs
 `npm ci` → `npm run verify` → `npm run build` → a noindex check → `wrangler pages deploy`.
-**It cannot run until two GitHub secrets exist**, and only the owner can create the first:
+Nothing is unpushed; `origin/main` and local `main` match.
 
-| Secret | Value |
-|---|---|
-| `CLOUDFLARE_API_TOKEN` | Cloudflare → Manage account → **Account API tokens** → Create Custom Token. Permissions: **Account · Cloudflare Pages · Edit** and **Account · Account Settings · Read**. Nothing more — this token lives on GitHub. |
-| `CLOUDFLARE_ACCOUNT_ID` | `b9c4a5166afe57f87b65c8bb1d795f1c` |
+Account ID, for reference: `b9c4a5166afe57f87b65c8bb1d795f1c`.
 
-```bash
-gh secret set CLOUDFLARE_ACCOUNT_ID --body b9c4a5166afe57f87b65c8bb1d795f1c --repo bilalhasananideos/ringsizetool.com
-gh secret set CLOUDFLARE_API_TOKEN --repo bilalhasananideos/ringsizetool.com
-```
-
-⚠️ **24 local commits are unpushed.** The first push after the secrets land deploys all of them
-at once. That is fine — the site stays `noindex` — but expect the live site to jump forward.
+**This section previously said "PENDING — cannot run until two secrets exist" and "24 local
+commits are unpushed." Both were already untrue when written down. Checked, not assumed.**
 
 **Correction to a belief worth killing:** taxcalcpk.com does **not** auto-deploy. All ten of its
 Worker deployments report `Source: Unknown (deployment)`, i.e. a hand-run `wrangler deploy`, and
