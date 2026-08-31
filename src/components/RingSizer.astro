@@ -216,18 +216,25 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
                decorative one. -->
           <div class="ring-grid absolute inset-0 pointer-events-none" aria-hidden="true"></div>
 
-          <!-- Outer dashed guide circle with crosshair ticks -->
-          <div class="absolute inset-3 rounded-full border border-dashed border-border-strong/70 pointer-events-none"></div>
+          <!-- Crosshair tick marks: a centre reference for laying a ring on the
+               stage. The edge ticks stay; the dashed guide circle that used to
+               sit at inset-3 has been REMOVED and must not come back.
 
-          <!-- Crosshair tick marks -->
+               It was a fixed 232 px ring — 61 mm at the default scale — drawn
+               around a ring that is physically 13-24 mm. Measured 31 Aug 2026,
+               the real ring filled 21% of it at the slider's bottom and 40% at
+               the top, so it could never fill the guide it appeared to be a
+               guide for. A visitor reads that as "the tool is drawing my ring
+               too small", when the truth is the opposite: the ring is life-size
+               and the guide was not. The fix is never to enlarge the ring, which
+               would forfeit the site's only real claim; it is to stop drawing
+               something the ring is supposed to match and cannot. The grid and
+               the 10 mm legend already prove the scale is real, and the marker
+               under the readout now says so in words. -->
           <div class="absolute left-1 top-1/2 -translate-y-1/2 w-4 h-px bg-border-strong"></div>
           <div class="absolute right-1 top-1/2 -translate-y-1/2 w-4 h-px bg-border-strong"></div>
           <div class="absolute top-1 left-1/2 -translate-x-1/2 h-4 w-px bg-border-strong"></div>
           <div class="absolute bottom-1 left-1/2 -translate-x-1/2 h-4 w-px bg-border-strong"></div>
-
-          <!-- Center Crosshair tick indicator -->
-          <div class="absolute left-3 top-1/2 -translate-y-1/2 h-2 w-px bg-border-strong"></div>
-          <div class="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-px bg-border-strong"></div>
 
           <!-- Scalable Golden Ring Circle -->
           <div
@@ -250,6 +257,19 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
           </div>
           <p data-main-label class="mt-1 text-xs uppercase tracking-wider text-text-faint font-medium">
             {spec.label}
+          </p>
+
+          <!-- Scale marker. The site's whole argument is that the ring above is
+               life-size on THIS screen, and once the calibrate drawer closes
+               nothing said so. It is deliberately two-state: before a saved
+               calibration exists the tool is running on a nominal 96 DPI guess,
+               and claiming 1:1 then would be exactly the kind of confident-and-
+               wrong the rest of this file exists to avoid. Server-rendered in
+               the uncalibrated state because that is what a first-load visitor
+               with no stored value actually has. -->
+          <p data-scale-marker data-calibrated="false" class="mt-3 inline-flex items-center gap-1.5 text-xs font-medium">
+            <span data-scale-icon class="font-mono text-text-faint" aria-hidden="true">&mdash;</span>
+            <span data-scale-text class="text-text-faint">Not calibrated yet &mdash; sizes assume a standard screen</span>
           </p>
         </div>
       </div>
@@ -583,6 +603,29 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       set(v: number) { try { localStorage.setItem(PPM_STORE_KEY, String(v)); } catch { /* blocked */ } },
     };
 
+    /* The scale marker and the calibrate drawer answer the SAME question, so
+     * they are driven from one call rather than two conditions that can drift
+     * apart. Anywhere the drawer's state changes because of what the visitor
+     * did about calibration, this goes with it.
+     *
+     * Known edge: [data-cal-reset] writes DEFAULT_PX_PER_MM to the store, so a
+     * visitor who resets is then counted as calibrated. That is deliberate —
+     * the marker must never contradict the drawer, and the drawer treats any
+     * stored value as settled. A screen genuinely at the default is also a real
+     * 96 DPI screen, so the claim is not false, merely unearned. */
+    const scaleMarker = $('[data-scale-marker]');
+    const scaleIcon = $('[data-scale-icon]');
+    const scaleText = $('[data-scale-text]');
+    function setCalibrated(yes: boolean) {
+      scaleMarker.dataset.calibrated = String(yes);
+      scaleIcon.textContent = yes ? '\u2713' : '\u2014';
+      scaleIcon.className = yes ? 'font-mono text-accent-text' : 'font-mono text-text-faint';
+      scaleText.textContent = yes
+        ? 'Actual size on your screen'
+        : 'Not calibrated yet \u2014 sizes assume a standard screen';
+      scaleText.className = yes ? 'text-accent-text' : 'text-text-faint';
+    }
+
     /* ── calibration controls ── */
     function setPxPerMm(v: number, syncNum = true) {
       pxPerMm = clampPpm(v);
@@ -621,6 +664,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     $('[data-cal-save]').addEventListener('click', () => {
       store.set(pxPerMm);
       stepCal.hidden = true;
+      setCalibrated(true);
     });
 
     $('[data-cal-close]').addEventListener('click', () => {
@@ -630,6 +674,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     $('[data-cal-reset]').addEventListener('click', () => {
       setPxPerMm(DEFAULT_PX_PER_MM);
       store.set(DEFAULT_PX_PER_MM);
+      setCalibrated(true);
     });
 
     $('[data-recal]').addEventListener('click', () => {
@@ -880,9 +925,11 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     if (saved) {
       setPxPerMm(saved);
       stepCal.hidden = true;
+      setCalibrated(true);
     } else {
       setPxPerMm(pxPerMm);                   // the value read out of the DOM
       stepCal.hidden = false;
+      setCalibrated(false);
     }
 
     /* setMode() is what fills the paired number input and derives the slider's
