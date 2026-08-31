@@ -58,5 +58,18 @@ export const STAGE_MAX_CIRCLE_PX = STAGE_PX - 2 * STAGE_INSET_PX;
 /** localStorage key. Namespaced so it cannot collide with anything else. */
 export const PPM_STORE_KEY = 'rst.pxPerMm';
 
+/* Stored ALONGSIDE the calibration, in its own key rather than by changing the
+ * shape of the one above — an existing visitor's saved px/mm must keep loading.
+ *
+ * Why it exists: a calibration is only valid at the zoom level it was taken at.
+ * `visualViewport.scale` catches pinch-zoom, but desktop browser zoom (Ctrl +/-)
+ * does not touch it — that moves `devicePixelRatio` instead. So the DPR at the
+ * moment of calibration is recorded, and a later mismatch means the screen no
+ * longer puts `pxPerMm` pixels in a millimetre.
+ *
+ * Absent for anyone who calibrated before this shipped. Treat missing as "cannot
+ * tell" and stay quiet: a false zoom warning would train people to ignore it. */
+export const DPR_STORE_KEY = 'rst.dprAtCalibration';
+
 /** Clamp any candidate value into the usable range. */
 export const clampPpm = (v: number) => Math.min(PPM_MAX, Math.max(PPM_MIN, v));

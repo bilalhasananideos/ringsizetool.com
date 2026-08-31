@@ -535,7 +535,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     type Measure, type Unit,
   } from '../data/ringModes';
   import {
-    PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, PPM_STORE_KEY, clampPpm,
+    PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, PPM_STORE_KEY, DPR_STORE_KEY, clampPpm,
   } from '../data/calibration';
   import { PILL_ON, PILL_OFF } from './pillClasses';
 
@@ -601,6 +601,18 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
         } catch { return null; }
       },
       set(v: number) { try { localStorage.setItem(PPM_STORE_KEY, String(v)); } catch { /* blocked */ } },
+      /* The zoom baseline. Written only when a calibration is committed, so it
+       * always describes the screen state that px/mm was measured against. */
+      getDpr(): number | null {
+        try {
+          const v = parseFloat(localStorage.getItem(DPR_STORE_KEY) ?? '');
+          return Number.isFinite(v) && v > 0 ? v : null;
+        } catch { return null; }
+      },
+      setDpr() {
+        dprAtCal = window.devicePixelRatio;
+        try { localStorage.setItem(DPR_STORE_KEY, String(dprAtCal)); } catch { /* blocked */ }
+      },
     };
 
     /* The scale marker and the calibrate drawer answer the SAME question, so
@@ -616,15 +628,69 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     const scaleMarker = $('[data-scale-marker]');
     const scaleIcon = $('[data-scale-icon]');
     const scaleText = $('[data-scale-text]');
-    function setCalibrated(yes: boolean) {
-      scaleMarker.dataset.calibrated = String(yes);
-      scaleIcon.textContent = yes ? '\u2713' : '\u2014';
-      scaleIcon.className = yes ? 'font-mono text-accent-text' : 'font-mono text-text-faint';
-      scaleText.textContent = yes
-        ? 'Actual size on your screen'
-        : 'Not calibrated yet \u2014 sizes assume a standard screen';
-      scaleText.className = yes ? 'text-accent-text' : 'text-text-faint';
+
+    /* ── the scale marker: THREE states, and the third is the point ──────────
+     * A calibration is only true at the zoom level it was taken at. Zoom and the
+     * marker went on claiming "Actual size on your screen" regardless, which is
+     * this site's one real claim going quietly false — the exact failure the
+     * two-state marker was built to avoid, one level up.
+     *
+     * Two mechanisms, because no single reading covers both:
+     *   pinch-zoom          moves `visualViewport.scale`, NOT devicePixelRatio
+     *   browser zoom        moves `devicePixelRatio`, NOT visualViewport.scale
+     * Checking only the first would have left desktop Ctrl +/- silently wrong,
+     * which is the likelier case on the machine this site is built on.
+     *
+     * The DPR test needs a baseline, so the DPR at calibration is stored beside
+     * the px/mm. Anyone who calibrated before this shipped has no baseline; that
+     * reads as "cannot tell" and says nothing, because a warning that fires when
+     * nothing is wrong is worse than no warning. */
+    let calibrated = false;
+    let dprAtCal: number | null = null;
+
+    function zoomLooksChanged(): boolean {
+      const vv = window.visualViewport;
+      /* Pinch-zoom. The tolerance is for sub-pixel noise, not for real zoom:
+       * the smallest deliberate step any browser offers is far larger. */
+      if (vv && Math.abs(vv.scale - 1) > 0.01) return true;
+      if (dprAtCal !== null && Math.abs(window.devicePixelRatio - dprAtCal) > 0.01) return true;
+      return false;
     }
+
+    function renderMarker() {
+      const zoomed = calibrated && zoomLooksChanged();
+      const state = !calibrated ? 'none' : zoomed ? 'zoomed' : 'ok';
+      if (scaleMarker.dataset.state === state) return;   // no needless DOM writes
+      scaleMarker.dataset.state = state;
+      scaleMarker.dataset.calibrated = String(calibrated && !zoomed);
+      if (state === 'ok') {
+        scaleIcon.textContent = '\u2713';
+        scaleIcon.className = 'font-mono text-accent-text';
+        scaleText.textContent = 'Actual size on your screen';
+        scaleText.className = 'text-accent-text';
+      } else if (state === 'zoomed') {
+        scaleIcon.textContent = '\u26a0';
+        scaleIcon.className = 'font-mono text-text-muted';
+        scaleText.textContent = 'Zoom has changed \u2014 reset it to 100% or calibrate again';
+        scaleText.className = 'text-text-muted';
+      } else {
+        scaleIcon.textContent = '\u2014';
+        scaleIcon.className = 'font-mono text-text-faint';
+        scaleText.textContent = 'Not calibrated yet \u2014 sizes assume a standard screen';
+        scaleText.className = 'text-text-faint';
+      }
+    }
+
+    function setCalibrated(yes: boolean) {
+      calibrated = yes;
+      renderMarker();
+    }
+
+    /* Both zoom mechanisms surface as a resize: pinch fires visualViewport's own
+     * resize, browser zoom fires the window's. Cheap to recompute — renderMarker
+     * writes nothing when the state has not moved. */
+    window.addEventListener('resize', renderMarker);
+    window.visualViewport?.addEventListener('resize', renderMarker);
 
     /* ── calibration controls ── */
     function setPxPerMm(v: number, syncNum = true) {
@@ -663,6 +729,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 
     $('[data-cal-save]').addEventListener('click', () => {
       store.set(pxPerMm);
+      store.setDpr();
       stepCal.hidden = true;
       setCalibrated(true);
     });
@@ -674,6 +741,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     $('[data-cal-reset]').addEventListener('click', () => {
       setPxPerMm(DEFAULT_PX_PER_MM);
       store.set(DEFAULT_PX_PER_MM);
+      store.setDpr();
       setCalibrated(true);
     });
 
@@ -925,6 +993,11 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     if (saved) {
       setPxPerMm(saved);
       stepCal.hidden = true;
+      /* Baseline first: setCalibrated renders the marker, and the marker needs to
+       * know whether the zoom has moved since this value was saved. Null here
+       * means the calibration predates the DPR key, and the zoom test stays mute
+       * rather than guessing. */
+      dprAtCal = store.getDpr();
       setCalibrated(true);
     } else {
       setPxPerMm(pxPerMm);                   // the value read out of the DOM

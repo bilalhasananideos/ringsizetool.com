@@ -423,56 +423,42 @@ been verified; what is left needs a person, a printer, a ruler or a phone.
       held flat while dragging a slider one-handed, and touch behaviour on a native range input.
       Worth doing on any phone that comes to hand. No longer a launch gate.
 
-- [ ] ⬜ **OPEN DECISION — pinch-zoom silently invalidates the calibration.** Found while checking
-      the above, not yet acted on because it is new scope and the owner's call.
+- [x] ✅ **Pinch-zoom no longer invalidates the calibration silently — done 31 Aug, option (b).**
+      The marker now has THREE states, and the third is the whole point:
 
-      `Layout.astro` ships `width=device-width, initial-scale=1` and does not disable user scaling,
-      which is the right accessibility choice. But `RingSizer.astro` listens for no `resize`,
-      `orientationchange` or `visualViewport` event, so if a visitor pinch-zooms — or uses desktop
-      browser zoom — after calibrating, the stored px/mm no longer matches the screen and the ring
-      is drawn at the wrong physical size **while the new marker asserts "Actual size on your
-      screen"**. That is the site's one real claim going quietly false.
+      | condition | marker |
+      |---|---|
+      | no stored calibration | `— Not calibrated yet — sizes assume a standard screen` |
+      | calibrated, zoom unchanged | `✓ Actual size on your screen` |
+      | calibrated, zoom moved | `⚠ Zoom has changed — reset it to 100% or calibrate again` |
 
-      In mitigation, the site does already SAY it: the FAQ carries "Keep browser zoom at 100%" and
-      `index.astro:259` says to recalibrate if the zoom level changes. So the page is honest; it
-      simply is not self-checking.
+      **Two mechanisms, because neither covers both cases.** Pinch-zoom moves
+      `visualViewport.scale` and leaves `devicePixelRatio` alone; desktop browser zoom (Ctrl +/-)
+      does the reverse. Reading only `visualViewport.scale` — which is what option (b) literally
+      said — would have left Ctrl +/- silently wrong, i.e. the likelier case on the machine this
+      site is built on. So the DPR at calibration is stored in its own key, `DPR_STORE_KEY`,
+      alongside the untouched `PPM_STORE_KEY`.
 
-      Options, cheapest first: (a) leave it, the text covers it; (b) read `visualViewport.scale` and
-      drop the marker back to its uncalibrated state when it is not 1; (c) as (b) plus reopening the
-      calibrate drawer. (b) is a few lines and makes the marker tell the truth in every state,
-      which is the reason the marker was built with two states in the first place.
-- [ ] **The new scale marker, both states.** Before calibrating it must read "Not calibrated yet —
-      sizes assume a standard screen"; after Save, "✓ Actual size on your screen".
-- [ ] **The dashed guide circle is gone** — is the ring alone on the graph paper better or worse
-      than before? Owner's aesthetic call, and reversible.
+      Verified by shimming both properties and firing `resize`: fresh → `none`; save → `ok` with a
+      baseline written; `visualViewport.scale = 1.5` → `zoomed`; back to 1 → `ok`; `devicePixelRatio
+      x 1.25` → `zoomed`; reset → `ok`. Both mechanisms detected, both recover.
 
-⚠️ **Do NOT check the square by putting a screen-ruler app over the print preview.** The owner
-tried this on 31 Aug and it cannot work, for three reasons worth writing down because the idea is
-a natural one: the preview is a whole A4 page scaled down to fit a pane, so 50 mm renders at
-whatever the pane's zoom happens to be; a screen-ruler app converts pixels to millimetres using an
-assumed DPI, which is the exact unreliability this site's calibration exists to remove; and above
-all the check's purpose is to catch the *printer*, which is not involved on screen. The square has
-to be measured on paper, with a physical ruler or a bank card.
+      **Legacy visitors keep working.** A stored `5.2` with no DPR baseline boots calibrated, and
+      browser zoom then stays MUTE rather than crying wolf — a warning that fires when nothing is
+      wrong trains people to ignore the one that matters. Pinch-zoom needs no baseline, so it still
+      fires. Recalibrating adopts a baseline.
 
-⚠️ **Finding the strip ticks in the PDF took three passes, two of which gave wrong answers.**
-Recorded so nobody repeats them. (1) A height filter of `8 < h < 28` looked generous but excluded
-the 6 mm major ticks at 23 px on the first attempt, and a narrower one excluded them entirely.
-(2) The out-of-range ticks carry `opacity: 0.45`, so Chrome emits each one in its own transparency-
-group Form XObject — they are absent from the page's own content stream, and a scan of that stream
-alone finds only the 30 in-range ticks and silently reports the strip as starting at 44 mm.
-(3) A first "the 0 tick is at 0.0000 mm" result was read off a rect at x=32 that turned out to be
-the strip's own left border, not a tick — right answer, wrong evidence. The real check needs the
-main stream **plus** every XObject, filtered to the two genuine tick heights (11 px minor, 23 px
-major); four spurious 27 px items otherwise inflate the worst error from 0.165 mm to 0.383 mm.
+      375 px, both themes: fits, two lines, no horizontal scroll. The warning is deliberately in
+      `text-muted`, not a loud colour: this is a claim being WITHDRAWN, not an alarm, and the user
+      zoomed on purpose. What carries the meaning is that the ✓ and the accent colour disappear.
 
-**Reading, before `NOINDEX_SITE = false`**
-
-- [ ] **Homepage `#disagree`, new final subsection**: "A unit is not a size — and some screen sizers
-      confuse the two". Four paragraphs about a competitor's error. Check the tone — it is more
-      pointed than anything else on the site.
-- [ ] **Homepage prose generally.** 19 missing spaces were repaired on 31 Aug across five pages;
-      the fix was verified geometrically, but read it once for sense.
-- [ ] `/ring-size-chart` and `/printable-ring-sizer` read through.
+- [ ] ⬜ **The one remaining reason to test on a real phone.** On some mobile browsers
+      `visualViewport.scale` may drift off 1.0 transiently — momentum scroll, the address bar
+      collapsing, the keyboard opening. The tolerance is 0.01, so a transient could flash the
+      warning and flash back. `renderMarker` writes nothing unless the state actually changes, so
+      it cannot loop, but it could blink. Nothing here can reproduce it. If it blinks on a real
+      phone, the fix is a short debounce, not a wider tolerance — widening it would start missing
+      real zoom.
 
 **So the launch gate is now two things, neither of which needs a printer:**
 
