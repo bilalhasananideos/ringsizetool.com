@@ -364,16 +364,33 @@ been verified; what is left needs a person, a printer, a ruler or a phone.
       after the `.no-print` fix; it was 4 pages with the nav bar on page 1)
 - [x] Print dialog: **Scaling 100%**, **Scale to Fit Paper Size OFF**, A4 portrait — owner's own
       settings, seen in their screenshots. This was the one thing no measurement here could check.
-- [ ] **Square = 50 mm, measured OUTSIDE edge to OUTSIDE edge.** Needs a 30 cm ruler. No ruler:
-      a bank card's short edge is `CARD_SHORT_MM` (53.98 mm) and the square must fall
-      `CARD_GAP_MM` (3.98 mm) short of it — the page says this itself.
+- [~] **Square = 50 mm on paper, OUTSIDE edge to OUTSIDE edge.** ⚠️ **No longer a launch gate —
+      decision 31 Aug, and it reverses what this file said for three days.** The owner has no
+      printer. Rather than block on hardware they do not have, the position is:
+
+      This page does not claim "it will print correctly". It says *print it, measure the square, and
+      if it is wrong fix the scale and reprint.* **The check square IS the safeguard**, so the page's
+      honesty depends on telling the reader to verify, not on any printer behaving. That instruction
+      now also says which edge, which is the part that was actually broken.
+
+      Everything about the page's own correctness has been measured: square 50.0062 mm on both
+      axes, 78/78 strip ticks with the zero on the cut line, hole diameters worst-case -0.124 mm,
+      3 pages with no site chrome. What remains unverified is a third-party printer, which is
+      exactly what the square catches by design.
+
+      Do it as **confirmation** whenever a printer is to hand — a print shop is a few rupees. Tell
+      them **100%, no fit-to-page**, or the sheet arrives pre-scaled and the square will say so.
+      A 30 cm ruler, or the bank card: card short edge `CARD_SHORT_MM` (53.98 mm), and the square
+      must fall `CARD_GAP_MM` (3.98 mm) short of it.
 - [x] **Finger strip: the `0` tick sits on the strip's left cut line.** ✅ Verified 31 Aug out of
       print-to-PDF, so the owner does not need to do this one. All **78** ticks that 0–77 mm
       requires are present, the first sits at **0.0000 mm** from the cut edge, worst error of any
       tick is **0.165 mm** and the mean is **0.070 mm**. A US half-size is 0.638 mm of
       circumference, so the worst tick is 26% of a half-size out — well inside tolerance. All 16
       major ticks land on their multiple of 5. See the note below on how they had to be found.
-- [ ] **Ring-hole gauge (page 2): lay a real ring over the circles.** The *geometry* is already
+- [~] **Ring-hole gauge (page 2): lay a real ring over the circles.** Also not a gate, same
+      reasoning and same blocker — needs paper.
+       The *geometry* is already
       verified — content diameter = round(d x 96/25.4) px, worst case US 7 at -0.124 mm, and whole
       US sizes are 0.4064 mm apart so no hole can be mistaken for its neighbour. What a real ring
       adds is whether the *instruction* works in the hand: "the circle whose outline just
@@ -418,7 +435,15 @@ major); four spurious 27 px items otherwise inflate the worst error from 0.165 m
       the fix was verified geometrically, but read it once for sense.
 - [ ] `/ring-size-chart` and `/printable-ring-sizer` read through.
 
-Once every box above is ticked: `NOINDEX_SITE = false` → push (deploys itself) → confirm the live
+**So the launch gate is now two things, neither of which needs a printer:**
+
+1. **The phone + bank card calibration check.** This one stays a hard gate. The on-screen tool is
+   the actual product, it is what every keyword points at, and its narrow-screen layout has only
+   ever been verified by measuring the DOM at 375 px. Physical pixel density is the whole point and
+   no measurement in this repo substitutes for it.
+2. **The owner's read of the pages** — house rule, and there is new prose on the homepage.
+
+Once those two are done: `NOINDEX_SITE = false` → push (deploys itself) → confirm the live
 HTML has no `noindex` → GSC sitemap → Bing import → IndexNow. GSC/Bing/Ahrefs **verification** can
 be done at any time before that and is the sensible thing to do while these boxes are open.
 
