@@ -111,7 +111,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
             Save Scale
           </button>
           <button data-cal-reset type="button" class="h-10 cursor-pointer rounded-xl border border-border px-4 text-xs font-medium text-text-muted hover:text-text transition-colors">
-            Reset Default (96 DPI)
+            Reset
           </button>
         </div>
       </div>
@@ -128,7 +128,13 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
            the full column, and overflow-x is the backstop above ~6 px/mm: the
            gauge scrolls inside its own box rather than pushing the page, which
            CLAUDE.md forbids outright. -->
-      <div class="cal-stage -mx-6 sm:-mx-8 md:mx-0 overflow-x-auto rounded-xl md:border md:border-dashed md:border-border md:bg-surface-sunk/50">
+      <!-- order-first on narrow screens, and it is not cosmetic. The visitor has
+           to hold a physical card flat against the gauge while dragging the
+           slider, and a card is 85.6 mm wide — wider than the phone screen. With
+           the gauge below the slider the card lies across the control it is being
+           matched with. Gauge on top, controls beneath, thumb free. Desktop keeps
+           the two-column layout, where the card is held in the other hand. -->
+      <div class="cal-stage order-first md:order-none -mx-6 sm:-mx-8 md:mx-0 overflow-x-auto rounded-xl md:border md:border-dashed md:border-border md:bg-surface-sunk/50">
         <div class="flex flex-col items-center justify-center px-0 py-2 md:p-6">
 
           <!-- Narrow: the same 53.98 mm, measured DOWN the screen instead of
@@ -262,9 +268,10 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
           <!-- Scale marker. The site's whole argument is that the ring above is
                life-size on THIS screen, and once the calibrate drawer closes
                nothing said so. It is deliberately two-state: before a saved
-               calibration exists the tool is running on a nominal 96 DPI guess,
-               and claiming 1:1 then would be exactly the kind of confident-and-
-               wrong the rest of this file exists to avoid. Server-rendered in
+               calibration exists the tool is running on a guessed starting scale
+               (see startingPpm), and claiming 1:1 then would be exactly the kind
+               of confident-and-wrong the rest of this file exists to avoid. A
+               better guess is still a guess. Server-rendered in
                the uncalibrated state because that is what a first-load visitor
                with no stored value actually has. -->
           <!-- NOT inline-flex. It was, and on a phone the longer two-line message
@@ -414,10 +421,18 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
   calCornerMm: `${CARD_CORNER_MM}`,
   calDefaultPpm: `${DEFAULT_PX_PER_MM}px`,
 }}>
-  /* --mm is the calibrated CSS pixels per millimetre. The default matches the
-   * script's uncalibrated 96 DPI assumption; the calibration control overwrites
-   * it on the stage element so the grid, the ring and the readout can never
-   * disagree about what a millimetre is. */
+  /* --mm is the calibrated CSS pixels per millimetre. This default is the
+   * SERVER's, i.e. 96 DPI, because static HTML cannot know the viewport; the
+   * calibration control overwrites it on the stage element so the grid, the ring
+   * and the readout can never disagree about what a millimetre is.
+   *
+   * ⚠️ On a narrow screen the script starts at PHONE_PX_PER_MM instead, so an
+   * uncalibrated phone visitor DOES see the gauge grow once, on boot, from 204 px
+   * to 324 px. That jump is accepted deliberately. The alternative was a media
+   * query setting --calDefaultPpm per breakpoint, which removes the jump but
+   * leaves the gauge sized for a phone while the "3.78" printed beside it still
+   * comes from the server — a page that contradicts itself until JS runs. One
+   * honest correction beats a quiet disagreement. See startingPpm. */
   .ring-stage {
     --mm: var(--calDefaultPpm);
   }
@@ -543,7 +558,8 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     type Measure, type Unit,
   } from '../data/ringModes';
   import {
-    PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, PPM_STORE_KEY, DPR_STORE_KEY, clampPpm,
+    PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, PHONE_PX_PER_MM, PHONE_VIEWPORT_MAX_PX,
+    PPM_STORE_KEY, DPR_STORE_KEY, clampPpm,
   } from '../data/calibration';
   import { PILL_ON, PILL_OFF } from './pillClasses';
 
@@ -623,16 +639,34 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       },
     };
 
+    /* Where the slider starts for someone who has never calibrated. Decided in
+     * JS rather than CSS on purpose: a media query would size the GAUGE for a
+     * phone while the printed "3.78" beside it still came from the server, and
+     * the two would disagree until the script booted. Doing it here moves the
+     * number, the slider, the gauge and the ring stage together in one call, so
+     * the pre-JS paint is internally consistent and so is everything after it.
+     * See PHONE_PX_PER_MM in src/data/calibration.ts for why 96 DPI was wrong. */
+    const startingPpm = () => {
+      /* `> 0` is not defensive noise. A hidden or not-yet-laid-out browsing
+       * context reports innerWidth as 0, and `0 <= 500` is true — which handed
+       * the phone starting point to a DESKTOP during this change's own testing.
+       * Unknown width must fall back to the desktop default, never to the phone
+       * one: guessing "phone" on a desktop doubles the scale, where guessing
+       * "desktop" on a phone only restores the previous behaviour. */
+      const w = window.innerWidth;
+      return w > 0 && w <= PHONE_VIEWPORT_MAX_PX ? PHONE_PX_PER_MM : DEFAULT_PX_PER_MM;
+    };
+
     /* The scale marker and the calibrate drawer answer the SAME question, so
      * they are driven from one call rather than two conditions that can drift
      * apart. Anywhere the drawer's state changes because of what the visitor
      * did about calibration, this goes with it.
      *
-     * Known edge: [data-cal-reset] writes DEFAULT_PX_PER_MM to the store, so a
+     * Known edge: [data-cal-reset] writes the starting value to the store, so a
      * visitor who resets is then counted as calibrated. That is deliberate —
      * the marker must never contradict the drawer, and the drawer treats any
-     * stored value as settled. A screen genuinely at the default is also a real
-     * 96 DPI screen, so the claim is not false, merely unearned. */
+     * stored value as settled. A screen genuinely at that value is a real screen,
+     * so the claim is unearned rather than false. */
     const scaleMarker = $('[data-scale-marker]');
     const scaleIcon = $('[data-scale-icon]');
     const scaleText = $('[data-scale-text]');
@@ -747,8 +781,18 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     });
 
     $('[data-cal-reset]').addEventListener('click', () => {
-      setPxPerMm(DEFAULT_PX_PER_MM);
-      store.set(DEFAULT_PX_PER_MM);
+      /* Resets to the same place a fresh visitor starts, not to 96 DPI — on a
+       * phone those are different numbers and resetting to the desktop one would
+       * hand back the 62%-of-a-card outline this was fixed to avoid.
+       *
+       * The button used to read "Reset Default (96 DPI)". It now reads just
+       * "Reset", because the number it resets TO depends on the viewport and the
+       * label is server-rendered where the viewport is unknown. A label naming
+       * one figure while the button applies another is the kind of small lie this
+       * file exists to avoid; the value lands in the field beside it either way. */
+      const back = startingPpm();
+      setPxPerMm(back);
+      store.set(back);
       store.setDpr();
       setCalibrated(true);
     });
@@ -1008,7 +1052,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       dprAtCal = store.getDpr();
       setCalibrated(true);
     } else {
-      setPxPerMm(pxPerMm);                   // the value read out of the DOM
+      setPxPerMm(startingPpm());
       stepCal.hidden = false;
       setCalibrated(false);
     }

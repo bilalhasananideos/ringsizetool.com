@@ -40,15 +40,53 @@ export const DEFAULT_PX_PER_MM = 96 / MM_PER_INCH;
  * Calibration bounds.
  *
  * The ceiling is not arbitrary. The ring stage is a fixed 256 CSS px box with
- * a dashed guide circle inset 12 px on each side, so the largest ring the tool
- * can draw without clipping is 232 px across. At DIA_MAX_MM (24.35 mm) that
- * caps calibration at 232/24.35 = 9.5 px/mm; 8 leaves honest headroom and
- * still covers every phone on the market (iPhone 14 ≈ 6.1, S23 Ultra ≈ 6.2).
- * `verify-sizes.ts` asserts the relationship so raising one without checking
- * the other cannot silently clip the circle.
+ * `overflow-hidden`, so a ring wider than the stage is clipped. STAGE_INSET_PX
+ * below reserves 12 px a side, which caps the drawable ring at 232 px; at
+ * DIA_MAX_MM (24.35 mm) that puts the true ceiling at 232/24.35 = 9.5 px/mm.
+ * 8 leaves honest headroom and covers every phone on the market
+ * (iPhone 14 ≈ 6.1, S23 Ultra ≈ 6.2). `verify-sizes.ts` asserts the
+ * relationship, so raising one without checking the other cannot silently clip.
+ *
+ * ⚠️ The 12 px inset was originally the dashed guide circle's, and **that circle
+ * was removed on 31 Aug** — the ring could never fill it, so it read as the tool
+ * drawing rings too small. See STATUS.md. The inset is kept anyway: it is now
+ * breathing room rather than a guide, the arithmetic above still holds, and
+ * shrinking it to gain 24 px of ceiling would buy nothing (8 already clears the
+ * densest phone by 1.8 px/mm) while making the stage feel cramped.
  */
 export const PPM_MIN = 2.5;
 export const PPM_MAX = 8;
+
+/**
+ * Where the slider STARTS when nobody has calibrated yet.
+ *
+ * `DEFAULT_PX_PER_MM` is 96 DPI, i.e. 3.78 px/mm — a 1990s desktop monitor. On a
+ * phone it is not merely imprecise, it is the wrong ballpark: a modern handset is
+ * around 6.1 px/mm, so the tool opened with its card outline rendering at
+ *
+ *     53.98 mm x 3.78 = 204 CSS px, which on a 6.1 px/mm screen is 33 mm
+ *
+ * against a card whose short edge is 53.98 mm. **62% of the object it is asking
+ * you to match.** The owner tried it on a real phone (31 Aug) and reported the
+ * box simply looked wrong, which it did — the first impression of the site's one
+ * differentiator was an outline two-thirds the size of the card in your hand.
+ *
+ * Starting narrow screens at 6 renders the same outline at 53 mm on that phone,
+ * 98% of the card, so calibrating becomes a nudge instead of a 60% drag.
+ *
+ * This is a STARTING POINT, not a claim. The scale marker still reads "Not
+ * calibrated yet" until a value is saved, because a better guess is still a
+ * guess — see `setCalibrated` in RingSizer.astro.
+ *
+ * 6 rather than 6.1: phones run roughly 5.5-6.5, and a default that is a touch
+ * low is kinder than one a touch high, since the drawer opens with the outline
+ * slightly SMALLER than the card and growing it to fit reads as the obvious move.
+ */
+export const PHONE_PX_PER_MM = 6;
+
+/** Below this viewport width the phone starting point is used instead of 96 DPI.
+ *  500 px is comfortably above every phone and below every tablet in portrait. */
+export const PHONE_VIEWPORT_MAX_PX = 500;
 
 /** Ring stage geometry, in CSS px. Mirrors `h-64 w-64` and `inset-3`. */
 export const STAGE_PX = 256;

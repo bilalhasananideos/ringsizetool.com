@@ -480,6 +480,55 @@ space between the two spans is load-bearing; keep them on one source line or Ast
 This is the third defect this project has found only by looking at a real rendering rather than at
 code or a passing build, after the calibration overflow (29 Aug) and "set Scale to100%" (31 Aug).
 
+**✅ Why the gauge looked wrong on the phone — and it was NOT the layout.** The owner said the box
+was obviously too small next to the card. It was, and the first diagnosis here (gauge 18 mm wide vs
+a card 85.6 mm wide, so the card hides the alignment bars) reached for the expensive answer and
+missed the cheap one: **the starting value.**
+
+`DEFAULT_PX_PER_MM` is 96 DPI, 3.78 px/mm — a 1990s desktop monitor. On a ~6.1 px/mm phone the tool
+opened with the card outline rendering at `53.98 x 3.78 = 204 px`, which is **33 mm of real screen
+against a card whose short edge is 54 mm: 62% of the object it asks you to match.** The first
+impression of this site's one differentiator was an outline two-thirds the size of the card in
+your hand.
+
+Narrow screens now start at `PHONE_PX_PER_MM = 6`. Measured at 375 px: gauge 324 px, which on a
+6.1 px/mm phone is 53.1 mm — **98% of the card.** Calibrating is a nudge, not a 60% drag. The
+marker still reads "Not calibrated yet" until a value is saved, because a better guess is still a
+guess.
+
+Two changes went with it:
+
+- **The gauge is `order-first` below `md`.** A card is wider than a phone screen, so with the gauge
+  under the slider the card lay across the control it was being matched with. Gauge on top,
+  controls beneath, thumb free. Measured: gauge and slider are both on one screen at 6, 7 and 8
+  px/mm (686 px of 735 px usable at the ceiling). The Save button needs a small scroll at 8, which
+  is fine — the card is off the glass by then. Desktop's two-column layout is untouched, verified
+  at 1280 px: full card outline 53.97 x 85.59 mm, stage still on the right, start value still 3.78.
+- **"Reset Default (96 DPI)" is now just "Reset".** It resets to whatever a fresh visitor gets, so
+  on a phone it no longer hands back the 62% outline — and the old label named a figure the button
+  had stopped applying. The label is server-rendered where the viewport is unknown, so it cannot
+  name the number at all.
+
+⚠️ **Trap this change created and then closed:** `window.innerWidth` is **0** in a hidden or
+not-yet-laid-out context, and `0 <= 500` is true — so the phone starting point was handed to a
+DESKTOP during this change's own testing. `startingPpm` now requires `w > 0`. Unknown width must
+fall back to desktop, never to phone: guessing "phone" on a desktop doubles the scale, while
+guessing "desktop" on a phone only restores the old behaviour.
+
+⚠️ **Accepted jump:** an uncalibrated phone visitor sees the gauge grow once on boot, 204 px to
+324 px, because static HTML cannot know the viewport and the server paints 96 DPI. The alternative
+— a media query on `--calDefaultPpm` — removes the jump but sizes the gauge for a phone while the
+"3.78" printed beside it still comes from the server, i.e. a page that contradicts itself until JS
+runs. One honest correction beats a quiet disagreement.
+
+**⬜ STILL OPEN — is the 18 mm gauge width worth fixing?** The original diagnosis stands as a fact:
+the card covers both alignment bars. At 62% that made the task impossible; at 98% it is a
+fine-tuning job where the bars sit at the card's own edges and read as boundaries. **Re-test on the
+phone before spending anything here.** If it is still awkward, the fix is to measure the card's
+LONG edge (85.6 mm) vertically with full-width bars — the card laid portrait covers only 54 mm of a
+~65 mm screen, so the bars' ends stay visible beside it, and 85.6 mm still fits at the 8 px/mm
+ceiling (685 px).
+
 **⬜ OPEN — is `PPM_MAX = 8` high enough?** The owner's slider reached 8.00 pinned at the right end.
 Unresolved whether that is because the card needed more than 8 or because they were exploring the
 range. A typical Android is around 5 CSS px/mm (a Galaxy S23: 360 CSS px across ~71 mm = 5.08), so
