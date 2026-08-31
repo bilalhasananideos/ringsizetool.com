@@ -177,17 +177,26 @@ It is invisible in the source, invisible in the diff, and only shows up in the r
 `npm run build` passing means nothing here. **Keep the word and the expression on the same source
 line**, even where that makes the line long.
 
-Sweep for it after any prose edit:
+**The sweep that used to live here was half-blind, and it is now a pipeline gate.**
 
 ```bash
-python3 -c "
-import re,html,glob
-for f in sorted(glob.glob('dist/*.html')):
-    s=re.sub(r'<script.*?</script>','',open(f).read(),flags=re.S)
-    t=html.unescape(re.sub(r'\s+',' ',re.sub(r'<[^>]+>',' ',s)))
-    j=[m for m in re.findall(r'\S{0,18}[a-z]\d[\d.]*\S{0,6}', t) if not re.search(r'(ISO|IEC|EN|JIS|BS|[A-Z]\d|4K|-\d|/\d|\d[a-z])', m)]
-    if j: print(f, j[:6])"
+npm run sweep     # scripts/sweep-astro-newline.py, runs in CI after every build
 ```
+
+The old one-liner replaced every tag with a *space* — `re.sub(r'<[^>]+>', ' ', s)` — which
+erased the exact evidence it was hunting for. It could only ever see the `{expression}` variant,
+never the tag variant. That hole let **19 occurrences ship across five pages**: the homepage read
+"the other asks*which unit*", "letters come from**BS EN 28653**", "see the*ring size chart*",
+"adding exactly**1.25 mm**"; `/printable-ring-sizer` read "set Scale to**100%**".
+
+Found 31 Aug 2026 **by eye, in a screenshot** — not by the script that was supposed to catch it.
+All 19 are fixed and all nine pages now measure a zero-width join count of 0 in a real browser.
+
+The new sweep checks both variants and runs as a `Deploy` step, so this cannot ship again. It
+reports *candidates*, not certainties: an intentional join like `co<em>operate</em>` is legitimate
+and would need whitelisting. Confirm a candidate the way it was confirmed here — in a browser, with
+a `Range` over the preceding text node, comparing its `right` to the element's `left`. A zero gap on
+the same line is the bug; a wrap to the next line is not.
 
 ---
 

@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "verify": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/verify-sizes.ts",
-    "deploy": "astro build && wrangler pages deploy dist --project-name=ringsizetool"
+    "deploy": "astro build && wrangler pages deploy dist --project-name=ringsizetool",
+    "sweep": "python3 scripts/sweep-astro-newline.py dist"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

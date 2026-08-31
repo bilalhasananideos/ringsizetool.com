@@ -50,6 +50,14 @@ jobs:
 
       - run: npm run build
 
+      # Astro deletes the newline between text and a following {expression} or
+      # inline tag, so "set Scale to" + newline + "<strong>100%</strong>" ships as
+      # "to100%". It is invisible in the source and in the diff, and the build
+      # passes either way - which is exactly why it needs a gate rather than a
+      # habit. It had shipped on five pages (19 occurrences) before 31 Aug 2026.
+      - name: Sweep for eaten newlines in the rendered prose
+        run: npm run sweep
+
       # A page that ships with `noindex` when the site is meant to be live -
       # or without it while the site is meant to be private - is the one SEO
       # mistake here that is expensive to undo. Fail loudly either way.
