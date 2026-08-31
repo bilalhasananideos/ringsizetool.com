@@ -452,6 +452,42 @@ been verified; what is left needs a person, a printer, a ruler or a phone.
       `text-muted`, not a loud colour: this is a claim being WITHDRAWN, not an alarm, and the user
       zoomed on purpose. What carries the meaning is that the ✓ and the accent colour disappear.
 
+### 📱 First real-device run — owner's Android, 31 Aug 2026
+
+The tool was finally opened on a real phone. Recorded here because everything before this was
+either a 375 px viewport or a typed-in density.
+
+**What worked, confirmed on the device itself:**
+
+- The rotated narrow-screen gauge renders correctly at every value the owner tried — 3.78, 7.42
+  and 8.00 px/mm — with the 53.98 mm running DOWN the screen, labelled, and the slider and the
+  gauge both on screen at once even at 8.00 (where the gauge is 432 px tall). That is the 29 Aug
+  bug's exact scenario and it holds on hardware.
+- The scale marker reads "Not calibrated yet — sizes assume a standard screen" on a first visit.
+  The two-state logic works on the device, not just in an emulated viewport.
+- The ring stage, true-scale grid and 10 mm legend all render.
+
+**One real bug, found only because it was a real phone:**
+
+The marker was `inline-flex items-center gap-1.5` inside a `text-center` parent. On desktop the
+message fits one line and it looked fine. On a phone the longer messages wrap to two lines, the
+flex text span takes the full width and centres its own text, and the icon is left **stranded
+about 100 px to the left of its own first word**. Fixed by dropping the flex: the icon is now
+simply the first inline thing in a centred paragraph, so both lines centre together. Gap measured
+at 3.2 px — one space — in all three states, icon on the first line's baseline in each. **The
+space between the two spans is load-bearing; keep them on one source line or Astro eats it.**
+
+This is the third defect this project has found only by looking at a real rendering rather than at
+code or a passing build, after the calibration overflow (29 Aug) and "set Scale to100%" (31 Aug).
+
+**⬜ OPEN — is `PPM_MAX = 8` high enough?** The owner's slider reached 8.00 pinned at the right end.
+Unresolved whether that is because the card needed more than 8 or because they were exploring the
+range. A typical Android is around 5 CSS px/mm (a Galaxy S23: 360 CSS px across ~71 mm = 5.08), so
+8 should be generous — but that is a calculation, not this phone. **Ask before assuming.** If the
+outline is still narrower than the card at 8.00, `PPM_MAX` in `src/data/calibration.ts` is wrong
+and calibration is impossible on that device, which would be a launch blocker rather than a polish
+item.
+
 - [ ] ⬜ **The one remaining reason to test on a real phone.** On some mobile browsers
       `visualViewport.scale` may drift off 1.0 transiently — momentum scroll, the address bar
       collapsing, the keyboard opening. The tolerance is 0.01, so a transient could flash the

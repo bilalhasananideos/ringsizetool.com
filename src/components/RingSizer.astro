@@ -267,9 +267,17 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
                wrong the rest of this file exists to avoid. Server-rendered in
                the uncalibrated state because that is what a first-load visitor
                with no stored value actually has. -->
-          <p data-scale-marker data-calibrated="false" class="mt-3 inline-flex items-center gap-1.5 text-xs font-medium">
-            <span data-scale-icon class="font-mono text-text-faint" aria-hidden="true">&mdash;</span>
-            <span data-scale-text class="text-text-faint">Not calibrated yet &mdash; sizes assume a standard screen</span>
+          <!-- NOT inline-flex. It was, and on a phone the longer two-line message
+               left the icon stranded at the far left, a hundred pixels from its
+               own text (owner's screenshot, 31 Aug): the flex text span took the
+               full width and centred its text inside itself, so line one pulled
+               away from the icon. Plain inline flow instead — the icon is just the
+               first thing in a centred paragraph, so both lines centre together
+               and the icon stays against the first word at every width.
+               The space between the two spans is load-bearing; keep them on one
+               source line or Astro eats it. -->
+          <p data-scale-marker data-calibrated="false" class="mt-3 text-xs font-medium leading-relaxed">
+            <span data-scale-icon class="font-mono text-text-faint" aria-hidden="true">&mdash;</span> <span data-scale-text class="text-text-faint">Not calibrated yet &mdash; sizes assume a standard screen</span>
           </p>
         </div>
       </div>
