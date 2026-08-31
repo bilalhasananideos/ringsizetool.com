@@ -367,11 +367,18 @@ been verified; what is left needs a person, a printer, a ruler or a phone.
 - [ ] **Square = 50 mm, measured OUTSIDE edge to OUTSIDE edge.** Needs a 30 cm ruler. No ruler:
       a bank card's short edge is `CARD_SHORT_MM` (53.98 mm) and the square must fall
       `CARD_GAP_MM` (3.98 mm) short of it — the page says this itself.
-- [ ] **Finger strip: the `0` tick sits on the strip's left cut line**, not inset. Eyes only, no
-      tool. Deeper check: ruler along the strip, `0` on the ruler's 0, and the `50` tick must land
-      on 50 mm. If `0` is inset, every circumference reading is wrong by that offset.
-- [ ] **Ring-hole gauge (page 2): lay a real ring over the circles** and confirm one fits the way
-      the page describes — the circle whose outline just disappears inside the ring's inner edge.
+- [x] **Finger strip: the `0` tick sits on the strip's left cut line.** ✅ Verified 31 Aug out of
+      print-to-PDF, so the owner does not need to do this one. All **78** ticks that 0–77 mm
+      requires are present, the first sits at **0.0000 mm** from the cut edge, worst error of any
+      tick is **0.165 mm** and the mean is **0.070 mm**. A US half-size is 0.638 mm of
+      circumference, so the worst tick is 26% of a half-size out — well inside tolerance. All 16
+      major ticks land on their multiple of 5. See the note below on how they had to be found.
+- [ ] **Ring-hole gauge (page 2): lay a real ring over the circles.** The *geometry* is already
+      verified — content diameter = round(d x 96/25.4) px, worst case US 7 at -0.124 mm, and whole
+      US sizes are 0.4064 mm apart so no hole can be mistaken for its neighbour. What a real ring
+      adds is whether the *instruction* works in the hand: "the circle whose outline just
+      disappears inside the ring's inner edge". That is a usability question, not a measurement
+      one, and only a person with a ring can answer it.
 
 **On-screen tool — homepage**
 
@@ -382,6 +389,25 @@ been verified; what is left needs a person, a printer, a ruler or a phone.
       sizes assume a standard screen"; after Save, "✓ Actual size on your screen".
 - [ ] **The dashed guide circle is gone** — is the ring alone on the graph paper better or worse
       than before? Owner's aesthetic call, and reversible.
+
+⚠️ **Do NOT check the square by putting a screen-ruler app over the print preview.** The owner
+tried this on 31 Aug and it cannot work, for three reasons worth writing down because the idea is
+a natural one: the preview is a whole A4 page scaled down to fit a pane, so 50 mm renders at
+whatever the pane's zoom happens to be; a screen-ruler app converts pixels to millimetres using an
+assumed DPI, which is the exact unreliability this site's calibration exists to remove; and above
+all the check's purpose is to catch the *printer*, which is not involved on screen. The square has
+to be measured on paper, with a physical ruler or a bank card.
+
+⚠️ **Finding the strip ticks in the PDF took three passes, two of which gave wrong answers.**
+Recorded so nobody repeats them. (1) A height filter of `8 < h < 28` looked generous but excluded
+the 6 mm major ticks at 23 px on the first attempt, and a narrower one excluded them entirely.
+(2) The out-of-range ticks carry `opacity: 0.45`, so Chrome emits each one in its own transparency-
+group Form XObject — they are absent from the page's own content stream, and a scan of that stream
+alone finds only the 30 in-range ticks and silently reports the strip as starting at 44 mm.
+(3) A first "the 0 tick is at 0.0000 mm" result was read off a rect at x=32 that turned out to be
+the strip's own left border, not a tick — right answer, wrong evidence. The real check needs the
+main stream **plus** every XObject, filtered to the two genuine tick heights (11 px minor, 23 px
+major); four spurious 27 px items otherwise inflate the worst error from 0.165 mm to 0.383 mm.
 
 **Reading, before `NOINDEX_SITE = false`**
 
