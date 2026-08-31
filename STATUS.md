@@ -399,9 +399,48 @@ been verified; what is left needs a person, a printer, a ruler or a phone.
 
 **On-screen tool — homepage**
 
-- [ ] **A real bank card against the calibration gauge, on a real phone.** Still outstanding, and
-      still the check nothing here can substitute for: the narrow-screen layout has only ever been
-      verified by measuring the DOM at 375 px. Physical pixel density is the whole point.
+- [~] **A real bank card against the calibration gauge, on a real phone.** **Mostly closed 31 Aug
+      without a phone**, by attacking the density directly instead of emulating a device.
+
+      The gap was never the viewport width — it was that a laptop renders at ~3.78 CSS px/mm and a
+      phone at ~6.1, and the 29 Aug bug was a layout that broke at the higher figure. DevTools
+      device emulation cannot reproduce that: it changes the CSS viewport and leaves the host
+      screen's density alone. But the tool has a px/mm number input, so the condition can just be
+      *typed in*. At a 375 px viewport, feeding it 3.78 / 5.0 / 6.1 / 7.0 / 8.0 (`PPM_MAX`):
+
+        .cal-gauge height at 6.1 px/mm = 329.27 px = 53.98 mm exactly — the ID-1 short edge
+        .cal-gauge width  at 6.1 px/mm = 109.8 px, in a 375 px viewport
+        no horizontal scroll and no overflowing element at ANY of the five values
+
+      329 px is the exact figure from the 29 Aug bug report ("at a real phone's ~6.1 px/mm the ID-1
+      card is 329 x 522 px"). The rotate-90-degrees fix works: the 53.98 mm runs DOWN the screen,
+      which is the axis a phone has room on, and costs only 110 px of width.
+
+      `PPM_MAX` of 8 is a safe ceiling, because CSS px are normalised by device pixel ratio and
+      phones land at 5.5-6.5 px/mm regardless of panel density.
+
+      **What a real phone would still add is ergonomics, not correctness:** whether a card can be
+      held flat while dragging a slider one-handed, and touch behaviour on a native range input.
+      Worth doing on any phone that comes to hand. No longer a launch gate.
+
+- [ ] ⬜ **OPEN DECISION — pinch-zoom silently invalidates the calibration.** Found while checking
+      the above, not yet acted on because it is new scope and the owner's call.
+
+      `Layout.astro` ships `width=device-width, initial-scale=1` and does not disable user scaling,
+      which is the right accessibility choice. But `RingSizer.astro` listens for no `resize`,
+      `orientationchange` or `visualViewport` event, so if a visitor pinch-zooms — or uses desktop
+      browser zoom — after calibrating, the stored px/mm no longer matches the screen and the ring
+      is drawn at the wrong physical size **while the new marker asserts "Actual size on your
+      screen"**. That is the site's one real claim going quietly false.
+
+      In mitigation, the site does already SAY it: the FAQ carries "Keep browser zoom at 100%" and
+      `index.astro:259` says to recalibrate if the zoom level changes. So the page is honest; it
+      simply is not self-checking.
+
+      Options, cheapest first: (a) leave it, the text covers it; (b) read `visualViewport.scale` and
+      drop the marker back to its uncalibrated state when it is not 1; (c) as (b) plus reopening the
+      calibrate drawer. (b) is a few lines and makes the marker tell the truth in every state,
+      which is the reason the marker was built with two states in the first place.
 - [ ] **The new scale marker, both states.** Before calibrating it must read "Not calibrated yet —
       sizes assume a standard screen"; after Save, "✓ Actual size on your screen".
 - [ ] **The dashed guide circle is gone** — is the ring alone on the graph paper better or worse
@@ -437,10 +476,10 @@ major); four spurious 27 px items otherwise inflate the worst error from 0.165 m
 
 **So the launch gate is now two things, neither of which needs a printer:**
 
-1. **The phone + bank card calibration check.** This one stays a hard gate. The on-screen tool is
-   the actual product, it is what every keyword points at, and its narrow-screen layout has only
-   ever been verified by measuring the DOM at 375 px. Physical pixel density is the whole point and
-   no measurement in this repo substitutes for it.
+1. **A real bank card against the gauge — on the laptop is enough.** Calibration is
+   screen-agnostic by design: you hold a card against whatever screen you are on and drag until
+   they match. Doing that once on the laptop, in normal desktop view, tests the actual mechanism
+   with the actual object. The phone-specific risk (density) has been measured separately, above.
 2. **The owner's read of the pages** — house rule, and there is new prose on the homepage.
 
 Once those two are done: `NOINDEX_SITE = false` → push (deploys itself) → confirm the live
