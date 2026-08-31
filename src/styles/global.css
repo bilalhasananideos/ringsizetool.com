@@ -316,6 +316,12 @@ details[open] summary ~ * {
   }
 }
 
+/* Screen chrome has no business on paper. `.no-print` hides it; `.print-only`
+   is the inverse, for the one thing a printed sheet needs that a screen does
+   not — a line saying where it came from, once the sheet has left the browser. */
+.print-only { display: none; }
+
 @media print {
   .no-print { display: none !important; }
+  .print-only { display: block; }
 }

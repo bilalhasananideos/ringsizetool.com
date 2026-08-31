@@ -48,7 +48,8 @@ import { breadcrumbSchema, PRINTABLE_FAQS, faqPageSchema } from '../data/faq';
    Chrome snapped the 0.4 mm border to 1 CSS px, not the 1.51 px declared, which
    is where the inner figure comes from. Only the OUTER figure is guaranteed, and
    only on the axis whose edges happen to land on the pixel grid: see the
-   PIXEL SNAPPING note below — the height measured 49.742 mm in the same PDF. */
+   PIXEL SNAPPING note below. Both axes measure 50.006 mm today; the height read
+   49.742 mm one commit earlier, from nothing but a change in vertical position. */
 const CHECK_MM = 50;
 
 /* ── PIXEL SNAPPING — measured, and deliberately not chased ────────────────
@@ -57,9 +58,13 @@ const CHECK_MM = 50;
    device scale 1 that quantises every printed dimension by up to 1 px, i.e.
    0.2646 mm. Measured out of the print-to-PDF, 31 Aug 2026:
 
-     check square   width 189 px = 50.006 mm, height 188 px = 49.742 mm
-                    (the height moves with where the square lands vertically —
-                     it was 189 px before the paragraph above it grew a line)
+     check square   189 x 189 px = 50.006 mm on BOTH axes, as of 31 Aug once the
+                    screen-only intro stopped printing and the square moved up
+                    the page. Do not read that as fixed: the same square
+                    measured 189 x 188 px (50.006 x 49.742) one commit earlier,
+                    because the height snaps according to where the box lands
+                    vertically. Anything added above it can move it back. The
+                    WIDTH has been 189 px throughout, since its x is integral.
      ring holes     content diameter = round(d × 96/25.4) px, border 1 px.
                     Worst case over US 3-14 is US 7: 65.47 px asked, 65 px drawn,
                     i.e. -0.124 mm.
@@ -140,7 +145,10 @@ const jsonLd = [
       Printable ring sizer
     </h1>
 
-    <p class="mt-4 max-w-[62ch] text-text-muted leading-relaxed">
+    <!-- Screen only, for the same reason the instructions card below is: on paper
+         this paragraph is advice about an action the reader has already taken,
+         and it costs the gauge the space it needs. -->
+    <p class="no-print mt-4 max-w-[62ch] text-text-muted leading-relaxed">
       Print this page, check the square with a ruler, then measure. The check square is the part
       that matters: browsers shrink pages to fit the paper by default, and a sizer printed 4%
       small reads about a size and a half too tight. Every printable sizer that skips this step
@@ -269,6 +277,14 @@ const jsonLd = [
         </div>
         <p class="ps-p ps-note">{UK_NOTE}</p>
       </section>
+
+      <!-- Provenance, paper only. A printed gauge gets photographed, shared and
+           pinned to a noticeboard with no browser around it, so the sheet has to
+           say where it came from and that its numbers are computed rather than
+           copied. Generated from SITE_URL, never typed. -->
+      <p class="print-only ps-p ps-note">
+        Printed from {SITE_URL.replace('https://', '')} &middot; sizes computed from ISO&nbsp;8653, BS&nbsp;EN&nbsp;28653 and JIS&nbsp;S&nbsp;4700, not copied from another chart.
+      </p>
     </div>
 
     <!-- Screen-only: send people to the tool that does not depend on a printer -->
