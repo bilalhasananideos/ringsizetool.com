@@ -1,11 +1,23 @@
 # ringsizetool.com — status
 
-Last updated: 29 Aug 2026 · **Stage: tool + homepage + chart page + printable page built.
-Size logic audited against the published standards and 187 assertions.
-The tool has been driven end-to-end in a real browser twice (28 and 29 Aug). The 29 Aug pass
-came from the owner's own manual test of all six modes against every chart row, and found four
-more defects — all in the layer BETWEEN the slider and the maths module, none in the maths.
-Awaiting the owner's read before anything ships.**
+Last updated: 1 Sep 2026 · **Stage: LAUNCHED. `NOINDEX_SITE` is false; the site is indexable.**
+
+Tool + homepage + chart page + printable page + how-to page built. Size logic audited against the
+published standards and 187 assertions. The tool has been driven end-to-end in a real browser three
+times (28, 29 Aug and 1 Sep). The 29 Aug pass came from the owner's own manual test of all six modes
+against every chart row and found four defects — all in the layer BETWEEN the slider and the maths
+module, none in the maths.
+
+**Both launch gates closed on 1 Sep 2026:**
+
+1. **A real bank card against the calibration gauge — done, on the owner's laptop.** Matched at
+   **4.12 px/mm**, saved, and the `✓ Actual size on your screen` marker then appeared in all six
+   modes, i.e. the stored value loads. See "What 4.12 settled" below.
+2. **The owner's read of the pages — done.** Approved as-is; future changes to be raised as they
+   come up.
+
+Remaining, and neither gates anything: the printed `/printable-ring-sizer` ruler check (needs a
+printer the owner does not have), and the desktop calibration gauge polish item below.
 
 ---
 
@@ -47,7 +59,7 @@ structural changes, **write a real commit message**, not `"refactor: simplify"` 
 | Biggest target | `ring size chart` — KD Easy, **>100,000/mo**, ~4x `ring sizer`. See RESEARCH.md |
 | Do NOT target | `ring size` (KD 24) · `o ring size chart` (wrong product — rubber machinery seal) |
 | ~~Do NOT target~~ | ~~`online ring sizer`~~ — struck through, was wrong. A 6.8K-traffic site ranks #1 for it |
-| Domain | `ringsizetool.com` — **not bought yet, owner has no funds currently** |
+| Domain | `ringsizetool.com` — **bought, live, apex is canonical, `www` 301s to it.** This line said "not bought yet, owner has no funds" until 1 Sep 2026, three days after the domain went live and the deploy pipeline started using it. It was the stalest line in the file and would have told the next session the launch was still blocked on money |
 | Backups if taken | virtualringsizer · accurateringsizer · realringsizer · ringsizerhub · realringsize (.com) |
 | Brand | **Ring Size Tool** — brand goes AFTER the pipe in titles, never before the keyword |
 | Design | **Aurelian Precision** (owner-supplied Stitch export) + documented corrections. See `DESIGN.md` |
@@ -529,13 +541,39 @@ LONG edge (85.6 mm) vertically with full-width bars — the card laid portrait c
 ~65 mm screen, so the bars' ends stay visible beside it, and 85.6 mm still fits at the 8 px/mm
 ceiling (685 px).
 
-**⬜ OPEN — is `PPM_MAX = 8` high enough?** The owner's slider reached 8.00 pinned at the right end.
-Unresolved whether that is because the card needed more than 8 or because they were exploring the
-range. A typical Android is around 5 CSS px/mm (a Galaxy S23: 360 CSS px across ~71 mm = 5.08), so
-8 should be generous — but that is a calculation, not this phone. **Ask before assuming.** If the
-outline is still narrower than the card at 8.00, `PPM_MAX` in `src/data/calibration.ts` is wrong
-and calibration is impossible on that device, which would be a launch blocker rather than a polish
-item.
+**✅ CLOSED 1 Sep — `PPM_MAX = 8` is high enough, with room to spare.** The owner held a real card
+against the gauge on their laptop and it matched at **4.12 px/mm** — roughly half the ceiling. The
+earlier "slider pinned at 8.00" was exploration, not a card that needed more than 8. `PPM_MAX` in
+`src/data/calibration.ts` stands.
+
+**What 4.12 settled, and the one thing it exposed.** 4.12 lands exactly where a laptop should
+(1080p 24" ≈ 3.6, 27" 1440p ≈ 4.3, MacBook 13" ≈ 5.0), so the mechanism and the bounds are both
+sound. But getting there, the owner reported the outline growing "far too big", and measured in the
+browser at 1440x900 that reading is correct:
+
+| px/mm | Card outline | Area vs 4.3 | Drawer height |
+|---|---|---|---|
+| 3.78 (CSS default) | 204 x 324 | 0.77x | — |
+| 4.3 (laptop's real zone) | 232 x 368 | 1x | 448 px |
+| 6.0 | 324 x 514 | 1.95x | — |
+| 8.0 (slider's end) | 432 x 685 | **3.46x** | **780 px** |
+
+The cause is not a bug — `--calCardMm` is 53.98 and the corner radius 3.18, both correct, and both
+shapes derive from the one `--cal-mm`. It is that **the desktop outline draws the whole card**, so
+the 85.6 mm height scales alongside the 53.98 mm width even though only the width is ever matched.
+1.86x of width becomes 3.46x of area, and the eye reads area. At 8.00 the drawer is 780 px tall on
+a 900 px viewport, so the outline fills the screen and overshooting *feels* like the tool is broken.
+
+The page does NOT scroll horizontally at any calibration — `.cal-stage` scrolls inside itself — so
+the 375 px rule is intact.
+
+**⬜ POLISH, not a blocker — give desktop the same gauge the phone has.** The narrow layout already
+made this decision the other way: it dropped the 85.6 mm height and shows only the 53.98 mm
+dimension gauge. Desktop kept the old full-card outline. Making desktop match would confine
+overshoot to one dimension instead of three-times-the-area. The trade-off to weigh first: a
+card-shaped outline is more self-explanatory than an abstract gauge — "put your card here" reads
+instantly — and desktop has the room the phone did not. Worth doing, but decide it deliberately
+rather than for consistency's sake.
 
 - [ ] ⬜ **The one remaining reason to test on a real phone.** On some mobile browsers
       `visualViewport.scale` may drift off 1.0 transiently — momentum scroll, the address bar
@@ -545,30 +583,44 @@ item.
       phone, the fix is a short debounce, not a wider tolerance — widening it would start missing
       real zoom.
 
-**So the launch gate is now two things, neither of which needs a printer:**
+**✅ Both launch gates closed 1 Sep 2026:**
 
-1. **A real bank card against the gauge — on the laptop is enough.** Calibration is
-   screen-agnostic by design: you hold a card against whatever screen you are on and drag until
-   they match. Doing that once on the laptop, in normal desktop view, tests the actual mechanism
-   with the actual object. The phone-specific risk (density) has been measured separately, above.
-2. **The owner's read of the pages** — house rule, and there is new prose on the homepage.
+1. **A real bank card against the gauge — done on the owner's laptop, matched at 4.12 px/mm.**
+   Calibration is screen-agnostic by design: you hold a card against whatever screen you are on and
+   drag until they match, so doing it once on the laptop tests the actual mechanism with the actual
+   object. The phone-specific risk (density) was measured separately, above.
+2. **The owner's read of the pages — done.** Approved as-is.
 
-Once those two are done: `NOINDEX_SITE = false` → push (deploys itself) → confirm the live
-HTML has no `noindex` → GSC sitemap → Bing import → IndexNow. GSC/Bing/Ahrefs **verification** can
-be done at any time before that and is the sensible thing to do while these boxes are open.
+`NOINDEX_SITE = false` shipped in the same commit as this note.
+
+**⚠️ The flip exposed a bug in the gate that was supposed to protect the flip.** `deploy.yml`'s
+noindex check asked for **zero** noindexed pages once `NOINDEX_SITE` was false. But `404.astro` and
+`500.astro` hardcode `noindex={true}` and deliberately do not follow the flag — an error page in
+Google's index is a bad result for a real query. So the build produced 2 noindexed pages of 11, and
+the gate would have **failed the deploy on the launch commit itself**.
+
+It had never fired because the false-branch had never executed: the flag was true from the day the
+gate was written until 1 Sep. **A gate whose other half has never run is not a gate yet** — worth
+remembering for site 3, whose template inherits this workflow.
+
+Fixed by excluding the two error pages from the live-site count and asserting separately that they
+*always* carry noindex — which makes the check stricter than before, since nothing previously
+noticed if an error page lost it. Both failure paths were tested against a modified copy of `dist/`
+before committing: a real page leaking noindex fails, and a 404 losing its noindex fails.
 
 ---
 
-### Two checks only the owner can do, and they gate the whole pitch
+### The one owner check still outstanding — and why it does not gate anything
 
-Neither has been done. Both test the claim the entire site is built on — that the numbers are
-right — and neither can be verified from code:
+- **Print `/printable-ring-sizer` and measure the square with a ruler. It must be 50 mm.** Not
+  done: no printer. It does not gate the launch, because until somebody actually prints that page
+  it cannot hand anyone a wrong number — and the page's own copy tells the reader to verify the
+  check square before trusting it. Do it the first time a printer is available.
 
-- **A real bank card against the calibration gauge, on a real phone.** The narrow-screen layout
-  has only ever been checked by measuring the DOM at 375 px.
-- **Print `/printable-ring-sizer` and measure the square with a ruler. It must be 50 mm.**
-
-If either is wrong, the site is confidently wrong, which is worse than being late.
+- **A real card against the gauge on a real *phone*** is also still unmeasured; the narrow layout
+  has only been checked by measuring the DOM at 375 px. The laptop pass proves the mechanism, and
+  `PHONE_PX_PER_MM = 6` puts the phone default within ~2% of a real handset, so this is now a
+  polish check rather than a correctness one.
 
 ### Not blockers — ship without them, add after
 

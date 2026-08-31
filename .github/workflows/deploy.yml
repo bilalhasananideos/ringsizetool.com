@@ -61,17 +61,42 @@ jobs:
       # A page that ships with `noindex` when the site is meant to be live -
       # or without it while the site is meant to be private - is the one SEO
       # mistake here that is expensive to undo. Fail loudly either way.
+      #
+      # 404.html and 500.html are ALWAYS noindexed and never follow the flag: an
+      # error page in the index is a bad result for a real query. They are
+      # excluded from the live-site count and checked separately below.
+      #
+      # ⚠️ That exclusion is why this step reads the way it does. The original
+      # version asked for zero noindexed pages once NOINDEX_SITE was false, and
+      # its false-branch had never executed - the flag was true from the day the
+      # gate was written until 1 Sep 2026. The two error pages would have failed
+      # the deploy on the launch commit itself. A gate whose other half has never
+      # run is not a gate yet.
       - name: Check the noindex flag matches config
         run: |
           EXPECTED=$(grep -oE 'NOINDEX_SITE = (true|false)' src/config.ts | awk '{print $3}')
-          FOUND=$(grep -l 'name="robots" content="noindex' dist/*.html | wc -l | tr -d ' ')
+          ALWAYS='dist/404.html dist/500.html'
+          NOINDEXED=$(grep -l 'name="robots" content="noindex' dist/*.html || true)
           TOTAL=$(ls dist/*.html | wc -l | tr -d ' ')
-          echo "NOINDEX_SITE=$EXPECTED - $FOUND of $TOTAL pages carry noindex"
+          FOUND=$(echo "$NOINDEXED" | grep -c . || true)
+          # The same count with the two error pages taken out.
+          FOUND_REAL=$(echo "$NOINDEXED" \
+            | grep -v -e '^$' -e '^dist/404\.html$' -e '^dist/500\.html$' \
+            | grep -c . || true)
+          echo "NOINDEX_SITE=$EXPECTED - $FOUND of $TOTAL pages carry noindex ($FOUND_REAL of them are not error pages)"
+
+          # Error pages must be noindexed no matter what the flag says.
+          for p in $ALWAYS; do
+            if ! grep -q 'name="robots" content="noindex' "$p"; then
+              echo "::error::$p must always carry noindex, flag or not"; exit 1
+            fi
+          done
+
           if [ "$EXPECTED" = "true" ] && [ "$FOUND" != "$TOTAL" ]; then
             echo "::error::NOINDEX_SITE is true but only $FOUND of $TOTAL pages are noindexed"; exit 1
           fi
-          if [ "$EXPECTED" = "false" ] && [ "$FOUND" != "0" ]; then
-            echo "::error::NOINDEX_SITE is false but $FOUND pages still carry noindex"; exit 1
+          if [ "$EXPECTED" = "false" ] && [ "$FOUND_REAL" != "0" ]; then
+            echo "::error::NOINDEX_SITE is false but $FOUND_REAL non-error pages still carry noindex"; exit 1
           fi
 
       - name: Deploy to Cloudflare Pages

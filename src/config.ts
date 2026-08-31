@@ -9,17 +9,23 @@ export const EMAIL = 'contact@ringsizetool.com';
 /**
  * ⚠️ SITE-WIDE NOINDEX
  *
- * True while the site lives on *.pages.dev with no real domain connected.
- * Google must never index the temporary URL — if it does, we inherit a
- * duplicate-content problem the day the real domain goes live.
+ * Flipped to false on 1 Sep 2026 — the site is now indexable.
  *
- * Set to false as the FIRST step after connecting ringsizetool.com,
- * then redeploy and verify:
- *   curl -I https://ringsizetool.com | grep -i x-robots-tag   -> nothing
+ * It was true for as long as the site had no real domain, because Google must
+ * never index a *.pages.dev URL: the day the real domain went live we would
+ * have inherited a duplicate-content problem against ourselves.
+ * `ringsizetool.com` is the canonical host, it resolves, `www` 301s to the
+ * apex, and the two owner checks that gate the site's accuracy claim were both
+ * done before this flip — see the launch section of STATUS.md.
  *
- * Do not submit anything to Search Console or Bing while this is true.
+ * ⚠️ Setting this back to true does NOT retract anything. It stops *new*
+ * indexing; pages Google has already crawled stay in the index until it
+ * recrawls them. Treat the flip as one-way.
+ *
+ * The deploy workflow fails the build if the rendered pages disagree with this
+ * flag in either direction, so it cannot drift silently.
  */
-export const NOINDEX_SITE = true;
+export const NOINDEX_SITE = false;
 
 /** Only list routes that exist — a nav link to a 404 is worse than no link.
  *  Add each entry as its page ships: chart, printable, virtual, converter. */
