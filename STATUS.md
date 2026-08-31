@@ -591,7 +591,18 @@ rather than for consistency's sake.
    object. The phone-specific risk (density) was measured separately, above.
 2. **The owner's read of the pages — done.** Approved as-is.
 
-`NOINDEX_SITE = false` shipped in the same commit as this note.
+`NOINDEX_SITE = false` shipped in the same commit as this note (`fcba344`), CI green, and the live
+site was then checked rather than assumed:
+
+- All **9 real pages** serve `index, follow, max-snippet:-1, max-image-preview:large,
+  max-video-preview:-1`. `/404` still serves `noindex, nofollow`.
+- `robots.txt` allows all and points at `sitemap-index.xml`; the sitemap lists those same 9 URLs and
+  no error pages.
+- Canonicals resolve to the bare apex with no `/index.html`, and
+  `https://www…/ring-size-chart` still 301s to the apex with its path intact.
+
+**Not yet done, and now the only thing standing between the site and data:** Search Console. Nothing
+is submitted anywhere yet — see the registration table below.
 
 **⚠️ The flip exposed a bug in the gate that was supposed to protect the flip.** `deploy.yml`'s
 noindex check asked for **zero** noindexed pages once `NOINDEX_SITE` was false. But `404.astro` and
