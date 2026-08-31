@@ -353,6 +353,51 @@ describing a site that does not exist.
 Verification (GSC, Bing, Ahrefs) can all be done before step 2 and is the sensible thing to do
 while the physical checks are outstanding.
 
+### 📋 OWNER CHECKLIST — live, 31 Aug 2026. Tick these as they happen.
+
+This replaces the scattered "two physical checks" notes. Everything a machine could verify has
+been verified; what is left needs a person, a printer, a ruler or a phone.
+
+**Print sheet — `/printable-ring-sizer`**
+
+- [x] Prints as **3 pages**, no site header, no footer, no screen-only prose (owner confirmed 31 Aug,
+      after the `.no-print` fix; it was 4 pages with the nav bar on page 1)
+- [x] Print dialog: **Scaling 100%**, **Scale to Fit Paper Size OFF**, A4 portrait — owner's own
+      settings, seen in their screenshots. This was the one thing no measurement here could check.
+- [ ] **Square = 50 mm, measured OUTSIDE edge to OUTSIDE edge.** Needs a 30 cm ruler. No ruler:
+      a bank card's short edge is `CARD_SHORT_MM` (53.98 mm) and the square must fall
+      `CARD_GAP_MM` (3.98 mm) short of it — the page says this itself.
+- [ ] **Finger strip: the `0` tick sits on the strip's left cut line**, not inset. Eyes only, no
+      tool. Deeper check: ruler along the strip, `0` on the ruler's 0, and the `50` tick must land
+      on 50 mm. If `0` is inset, every circumference reading is wrong by that offset.
+- [ ] **Ring-hole gauge (page 2): lay a real ring over the circles** and confirm one fits the way
+      the page describes — the circle whose outline just disappears inside the ring's inner edge.
+
+**On-screen tool — homepage**
+
+- [ ] **A real bank card against the calibration gauge, on a real phone.** Still outstanding, and
+      still the check nothing here can substitute for: the narrow-screen layout has only ever been
+      verified by measuring the DOM at 375 px. Physical pixel density is the whole point.
+- [ ] **The new scale marker, both states.** Before calibrating it must read "Not calibrated yet —
+      sizes assume a standard screen"; after Save, "✓ Actual size on your screen".
+- [ ] **The dashed guide circle is gone** — is the ring alone on the graph paper better or worse
+      than before? Owner's aesthetic call, and reversible.
+
+**Reading, before `NOINDEX_SITE = false`**
+
+- [ ] **Homepage `#disagree`, new final subsection**: "A unit is not a size — and some screen sizers
+      confuse the two". Four paragraphs about a competitor's error. Check the tone — it is more
+      pointed than anything else on the site.
+- [ ] **Homepage prose generally.** 19 missing spaces were repaired on 31 Aug across five pages;
+      the fix was verified geometrically, but read it once for sense.
+- [ ] `/ring-size-chart` and `/printable-ring-sizer` read through.
+
+Once every box above is ticked: `NOINDEX_SITE = false` → push (deploys itself) → confirm the live
+HTML has no `noindex` → GSC sitemap → Bing import → IndexNow. GSC/Bing/Ahrefs **verification** can
+be done at any time before that and is the sensible thing to do while these boxes are open.
+
+---
+
 ### Two checks only the owner can do, and they gate the whole pitch
 
 Neither has been done. Both test the claim the entire site is built on — that the numbers are
