@@ -1,6 +1,7 @@
 # ringsizetool.com — status
 
-Last updated: 1 Sep 2026 · **Stage: LAUNCHED. `NOINDEX_SITE` is false; the site is indexable.**
+Last updated: 1 Sep 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
+indexable and verified in Google Search Console, Bing and Ahrefs.**
 
 Tool + homepage + chart page + printable page + how-to page built. Size logic audited against the
 published standards and 187 assertions. The tool has been driven end-to-end in a real browser three
@@ -318,20 +319,47 @@ rules cover both addresses that were ever published, and nothing else is open.
 `/terms` all read from it. Cloudflare obfuscates it in the served HTML (`__cf_email__`), so the
 plain string is absent from the page source by design — that is anti-scraping, not a bug.
 
-### ⬜ Where to register the site — and what waits for the noindex flip
+### ✅ Where the site is registered — done 1 Sep 2026
 
-Split into two groups, because the gate matters. **Verification** proves you own the domain and
-can be done today. **Submission** tells a search engine to crawl, and is wasted — or worse,
-teaches it the site is noindexed — until `NOINDEX_SITE = false` has shipped.
+All three webmaster accounts are live, on **one Google account** — the same one that already holds
+`taxcalcpk.com`. Keep it that way: moving a GSC property between accounts later means adding a new
+owner and re-verifying, and Bing/Ahrefs both hang off the GSC verification.
 
-| Service | Do it | Why it matters here |
+| Service | State | Notes |
 |---|---|---|
-| **Google Search Console** | Verify **now**, submit sitemap **after** | The single most important one. `README.md`'s kill criterion is measured in GSC impressions — under 500/month by month 4 and the domain is not renewed. Without it there is no data to make that call on. Use the **Domain property** (`ringsizetool.com`, covers www and http too), verified by DNS TXT — the domain is on Cloudflare, so it is a two-minute copy-paste into the same DNS screen used for Email Routing. |
-| **Bing Webmaster Tools** | Verify **now**, submit **after** | Free, and it has an **"Import from Google Search Console"** button that carries the verification and sitemap across in one click. Bing is small directly, but it also feeds DuckDuckGo and ChatGPT's search — cheap reach for one click. |
-| **IndexNow** | Turn on **after** noindex is off | Cloudflare has a one-toggle IndexNow integration (zone → Caching or the Cloudflare IndexNow app). It pings Bing and Yandex the moment a page changes instead of waiting for a crawl. Free, and it suits this site because pages will keep being added after launch. |
-| **Ahrefs Webmaster Tools** | Verify **now** | Free for a domain you own, and it unlocks Site Audit and full backlink data for that domain — the paid-tier view of your own site. The keyword research in RESEARCH.md was done on the free Keyword Generator and Difficulty Checker; AWT is the piece that watches the site itself. |
+| **Google Search Console** | ✅ **Verified 1 Sep**, sitemap submitted | **Domain property** `ringsizetool.com` (covers www, http, subdomains). Verified via Google's automated Cloudflare flow — the new GSC UI detects the DNS host and writes the TXT record itself after an OAuth grant, no manual copy-paste. That grant is revocable at Cloudflare → My Profile → Authorized Apps without breaking the verification. `README.md`'s kill criterion — under 500 impressions/month by month 4 — is measured here. |
+| **Bing Webmaster Tools** | ✅ **Imported 1 Sep** | "Import from Google Search Console" carried verification and sitemap across. Signed in *with Google*, not a Microsoft account. Bing also feeds DuckDuckGo, Ecosia and ChatGPT's web search. Its URL submission quota is ~10/day, far more generous than GSC's. |
+| **Ahrefs Webmaster Tools** | ✅ **Verified 1 Sep** | Verified via the GSC method (one click, no DNS). All metrics read 0 — correct for a 3-day-old domain, not a fault. Site Audit is the piece worth using; Rank Tracker is paid-only. Do **not** turn on Ahrefs Web Analytics — Cloudflare Web Analytics is the chosen tool and two scripts is waste. |
+| **IndexNow** | ⬜ **Not confirmed** | Cloudflare zone → **Caching → Configuration → Crawler Hints** toggle. Cloudflare's UI calls it Crawler Hints; it is IndexNow underneath. Pings Bing and Yandex on change instead of waiting for a crawl. |
 | **Analytics** | ⚠️ see below | Not yet installed, and the privacy policy says so out loud. |
 | **Google AdSense** | Much later | Needs real traffic and a review. Applying to a site with no indexed pages wastes the application. `ring size adjuster` (>1,000/mo) is the one affiliate path in the keyword data and is the likelier first revenue, not ads. |
+
+#### Submit the index, never the child sitemap
+
+GSC has **`sitemap-index.xml`** and only that. Astro also emits `sitemap-0.xml`; the index points at
+it and Google follows the pointer. Submitting both duplicates every URL across two rows in the
+report and, worse, hardcodes a filename that stops covering the site the moment it grows past one
+child sitemap. The index file keeps working as `sitemap-1.xml`, `-2.xml` appear.
+
+#### "Couldn't fetch" on the sitemap is not a failure
+
+GSC showed `Couldn't fetch` with an **empty "Last read"** column immediately after submission. That
+combination means Google has queued the sitemap and not yet attempted it — the status is a
+placeholder, not a result. Everything on our side was checked and is correct:
+
+- `sitemap-index.xml` returns **200** to a Googlebot user-agent, valid XML
+- `sitemap-0.xml` lists all **9 URLs** (home, chart, printable, how-to, average-ring-size, about,
+  contact, privacy, terms)
+- `robots.txt` serves `Allow: /` to Googlebot and points at the index
+- no Cloudflare bot filtering on either path
+
+**Do not delete and resubmit.** It does not trigger a fetch and it litters the history. Give it
+24–48h. If `Couldn't fetch` persists *with* a populated "Last read", that is a real failure and
+worth investigating.
+
+Also normal, and not a bug: opening the sitemap in a browser shows *"This XML file does not appear
+to have any style information"*. That is the browser noting the absence of an XSL stylesheet.
+Google parses the XML and never renders it.
 
 #### Analytics: pick Cloudflare Web Analytics, not GA4
 
@@ -352,18 +380,29 @@ states there is no analytics *and promises* the page will name any before it is 
 script without that edit puts the site back in the position it was found in — a privacy policy
 describing a site that does not exist.
 
-#### Order
+#### Order — all but two steps done
 
-1. Owner's two physical checks, and the owner's read of the pages.
-2. `NOINDEX_SITE = false` → push (deploys itself).
-3. Confirm the live HTML has no `noindex` and the positive robots directive is present.
-4. GSC: submit `https://ringsizetool.com/sitemap-index.xml`. Request indexing on the homepage.
-5. Bing: import from GSC.
-6. IndexNow toggle.
+1. ✅ Owner's two physical checks, and the owner's read of the pages.
+2. ✅ `NOINDEX_SITE = false` → pushed (`fcba344`, `81e9f17`), deployed itself.
+3. ✅ Live HTML confirmed: `<meta name="robots" content="index, follow, max-snippet:-1,
+   max-image-preview:large, max-video-preview:-1">`, no `X-Robots-Tag`, `robots.txt` clean.
+4. ✅ GSC: `sitemap-index.xml` submitted. ⬜ Request indexing on the **homepage only** — the other
+   8 pages come free via the sitemap, and per-URL requests burn a small daily quota.
+5. ✅ Bing: imported from GSC.
+6. ⬜ IndexNow / Crawler Hints toggle.
 7. Analytics, with the privacy edit, whenever it is wanted — it is not a launch blocker.
 
-Verification (GSC, Bing, Ahrefs) can all be done before step 2 and is the sensible thing to do
-while the physical checks are outstanding.
+#### What to expect, and when — do not check daily
+
+| When | What |
+|---|---|
+| 24–48h | GSC sitemap status flips to `Success` |
+| 3–7 days | homepage in the index. Check with `site:ringsizetool.com` |
+| 2–4 weeks | first impressions in GSC Performance |
+| Month 4 | the kill-criterion call: under 500 impressions/month → domain is not renewed |
+
+Weekly is often enough. There is nothing a daily check surfaces that a weekly one misses on a
+domain this young, and the zeros are not a signal.
 
 ### 📋 OWNER CHECKLIST — live, 31 Aug 2026. Tick these as they happen.
 
@@ -675,6 +714,25 @@ Three steps, one commit, so the promise is never removed without the replacement
 The duty and the sentence are separate: a privacy policy has to describe the site as it is
 because the law requires it, not because of anything written here. Deleting the sentence removes
 a promise, not the obligation.
+
+**⬜ `public/favicon.ico` is stale — the template's default, not this site's logo.** Two icon files
+sit in `public/`: `favicon.ico` (655 b, 26 Aug, the Astro starter's) and `favicon.png` (10 kb,
+28 Aug, the real one). `Layout.astro` only declares the PNG:
+
+```html
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="/favicon.png">
+```
+
+So every HTML page shows the correct icon — including in GSC's own sidebar. But a non-HTML
+response has no `<head>` for the browser to read, so it falls back to requesting `/favicon.ico`
+from the origin, and gets the starter's. That is why the tab on `/sitemap-index.xml` shows the
+wrong icon.
+
+Cosmetic only: it does not touch indexing, and Google's search-result favicon comes from the
+`<link rel="icon">` tag, which is right. To close it, regenerate `favicon.ico` from `favicon.png`
+as a multi-size (16+32) ICO, overwrite the stale file, and declare the `.ico` in `Layout.astro`
+alongside the PNG.
 
 **Cloudflare obfuscates the contact address.** `contact@ringsizetool.com` is absent from the
 served HTML as a plain string — it appears as `__cf_email__` with a `data-cfemail` hex blob and is
