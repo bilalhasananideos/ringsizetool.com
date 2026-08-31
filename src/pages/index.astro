@@ -25,6 +25,12 @@ const inRange = (r: typeof six) => r.circumferenceIn.toFixed(1);
    cannot drift from the tool the way competitors' copy drifts from their own
    charts — which is the single claim this site is built on. */
 const CARD_SHORT_MM = 53.98;                       // ISO/IEC 7810 ID-1, held upright
+/* The same physical ring written three ways, for the "a unit is not a size"
+   section. Generated rather than typed: the whole point of that passage is that
+   these three numbers describe ONE object, so they must come from one source. */
+const sixDiaMm = diameterFromUs(6);
+const sixDiaCm = sixDiaMm / 10;
+const sixDiaIn = sixDiaMm / MM_PER_INCH;
 const quarterMm = diameterFromUs(6.25) - diameterFromUs(6);
 const fullSizeMm = diameterFromUs(7) - diameterFromUs(6);
 const rangeLow = fromDiameter(DIA_MIN_MM);
@@ -498,7 +504,8 @@ const jsonLd = [
 
         <p class="mt-3 text-text-muted leading-relaxed">
           The discrepancy is real, and it is not an error in anyone&rsquo;s math. It comes from three
-          things that ring size pages almost never explain.
+          things that ring size pages almost never explain. A fourth applies to on-screen sizers
+          rather than to charts, and it is the easiest of the four to catch yourself.
         </p>
 
         <h3 class="mt-8 text-lg font-semibold text-text">The UK standard doesn't say what you think it says</h3>
@@ -545,6 +552,33 @@ const jsonLd = [
           you what we know rather than papering over it. Every competitor we audited prints one Indian
           number as though it were settled. We print ours next to the diameter in millimetres, and
           that millimetre figure is the one to give your jeweller. It is the only unambiguous answer.
+        </p>
+
+        <h3 class="mt-8 text-lg font-semibold text-text">A unit is not a size &mdash; and some screen sizers confuse the two</h3>
+        <p class="mt-3 text-text-muted leading-relaxed">
+          A US&nbsp;6 ring has an inner diameter of {sixDiaMm.toFixed(2)}&nbsp;mm. That is also {sixDiaCm.toFixed(3)}&nbsp;cm and {sixDiaIn.toFixed(3)}&nbsp;in. Three numbers, one physical object. Switching the unit
+          changes the label on the measurement; it cannot change the ring.
+        </p>
+        <p class="mt-3 text-text-muted leading-relaxed">
+          So a sizer that draws a circle on your screen has one rule to obey: switch from millimetres
+          to centimetres and the circle must not move. We audited one that failed it &mdash; its
+          centimetre page drew the ring roughly ten times smaller than its millimetre page, which is
+          the ratio of the two <em>numbers</em> ({sixDiaMm.toFixed(2)} against {sixDiaCm.toFixed(3)}), not of any two sizes. It was scaling the drawing by the
+          figure on the slider instead of by the measurement the figure stands for. The same tool
+          reported a European size of 51.8 on two of its three pages; European and ISO sizes are whole
+          millimetres of circumference, so 51.8 is not a size at all.
+        </p>
+        <p class="mt-3 text-text-muted leading-relaxed">
+          You can test any on-screen sizer in about five seconds, including this one: set a size, then
+          change only the unit. If the drawn ring changes size, the tool is measuring the number rather
+          than your finger, and nothing it tells you afterwards is reliable.
+        </p>
+        <p class="mt-3 text-text-muted leading-relaxed">
+          Here the circle is drawn from the diameter in millimetres multiplied by the pixels-per-millimetre you set during calibration, and the unit never enters that calculation. All six
+          combinations of measurement and unit draw the identical circle and report the identical size.
+          The marker under the ring says <strong class="text-text font-semibold">Actual size on your screen</strong> once you have calibrated, and says plainly
+          that it is assuming a standard screen until you do &mdash; because before calibration this
+          tool does not know how large your pixels are either.
         </p>
       </section>
 

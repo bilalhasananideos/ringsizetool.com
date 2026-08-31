@@ -74,8 +74,9 @@ One unified instrument card (not a multi-step wizard):
   it is now six modes, all in `src/data/ringModes.ts`. The view is readable and writable via
   `?measure=&unit=`, and `RingSizer.astro` takes `measure` / `unit` props so a page can open in
   the mode it is about.
-- **Ring diagram** — a dashed guide circle with a live-scaled gold ring, driven by the calibrated
-  px/mm.
+- **Ring diagram** — a live-scaled gold ring on true-scale graph paper (1 mm minor, 5 mm major)
+  with a 10 mm legend bar, all driven by the calibrated px/mm, plus centre crosshair ticks. The
+  dashed guide circle was **removed 31 Aug** and must not return — see Next item 3.
 - **Slider + number input**, both wired to the same `handleValueChange()` — drag or type an exact
   measured value.
 - **2×2 result grid** — US/CA, UK/AU, EU/ISO, Japan as bordered cards; India and FR/IT/ES in a
@@ -448,10 +449,24 @@ business identity rather than a personal Gmail, that is the earliest it can be d
    props so a page can mount pre-set, so the routes are cheap — but it is new scope and an SEO
    judgement, not a bug fix. **Owner's call.**
 
-3. **Surface the calibration.** It is the site's entire accuracy argument and the only thing the
-   competitor cannot match — and once the drawer is closed, nothing on the page says it happened.
-   A "✓ 1:1 on your screen" marker beside the readout. Also feeds
-   `actual ring size chart on screen` (>1,000/mo), still unwritten.
+3. ✅ **Surface the calibration — DONE 31 Aug.** A two-state marker under the readout: `✓ Actual
+   size on your screen` once a calibration is stored, and `— Not calibrated yet — sizes assume a
+   standard screen` until then. Two states, not one, because before calibration the tool is running
+   on a nominal 96 DPI guess and a flat "1:1" badge would be confidently wrong — the thing this
+   site exists not to be. It is driven from the same condition that collapses the calibrate drawer,
+   so the two can never contradict each other.
+
+   **The dashed guide circle was removed in the same change, and must not come back.** It was a
+   fixed 232 px ring — 61 mm at default scale — drawn around a ring that is physically 13–24 mm.
+   Measured: the real ring filled **21%** of it at the slider's bottom and **40%** at the top, so it
+   could never fill the guide it appeared to be a guide for. The owner spotted this by eye while
+   comparing screenshots against a competitor. It reads as "the tool draws my ring too small" when
+   the truth is the reverse — the ring is life-size and the guide was not. Enlarging the ring would
+   forfeit the site's only real claim; the grid and the 10 mm legend already prove the scale, and the
+   marker now says it in words.
+
+   `actual ring size chart on screen` (>1,000/mo) is still unwritten, and this marker is the hook
+   for it.
 
 4. **Lighthouse pass.** Still not run. `og.png` is 105 KB and `hero-ring-hand.webp` 135 KB — both
    are candidates if the score needs it.
@@ -522,6 +537,29 @@ The obvious remedy for the float bug — quantising millimetres to a small epsil
 before being applied and **increased** failures in circumference/cm from 4 to 6, because blanket
 quantisation pushes values off ties in the wrong direction. Targeted exact arithmetic is the fix.
 Measure this class of change; do not reason about it.
+
+---
+
+## Competitor bug, measured 31 Aug 2026 — a unit is not a size
+
+The owner supplied screenshots of a competitor's three sizer pages (MM / CM / Inches) showing the
+same ring — 16.51 mm = 1.651 cm = 0.650 in — drawn at **three different sizes**. The centimetre
+page's circle is roughly **ten times smaller**, which is the ratio of the two *numbers*, not of any
+two sizes: they scale the drawing by the figure on the slider instead of by the measurement it
+stands for. The same screenshots show **EU 51.8** on two of the three pages; EU/ISO sizes are whole
+millimetres of circumference, so 51.8 is not a size. (This matches the earlier note below about
+their EU column showing 46.8 and 67.2.)
+
+**Our tool was tested for the same fault before anything was written.** All six modes measured a
+circle of **exactly 62.406 px, spread 0**, and reported `6 | L½ | 52 | 12` in every one — because
+`px = diameter_mm × pxPerMm` and the unit never enters it. Written up on the homepage in the
+`#disagree` section as "A unit is not a size", with a five-second test the reader can run on any
+sizer including ours.
+
+⚠️ One trap from doing that test: driving the tool through all six modes leaves it in the LAST
+mode. A sweep of millimetre diameters typed into a circumference-in-inches field all clamp to the
+maximum and return an identical circle width, which looks exactly like "the circle never changes".
+Set the mode explicitly before measuring.
 
 ---
 
