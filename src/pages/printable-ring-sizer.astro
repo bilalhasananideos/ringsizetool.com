@@ -24,11 +24,71 @@ import Layout from '../layouts/Layout.astro';
 import FaqSection from '../components/FaqSection.astro';
 import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
 import { CHART_ROWS, fromDiameter, diameterFromUs, UK_NOTE } from '../data/ringSizes';
+import { CARD_SHORT_MM, CARD_LONG_MM } from '../data/calibration';
 import { breadcrumbSchema, PRINTABLE_FAQS, faqPageSchema } from '../data/faq';
 
 /* The check square. 50 mm is chosen so a 30 cm ruler measures it in one go and
-   a 1 mm printing error is a visible 2%. */
+   a 1 mm printing error is a visible 2%.
+
+   ⚠️ CHECK_MM is the OUTER dimension of the outline, and the page has to say so.
+   Tailwind's preflight sets `box-sizing: border-box`, so `.ps-check`'s width
+   INCLUDES its border. Measured out of a real headless-Chrome print-to-PDF
+   (31 Aug 2026), the square's WIDTH comes out at:
+
+     outside edge → outside edge   50.006 mm   ← the number the page claims
+     stroke centre → centre        49.742 mm
+     inside edge → inside edge     49.477 mm
+
+   That is a 0.53 mm spread, against a check whose whole job is to catch a 1 mm
+   error. A reader measuring inside-to-inside reads 49.5 and concludes their
+   printer is wrong when the sheet is right — the exact false alarm this square
+   exists to prevent. Hence "outside edge to outside edge" in both places below;
+   do not soften it to just "measure the square".
+
+   Chrome snapped the 0.4 mm border to 1 CSS px, not the 1.51 px declared, which
+   is where the inner figure comes from. Only the OUTER figure is guaranteed, and
+   only on the axis whose edges happen to land on the pixel grid: see the
+   PIXEL SNAPPING note below — the height measured 49.742 mm in the same PDF. */
 const CHECK_MM = 50;
+
+/* ── PIXEL SNAPPING — measured, and deliberately not chased ────────────────
+   Everything on this sheet is declared in mm, but a browser lays out on a CSS
+   pixel grid (1 px = 1/96 in) and snaps box edges to whole device pixels. At
+   device scale 1 that quantises every printed dimension by up to 1 px, i.e.
+   0.2646 mm. Measured out of the print-to-PDF, 31 Aug 2026:
+
+     check square   width 189 px = 50.006 mm, height 188 px = 49.742 mm
+                    (the height moves with where the square lands vertically —
+                     it was 189 px before the paragraph above it grew a line)
+     ring holes     content diameter = round(d × 96/25.4) px, border 1 px.
+                    Worst case over US 3-14 is US 7: 65.47 px asked, 65 px drawn,
+                    i.e. -0.124 mm.
+
+   Why this is tolerable rather than a bug:
+
+   - The gauge prints WHOLE US sizes only, which are 0.4064 mm apart in diameter,
+     and the half-size boundary is 0.2032 mm away. A 0.124 mm error cannot reach
+     it, so no hole can be mistaken for its neighbour. This is a second, quite
+     separate reason the "whole sizes only" decision above was right.
+   - 0.26 mm is below what a ruler with half-millimetre graduations resolves, so
+     the check square still does its job.
+   - Device scale 1 is the WORST case. A real printer rasterises finer, so the
+     error on paper should be smaller than the figures above, not larger.
+
+   Do not try to fix this in CSS. There is no unit that is both a true physical
+   length and an integer number of pixels, and the one attempt that looks
+   obvious — nudging sizes onto the grid — would make the numbers wrong on
+   purpose to make the rendering tidy. It is measured, bounded, and below the
+   resolution of the instrument. Leave it.
+
+   It is written down because it looks exactly like a bug to anyone who measures
+   the PDF, and this project has already lost time to two artifacts of that kind
+   (frozen CSS transitions in a background tab; a 64.62/64.64 "mismatch" that was
+   two different physical values). */
+
+/* The no-ruler fallback. Generated, not typed: the whole point of this page is
+   that no printed number is hand-written. */
+const CARD_GAP_MM = CARD_SHORT_MM - CHECK_MM;
 
 /* Ring-hole gauge: whole US sizes only. Quarter sizes would put circles 0.2 mm
    apart, which no printer resolves and no reader can distinguish — printing
@@ -93,15 +153,13 @@ const jsonLd = [
       <h2 class="text-lg font-semibold text-text">Before you print</h2>
       <ol class="mt-3 list-decimal space-y-2 pl-5 text-text-muted leading-relaxed">
         <li>
-          In the print dialog set <strong class="text-text">Scale</strong> to
-          <strong class="text-text">100%</strong> — not &ldquo;Fit to page&rdquo;, not
+          In the print dialog set <strong class="text-text">Scale</strong> to <strong class="text-text">100%</strong> — not &ldquo;Fit to page&rdquo;, not
           &ldquo;Shrink to fit&rdquo;. This is the single step that decides whether the sheet is
           accurate.
         </li>
         <li>Use A4 or US Letter. Either works; the gauge fits both.</li>
         <li>
-          Measure the printed square with a ruler. It must be
-          <strong class="text-text">{CHECK_MM} mm</strong> on every side. If it is not, your
+          Measure the printed square with a ruler — <strong class="text-text">outside edge to outside edge</strong> of the outline, not inside to inside. Every side must be exactly {CHECK_MM} mm. If it is not, your
           printer scaled the page — fix the scale setting and print again rather than trying to
           correct for it.
         </li>
@@ -125,17 +183,15 @@ const jsonLd = [
       <section class="ps-block">
         <h2 class="ps-h">1 · Check the scale first</h2>
         <p class="ps-p">
-          Measure this square. Every side must be exactly {CHECK_MM} mm. If it is not, the sheet
+          Measure this square from the <strong>outside</strong> of the outline to the outside of the outline opposite — not inside to inside, which reads about half a millimetre small. Every side must be exactly {CHECK_MM} mm. If it is not, the sheet
           is scaled and every size below it will be wrong.
         </p>
         <div class="ps-check-wrap">
           <div class="ps-check" aria-hidden="true"></div>
-          <p class="ps-check-label">{CHECK_MM} mm × {CHECK_MM} mm</p>
+          <p class="ps-check-label">{CHECK_MM} mm × {CHECK_MM} mm, outside edge to outside edge</p>
         </div>
         <p class="ps-p ps-note">
-          A ruler is enough. If you do not have one, a standard bank card is 85.60 mm long and
-          53.98 mm wide (ISO/IEC 7810) — the square should be a little shorter than the card&rsquo;s
-          short edge is wide, plus a hair under 4 mm.
+          A ruler is enough. If you do not have one, every bank card in the world is the same size under ISO/IEC 7810: {CARD_LONG_MM.toFixed(2)} mm long and {CARD_SHORT_MM.toFixed(2)} mm wide. Hold the card&rsquo;s short edge along one side of the square — the square should fall {CARD_GAP_MM.toFixed(2)} mm short of it.
         </p>
       </section>
 
@@ -236,7 +292,7 @@ const jsonLd = [
   </main>
 </Layout>
 
-<style>
+<style define:vars={{ checkMm: `${CHECK_MM}mm` }}>
   /* ── The printable sheet ───────────────────────────────────────────────────
      EVERY physical dimension here is mm. Do not convert any of it to px, rem
      or any relative unit: this block's whole purpose is that a printed
@@ -264,8 +320,14 @@ const jsonLd = [
   /* 1 · scale check */
   .ps-check-wrap { margin: 4mm 0; }
   .ps-check {
-    width: 50mm;
-    height: 50mm;
+    /* Driven from CHECK_MM, never typed — the prose and the square must not be
+       able to disagree about the one number this page is built on. */
+    width: var(--checkMm);
+    height: var(--checkMm);
+    /* box-sizing is border-box (Tailwind preflight), so this border sits INSIDE
+       the 50 mm: outside edge to outside edge is CHECK_MM. That is what the copy
+       above tells the reader to measure. Do not switch to content-box without
+       changing the copy too. */
     border: 0.4mm solid var(--color-text);
     /* No border-radius: a square with rounded corners cannot be measured
        edge-to-edge with a ruler, which is the entire point of it. */
