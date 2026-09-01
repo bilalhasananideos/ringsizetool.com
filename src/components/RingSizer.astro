@@ -92,6 +92,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
             <span class="font-mono"><span data-readout data-cal-val>{DEFAULT_PPM}</span> px/mm</span>
           </div>
           <div class="flex items-center gap-3">
+            <label class="sr-only" for="cal-range">Match outline to card, pixels per millimetre</label>
             <input
               id="cal-range" data-cal-range type="range"
               min={PPM_MIN} max={PPM_MAX} step="0.01" value={DEFAULT_PPM}
@@ -309,6 +310,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
             </button>
 
             <div class="relative flex-1">
+              <label class="sr-only" for="ring-range">Ring size slider</label>
               <input
                 id="ring-range"
                 data-ring-range
@@ -341,7 +343,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
         <!-- 2x2 Country Size Grid Cards -->
         <div>
           <p class="text-xs font-semibold uppercase tracking-wider text-text-faint mb-2">Your Size Is</p>
-          <div class="grid grid-cols-2 gap-3 sm:gap-4">
+          <dl class="grid grid-cols-2 gap-3 sm:gap-4">
             <!-- US & Canada -->
             <div class="rounded-xl border border-border bg-surface-sunk/40 p-4 sm:p-5 text-center transition-all hover:border-accent/40 hover:shadow-xs">
               <dt class="text-xs font-medium text-text-muted">US / CA</dt>
@@ -365,7 +367,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
               <dt class="text-xs font-medium text-text-muted">Japan (JP)</dt>
               <dd data-readout data-out-jp class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">{dash(d.jp)}</dd>
             </div>
-          </div>
+          </dl>
         </div>
 
         <!-- The two systems we are least certain about are the two the tool

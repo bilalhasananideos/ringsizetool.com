@@ -64,7 +64,13 @@
    --text-faint is deliberately darker than it looks like it should be. It
    carries 14px hint text, which WCAG counts as normal size and so needs 4.5:1.
    The previous #8A857A was 3.29:1 on --surface-sunk. Verified on all three
-   light surfaces: bg 5.17, surface 5.39, sunk 4.82. Do not lighten it. */
+   light surfaces: bg 5.17, surface 5.39, sunk 4.82. Do not lighten it.
+
+   --accent-text is the same trap: it is every link and small-print accent
+   color on the site (see index/chart/how-to pages, the calibration gauge
+   label). The previous #B8860B was 3.25:1 on --surface, which Lighthouse
+   flagged. #8F6B0A is 4.89:1 on white and still reads as gold, not brown.
+   Dark mode's #E9C349 is unaffected — over 10:1 on its own backgrounds. */
 :root {
   --bg:            #FBFBFA;
   --surface:       #FFFFFF;
@@ -75,7 +81,7 @@
   --border:        #E8E4D9;
   --border-strong: #D9CEA9;
   --accent:        #D4AF37;
-  --accent-text:   #B8860B;
+  --accent-text:   #8F6B0A;
   --accent-bright: #D4AF37;
   --accent-hover:  #C59B27;
   --accent-sunk:   #FDF8EC;
@@ -97,7 +103,7 @@
   --border:        #E8E4D9;
   --border-strong: #D9CEA9;
   --accent:        #D4AF37;
-  --accent-text:   #B8860B;
+  --accent-text:   #8F6B0A;
   --accent-bright: #D4AF37;
   --accent-hover:  #C59B27;
   --accent-sunk:   #FDF8EC;
