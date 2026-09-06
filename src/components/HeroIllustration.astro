@@ -9,7 +9,13 @@
  * Largest Contentful Paint element and must NOT be lazy-loaded.
  */
 import { Image } from 'astro:assets';
-import heroSrc from '../../public/images/hero-ring-hand.webp';
+/* src/assets, NOT public/. Importing an image that also sits in public/ ships
+ * it TWICE: once processed into _astro (the copy the page uses) and once
+ * copied verbatim to /images/, which nothing requests. That was 138 KB of
+ * dead weight in every deploy. Measured, not assumed — both files were in
+ * dist/ side by side. logo-128.webp stays in public/ because the Organization
+ * schema references it by public URL. */
+import heroSrc from '../assets/hero-ring-hand.webp';
 ---
 <div class="hero-art flex w-full max-w-sm sm:max-w-md items-center justify-center">
   <Image
