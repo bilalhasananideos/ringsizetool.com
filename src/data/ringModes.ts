@@ -69,6 +69,99 @@ export const UNITS: { key: Unit; label: string; short: string }[] = [
   { key: 'in', label: 'in', short: 'Inches' },
 ];
 
+/**
+ * What the visitor HAS — the tool's first question, and it is deliberately
+ * about an object rather than a unit.
+ *
+ * The instrument used to open on `measure × unit`: "Diameter or Circumference?
+ * MM, CM or Inches?" Both are real questions and the six modes they produce are
+ * the best implementation of that input in this market — but they are the WRONG
+ * FIRST question. They presuppose the visitor already holds a measurement.
+ * Someone who arrives with a ring and nothing else has no answer to them, and
+ * the instruction they actually need ("lay it on the circle") lived ~150 lines
+ * further down the homepage, outside the tool entirely. Every competitor that
+ * ranks for `ring sizer` opens with the object instead. See SEO-AUDIT.md §2 P2.
+ *
+ * A source therefore does two things and no more:
+ *   1. it decides which single instruction is shown, and
+ *   2. it pre-sets `measure` to the thing that source actually produces.
+ *
+ * ⚠️ It never REMOVES a control. The measure and unit pills stay visible and
+ * operable under every source, so a wrong guess about what the visitor has
+ * costs one click and can never dead-end them. That property is what makes
+ * putting this in front of the six modes safe rather than a narrowing.
+ *
+ * A source is NOT part of the measurement and so is deliberately absent from
+ * the query string: `?measure=&unit=` plus the value describe the reading
+ * completely, and a third parameter would only hand the canonical page another
+ * address. It is derived from `measure` instead — see `sourceFromMeasure`.
+ */
+export type Source = 'ring' | 'finger' | 'number';
+
+export interface SourceSpec {
+  key: Source;
+  /** The pill's label. What the visitor has, phrased as they would say it. */
+  label: string;
+  /** The one instruction shown once this source is selected. */
+  hint: string;
+  /** Caption above the ring stage, or null where the stage is not the input. */
+  stageCaption: string | null;
+  /**
+   * The measure this source produces, pre-set on selection.
+   *
+   * A ring laid on the circle is matched at its INNER EDGE, which is a
+   * diameter. A paper strip round a finger is a CIRCUMFERENCE. Getting this
+   * wrong is not cosmetic — it is a factor of π in the answer.
+   *
+   * null for 'number', which must not touch a measure the visitor chose
+   * themselves.
+   */
+  measure: Measure | null;
+}
+
+export const SOURCES: SourceSpec[] = [
+  {
+    key: 'ring',
+    label: 'A ring that fits',
+    hint: 'Lay the ring flat on the circle below, then drag the slider until the circle sits just inside it.',
+    stageCaption: 'Lay your ring on the circle',
+    measure: 'dia',
+  },
+  {
+    key: 'finger',
+    label: 'Just my finger',
+    hint: 'Wrap a strip of paper round the base of the finger, mark where it overlaps, then measure it flat and type the length below.',
+    stageCaption: null,
+    measure: 'circ',
+  },
+  {
+    key: 'number',
+    label: 'A measurement already',
+    hint: 'Type the figure you have below, and set what you measured and its unit to match it.',
+    stageCaption: null,
+    measure: null,
+  },
+];
+
+export const sourceSpec = (s: Source): SourceSpec =>
+  SOURCES.find((x) => x.key === s) ?? SOURCES[0];
+
+/**
+ * The source implied by a measure, used to pick the opening state.
+ *
+ * The tool is mounted with `measure`/`unit` props and can be deep-linked with
+ * `?measure=`, so the opening source has to follow whichever of those wins
+ * rather than being a fourth thing that can disagree with them. Circumference
+ * is the finger route; everything else opens on the ring.
+ *
+ * ⚠️ 'number' is never DERIVED, only chosen. It is a statement about the
+ * visitor, not about the measurement, and nothing in a URL can tell you a
+ * person is holding a caliper reading. The client script treats it as sticky
+ * for the same reason: once someone says they have a number, flipping a unit
+ * must not silently reclassify them.
+ */
+export const sourceFromMeasure = (m: Measure): Source => (m === 'circ' ? 'finger' : 'ring');
+
 export interface ModeSpec {
   key: ModeKey;
   measure: Measure;

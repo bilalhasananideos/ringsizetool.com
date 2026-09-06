@@ -13,7 +13,9 @@ import {
 } from '../src/data/ringSizes.ts';
 import {
   toMode, toDia, modeSpec, modeFromParams, ceilTo, floorTo,
+  SOURCES, sourceSpec, sourceFromMeasure,
   DIA_MIN_MM, DIA_MAX_MM,
+  type Source,
 } from '../src/data/ringModes.ts';
 import {
   PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, STAGE_MAX_CIRCLE_PX,
@@ -439,6 +441,66 @@ eq('?measure=CIRCUMFERENCE is case-insensitive', parse('measure=CIRCUMFERENCE').
 eq('junk unit falls back, does not throw', parse('unit=furlong').unit, 'mm');
 eq('junk measure falls back', parse('measure=weight').measure, 'dia');
 eq('empty query falls back', parse('').unit, 'mm');
+
+console.log('\n— the source picker: "what do you have?" —');
+/* The picker sits in FRONT of the six modes, so its table and the mode table
+ * have to agree or the two controls fight each other on screen. Everything
+ * below is an invariant the UI relies on, not a restatement of the data. */
+
+eq('three sources, no more', SOURCES.length, 3);
+eq('sourceSpec falls back on junk, does not throw',
+   sourceSpec('caliper' as Source).key, 'ring');
+
+for (const src of SOURCES) {
+  eq(`${src.key} has a label`, src.label.length > 0, true);
+  eq(`${src.key} has an instruction`, src.hint.length > 0, true);
+  eq(`${src.key} round-trips through sourceSpec`, sourceSpec(src.key).key, src.key);
+}
+
+/* THE invariant. Picking a source pre-sets its measure, and setMode() then
+ * derives the source back from that measure to keep the picker honest. If the
+ * two disagree for any source, the button the visitor just pressed flips back
+ * under their finger — setSource -> setMode -> syncSourceToMeasure -> setSource.
+ * Asserting the round trip is what makes that loop provably a no-op. */
+for (const src of SOURCES) {
+  if (src.measure === null) continue;
+  eq(`${src.key} -> ${src.measure} -> ${src.key}`, sourceFromMeasure(src.measure), src.key);
+}
+
+/* 'number' is chosen, never derived: nothing in a URL can tell you a person is
+ * holding a caliper reading, so no measure may map to it. */
+eq('no measure derives to "number"',
+   (['dia', 'circ'] as const).some((m) => sourceFromMeasure(m) === 'number'), false);
+eq('every measure derives to a source that exists',
+   (['dia', 'circ'] as const).every((m) => SOURCES.some((x) => x.key === sourceFromMeasure(m))), true);
+
+/* The stage is the input for exactly one route. A caption left showing while
+ * the visitor is typing a number is an instruction that has stopped applying. */
+eq('only the ring route captions the stage',
+   SOURCES.filter((x) => x.stageCaption !== null).map((x) => x.key).join(','), 'ring');
+
+/* The factor of pi, made testable. A ring laid on the circle is matched at its
+ * INNER EDGE — a diameter. A paper strip round a finger is a circumference.
+ * Wiring a source to the wrong measure is not a preference, it is a 3.14x
+ * error in the answer, so the two specs are asserted against the arithmetic
+ * rather than against each other. */
+const dia6src = diameterFromUs(6);
+const ringMeasure = sourceSpec('ring').measure!;
+const fingerMeasure = sourceSpec('finger').measure!;
+eq('ring route reads a diameter', toMode(dia6src, ringMeasure, 'mm'), dia6src, 1e-12);
+eq('finger route reads a circumference',
+   toMode(dia6src, fingerMeasure, 'mm'), dia6src * Math.PI, 1e-12);
+eq('…and the two differ by exactly pi',
+   toMode(dia6src, fingerMeasure, 'mm') / toMode(dia6src, ringMeasure, 'mm'), Math.PI, 1e-12);
+
+/* A source only ever changes WHICH measure is read, never the size that comes
+ * back from a given ring. Both routes describing the same physical ring must
+ * land on the same US size. */
+for (const src of SOURCES) {
+  if (src.measure === null) continue;
+  const back = toDia(toMode(dia6src, src.measure, 'mm'), src.measure, 'mm');
+  eq(`${src.key} route returns US 6 for a US 6 ring`, fromDiameter(back).us, '6');
+}
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

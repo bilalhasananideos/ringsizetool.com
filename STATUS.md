@@ -91,12 +91,23 @@ One unified instrument card (not a multi-step wizard):
 - **Calibrate drawer** — visible by default for a first-time visitor (this was broken and is now
   fixed — see Gotchas). Bank card held **portrait** against the screen, slider + a paired number
   input for the exact px/mm value. Collapses once saved; reachable again via a "Calibrate" link.
-- **Two switchers** — *what you measured* (Diameter / Circumference) and *unit* (MM / CM /
-  Inches), as two pill `radiogroup`s with `role="radio"` + `aria-checked`. This replaced a single
-  four-pill row that put a measurement among units and left circumference stuck in millimetres;
-  it is now six modes, all in `src/data/ringModes.ts`. The view is readable and writable via
-  `?measure=&unit=`, and `RingSizer.astro` takes `measure` / `unit` props so a page can open in
-  the mode it is about.
+- **A source picker — "What do you have?"** (NEW, 6 Sep). Three cards: *A ring that fits* /
+  *Just my finger* / *A measurement already*, as a `role="radiogroup"` with roving tabindex.
+  This is now the tool's FIRST question, and it is about an object rather than a unit. It shows
+  one instruction per source, captions the ring stage on the ring route only, and pre-sets
+  `measure` to what that source produces — a ring matched at its inner edge is a diameter, a
+  paper strip is a circumference. Table lives in `SOURCES` / `sourceSpec` / `sourceFromMeasure`
+  in `src/data/ringModes.ts`; 21 assertions in `verify-sizes.ts`.
+  **It removes nothing** — see the two switchers below, which stay operable under all three
+  sources — so a wrong guess costs one click and can never dead-end anyone.
+- **Two switchers, now DEMOTED below the source picker** — *what you measured* (Diameter /
+  Circumference) and *unit* (MM / CM / Inches), as two pill `radiogroup`s with `role="radio"` +
+  `aria-checked`, under one visible label ("Or set what you measured, and its unit"). This
+  replaced a single four-pill row that put a measurement among units and left circumference
+  stuck in millimetres; it is now six modes, all in `src/data/ringModes.ts`. The view is
+  readable and writable via `?measure=&unit=`, and `RingSizer.astro` takes `measure` / `unit`
+  props so a page can open in the mode it is about. The source is DERIVED from `measure`, never
+  a fourth thing in the URL that could disagree with it.
 - **Ring diagram** — a live-scaled gold ring on true-scale graph paper (1 mm minor, 5 mm major)
   with a 10 mm legend bar, all driven by the calibrated px/mm, plus centre crosshair ticks. The
   dashed guide circle was **removed 31 Aug** and must not return — see Next item 3.
@@ -789,12 +800,14 @@ business identity rather than a personal Gmail, that is the earliest it can be d
      redesign (29 Aug) rests on this; it has only been verified by measuring the DOM at 375 px.
    - **Print `/printable-ring-sizer` and measure the square with a ruler.** It must be 50 mm.
 
-2. **Decide: three unit URLs, or one page with query parameters.** The competitor runs
-   `Ring Sizer in MM` / `in CM` / `in Inches` as three separate pages; we serve all six modes
-   from one behind `?measure=&unit=`, which Google does not index as distinct pages. This is a
-   real ranking difference and nothing addresses it. `RingSizer` already takes `measure`/`unit`
-   props so a page can mount pre-set, so the routes are cheap — but it is new scope and an SEO
-   judgement, not a bug fix. **Owner's call.**
+2. 🔴 **Decide: three unit URLs, or one page with query parameters. — THE PREMISE WAS WRONG.**
+   This item said "the competitor runs `Ring Sizer in MM` / `in CM` / `in Inches` as three
+   separate pages." Checked live on 6 Sep 2026: **they are three widgets on one homepage**, and
+   **no competitor in this market runs per-unit URLs.** See `SEO-AUDIT.md` §16.
+   Recommendation there: **do not build the routes.** Three pages differing only by a multiplier
+   is the thin-variation content the factory rules forbid, and the unit-flavoured queries
+   (`ring size chart in mm`) are chart intent already served by `/ring-size-chart`'s columns and
+   title. **Still the owner's call to close, but it is no longer a judgement in the dark.**
 
 3. ✅ **Surface the calibration — DONE 31 Aug.** A two-state marker under the readout: `✓ Actual
    size on your screen` once a calibration is stored, and `— Not calibrated yet — sizes assume a

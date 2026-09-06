@@ -11,14 +11,17 @@
  */
 import { fromDiameter, diameterFromUs, UK_NOTE, INDIA_NOTE } from '../data/ringSizes';
 import {
-  MEASURES, UNITS, modeSpec, toMode, ceilTo, floorTo,
+  MEASURES, UNITS, SOURCES, sourceSpec, sourceFromMeasure, modeSpec, toMode, ceilTo, floorTo,
   DIA_MIN_MM, DIA_MAX_MM,
   type Measure, type Unit,
 } from '../data/ringModes';
 import {
   CARD_SHORT_MM, CARD_CORNER_MM, DEFAULT_PX_PER_MM, PPM_MIN, PPM_MAX,
 } from '../data/calibration';
-import { PILL_ON as pillOn, PILL_OFF as pillOff } from './pillClasses';
+import {
+  PILL_ON as pillOn, PILL_OFF as pillOff,
+  SOURCE_ON as sourceOn, SOURCE_OFF as sourceOff,
+} from './pillClasses';
 
 /**
  * Pages that exist to answer one query ("ring size in inches") mount the tool
@@ -47,6 +50,13 @@ const DEFAULT_PPM = DEFAULT_PX_PER_MM.toFixed(2);
  * table the client script uses, so the pre-hydration markup and the first
  * hydrated frame cannot show different numbers. */
 const spec = modeSpec(initMeasure, initUnit);
+
+/* The opening source is DERIVED from the opening measure, never chosen
+ * separately — see sourceFromMeasure. A page that mounts the tool with
+ * measure="circ" is a page about measuring a finger, and it must open saying so
+ * rather than telling the visitor to fetch a ring. */
+const initSource = sourceFromMeasure(initMeasure);
+const initSourceSpec = sourceSpec(initSource);
 const initValue = toMode(DEFAULT_DIA, initMeasure, initUnit).toFixed(spec.dp);
 const initMin = ceilTo(spec.min, spec.dp);
 const initMax = floorTo(spec.max, spec.dp);
@@ -177,36 +187,84 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 
   <!-- ── Main Interactive Instrument Card ──────────────────────────────── -->
   <div data-step="measure" class="card-elevated rounded-2xl border border-border bg-surface p-6 sm:p-10 md:p-12 shadow-sm">
-    <!-- Two switchers, because these are two independent questions: what you
-         measured, and what unit you want it in. One combined row of four made
-         circumference look like a unit and left it stuck in millimetres. -->
-    <div class="flex flex-wrap items-center justify-center gap-3">
-      <div role="radiogroup" aria-label="What you measured" class="inline-flex flex-wrap justify-center rounded-full bg-surface-sunk p-1 border border-border/80 shadow-inner gap-1">
-        {MEASURES.map((m) => (
+    <!-- ── The first question: what the visitor HAS ─────────────────────
+         This card used to open on the two switchers below — "Diameter or
+         Circumference? MM, CM or Inches?" — and that is the wrong first
+         question however good the six modes behind it are. It presupposes a
+         measurement. Someone holding a ring and nothing else cannot answer it,
+         and the sentence they needed ("lay it on the circle") was ~150 lines
+         down the homepage, outside the tool. Every competitor that ranks for
+         `ring sizer` opens with the object instead. SEO-AUDIT.md §2 P2.
+
+         The switchers are DEMOTED, not removed. They keep every capability
+         they had, they stay operable under all three sources, and the source
+         merely pre-sets `measure` to the thing that source actually produces —
+         a ring matched at its inner edge is a diameter, a paper strip is a
+         circumference. Picking wrong costs one click. -->
+    <div class="mx-auto max-w-2xl">
+      <h3 id="source-heading" class="text-center text-lg font-semibold text-text">What do you have?</h3>
+
+      <div role="radiogroup" aria-labelledby="source-heading" class="mt-4 grid gap-2 sm:grid-cols-3">
+        {SOURCES.map((src) => (
           <button
             type="button" role="radio"
-            aria-checked={m.key === initMeasure ? 'true' : 'false'}
-            tabindex={m.key === initMeasure ? 0 : -1}
-            data-measure-btn={m.key}
-            class={m.key === initMeasure ? pillOn : pillOff}
+            aria-checked={src.key === initSource ? 'true' : 'false'}
+            tabindex={src.key === initSource ? 0 : -1}
+            data-source-btn={src.key}
+            class={src.key === initSource ? sourceOn : sourceOff}
           >
-            {m.short}
+            {src.label}
           </button>
         ))}
       </div>
 
-      <div role="radiogroup" aria-label="Units" class="inline-flex flex-wrap justify-center rounded-full bg-surface-sunk p-1 border border-border/80 shadow-inner gap-1">
-        {UNITS.map((u) => (
-          <button
-            type="button" role="radio"
-            aria-checked={u.key === initUnit ? 'true' : 'false'}
-            tabindex={u.key === initUnit ? 0 : -1}
-            data-unit-btn={u.key}
-            class={u.key === initUnit ? pillOn : pillOff}
-          >
-            {u.short}
-          </button>
-        ))}
+      <p data-source-hint class="mt-4 text-center text-sm leading-relaxed text-text-muted">{initSourceSpec.hint}</p>
+    </div>
+
+    <!-- Two switchers, because these are two independent questions: what you
+         measured, and what unit you want it in. One combined row of four made
+         circumference look like a unit and left it stuck in millimetres.
+
+         They also finally carry a VISIBLE label. Both groups were announced to
+         assistive tech via aria-label and were unlabelled for everyone else.
+
+         ⚠️ One label above BOTH, not one each. Per-group labels were tried and
+         measured at 375px: "You measured" is 82px, its pill group 216px, and
+         the row is 277px — so that pair wrapped while "in" + the unit pills
+         (212px) did not, leaving one group's label stacked and the other's
+         inline. A single centred line naming the two groups in the order they
+         appear cannot wrap into that asymmetry at any width, and "Or set"
+         carries the demotion in words. -->
+    <div class="mt-8 border-t border-border/60 pt-6">
+      <p class="text-center text-xs font-medium text-text-faint">Or set what you measured, and its unit</p>
+      <div class="mt-3 flex flex-wrap items-center justify-center gap-3">
+        <div role="radiogroup" aria-label="What you measured" class="inline-flex flex-wrap justify-center rounded-full bg-surface-sunk p-1 border border-border/80 shadow-inner gap-1">
+          {MEASURES.map((m) => (
+            <button
+              type="button" role="radio"
+              aria-checked={m.key === initMeasure ? 'true' : 'false'}
+              tabindex={m.key === initMeasure ? 0 : -1}
+              data-measure-btn={m.key}
+              class={m.key === initMeasure ? pillOn : pillOff}
+            >
+              {m.short}
+            </button>
+          ))}
+        </div>
+
+        <div role="radiogroup" aria-label="Units" class="inline-flex flex-wrap justify-center rounded-full bg-surface-sunk p-1 border border-border/80 shadow-inner gap-1">
+          {UNITS.map((u) => (
+            <button
+              type="button" role="radio"
+              aria-checked={u.key === initUnit ? 'true' : 'false'}
+              tabindex={u.key === initUnit ? 0 : -1}
+              data-unit-btn={u.key}
+              class={u.key === initUnit ? pillOn : pillOff}
+            >
+              {u.short}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
 
@@ -215,6 +273,22 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 
       <!-- Left Column: Interactive Ring Circle Guide & Live Readout -->
       <div class="flex flex-col items-center justify-center">
+
+        <!-- The stage has always been the input for the ring route and has never
+             said so. Graph paper, crosshairs and a life-size circle read as
+             decoration without a caption, which is most of why the tool looked
+             like a converter rather than a sizer. Sibling of the stage, not a
+             child: the stage is overflow-hidden and its top-centre is already
+             occupied by a crosshair tick. Hidden outright for the two sources
+             where the stage is not what the visitor is touching — a caption
+             that stays put while its instruction stops applying is worse than
+             none. -->
+        <p
+          data-stage-caption
+          hidden={initSourceSpec.stageCaption === null}
+          class="mb-3 text-center text-xs font-medium text-accent-text"
+        >{initSourceSpec.stageCaption}</p>
+
         <div data-ring-stage class="ring-stage relative flex h-64 w-64 sm:h-72 sm:w-72 items-center justify-center overflow-hidden rounded-xl">
 
           <!-- Graph paper at TRUE scale: 1 mm minor, 5 mm major. Cell size is
@@ -556,14 +630,15 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
   import { fromDiameter, diameterFromUs } from '../data/ringSizes';
   import {
     modeSpec, toMode, toDia, ceilTo, floorTo, modeFromParams,
+    sourceSpec, sourceFromMeasure,
     DIA_MIN_MM, DIA_MAX_MM,
-    type Measure, type Unit,
+    type Measure, type Unit, type Source,
   } from '../data/ringModes';
   import {
     PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, PHONE_PX_PER_MM, PHONE_VIEWPORT_MAX_PX,
     PPM_STORE_KEY, DPR_STORE_KEY, clampPpm,
   } from '../data/calibration';
-  import { PILL_ON, PILL_OFF } from './pillClasses';
+  import { PILL_ON, PILL_OFF, SOURCE_ON, SOURCE_OFF } from './pillClasses';
 
   const root = document.querySelector<HTMLElement>('.ring-sizer');
   if (root) {
@@ -586,6 +661,9 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     
     const measureButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-measure-btn]')];
     const unitButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-unit-btn]')];
+    const sourceButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-source-btn]')];
+    const sourceHint = $('[data-source-hint]');
+    const stageCaption = $<HTMLElement>('[data-stage-caption]');
 
 
 
@@ -609,6 +687,11 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
     };
     let { measure: activeMeasure, unit: activeUnit } =
       modeFromParams(new URLSearchParams(location.search), fallbackMode);
+    /* Derived from whichever measure won above, so a ?measure=circumference
+     * link opens on the finger instruction instead of telling the visitor to go
+     * and find a ring. Not read from the DOM: the server rendered its guess from
+     * the PROP, and the URL outranks the prop. */
+    let activeSource: Source = sourceFromMeasure(activeMeasure);
     let currentDia = diameterFromUs(6);       // US 6 - the women's average
 
     /** The spec for whatever the tool is currently showing. */
@@ -806,6 +889,61 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       }
     });
 
+    /* ── The first question: what the visitor has ──────────────────────────
+     *
+     * `syncMode` is the whole safety story of this pair of functions.
+     *
+     *   setSource(s)          the visitor picked a source -> pre-set the measure
+     *   setSource(s, false)   the measure moved -> repaint the picker only
+     *
+     * setMode() calls the second form, so the two can keep each other honest
+     * without recursing: setSource -> setMode -> syncSourceToMeasure sees the
+     * source it is already on and returns.
+     */
+    function setSource(s: Source, syncMode = true) {
+      activeSource = s;
+      const spec = sourceSpec(s);
+
+      sourceButtons.forEach((btn) => {
+        const on = btn.dataset.sourceBtn === s;
+        btn.className = on ? SOURCE_ON : SOURCE_OFF;
+        btn.setAttribute('aria-checked', String(on));
+        /* Roving tabindex, same contract as the two pill groups below: the
+         * GROUP is one tab stop and the stop is whichever radio is checked. */
+        btn.tabIndex = on ? 0 : -1;
+      });
+
+      sourceHint.textContent = spec.hint;
+
+      /* The caption is the stage's only instruction, so it is removed rather
+       * than blanked when the stage is not the input — an empty <p> still holds
+       * its margin and pushes the ring off centre. */
+      stageCaption.hidden = spec.stageCaption === null;
+      if (spec.stageCaption !== null) stageCaption.textContent = spec.stageCaption;
+
+      /* A ring is matched at its inner edge (a diameter); a paper strip is a
+       * circumference. This is the factor of pi, not a preference. 'number'
+       * carries measure: null and must never touch a measure the visitor set. */
+      if (syncMode && spec.measure !== null && spec.measure !== activeMeasure) {
+        setMode(spec.measure, activeUnit);
+      }
+    }
+
+    /* Flipping Diameter <-> Circumference by hand has to move the picker with
+     * it, or the card claims "A ring that fits" while the tool is reading a
+     * circumference.
+     *
+     * ⚠️ 'number' is sticky, and deliberately. Someone who has told the tool
+     * they are typing a caliper reading then changes a UNIT — mm to inches, say
+     * — and re-deriving from the measure would silently reclassify them as
+     * holding a ring, rewriting the instruction under their cursor. A source is
+     * a statement about the person; only the person retracts it. */
+    function syncSourceToMeasure(m: Measure) {
+      if (activeSource === 'number') return;
+      const derived = sourceFromMeasure(m);
+      if (derived !== activeSource) setSource(derived, false);
+    }
+
     /* ── Switch modes: (diameter | circumference) × (mm | cm | in) ── */
     function setMode(m: Measure, u: Unit, pushUrl = true) {
       activeMeasure = m;
@@ -823,6 +961,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       };
       paint(measureButtons, 'measureBtn', m);
       paint(unitButtons, 'unitBtn', u);
+      syncSourceToMeasure(m);
 
       /* The view lives in the URL so it can be shared, bookmarked and linked
        * to from the pages that exist to answer one of these questions.
@@ -901,6 +1040,8 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       });
     }
 
+    wireRadioGroup(sourceButtons, (btn) =>
+      setSource(btn.dataset.sourceBtn as Source));
     wireRadioGroup(measureButtons, (btn) =>
       setMode(btn.dataset.measureBtn as Measure, activeUnit));
     wireRadioGroup(unitButtons, (btn) =>
@@ -1069,5 +1210,12 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
      * URL the visitor never chose, which would turn every shared link into a
      * parameterised one and give the canonical page a second address. */
     setMode(activeMeasure, activeUnit, false);
+
+    /* Painted explicitly rather than left to setMode's sync, which no-ops when
+     * the derived source already matches. It usually does — and the one case
+     * where it does not is exactly the case that matters: the server rendered
+     * the source from the PROP, and a ?measure=circumference in the URL has
+     * since overridden it, so the markup on screen is a source behind. */
+    setSource(activeSource, false);
   }
 </script>
