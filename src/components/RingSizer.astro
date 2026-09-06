@@ -85,7 +85,10 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
         <span class="flex h-6 w-6 items-center justify-center rounded-full bg-accent text-on-accent text-xs font-bold">1</span>
         <h3 class="text-lg font-semibold text-text">Calibrate Screen Scale</h3>
       </div>
-      <button data-cal-close type="button" class="cursor-pointer text-xs text-text-muted hover:text-text underline">
+      <!-- min-h-11 is CLAUDE.md's 44px touch target; this was 32. -my-2 keeps the
+           header row from growing by the full difference — negative margin pulls
+           the neighbours back without shrinking the button's own hit box. -->
+      <button data-cal-close type="button" class="-my-2 inline-flex min-h-11 cursor-pointer items-center text-xs text-text-muted hover:text-text underline">
         Close ✕
       </button>
     </div>
@@ -118,10 +121,10 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
         </div>
 
         <div class="mt-5 flex flex-wrap items-center gap-3">
-          <button data-cal-save type="button" class="h-10 cursor-pointer rounded-xl bg-accent px-5 text-xs font-semibold text-on-accent hover:bg-accent-hover transition-all shadow-xs">
+          <button data-cal-save type="button" class="h-11 cursor-pointer rounded-xl bg-accent px-5 text-xs font-semibold text-on-accent hover:bg-accent-hover transition-all shadow-xs">
             Save Scale
           </button>
-          <button data-cal-reset type="button" class="h-10 cursor-pointer rounded-xl border border-border px-4 text-xs font-medium text-text-muted hover:text-text transition-colors">
+          <button data-cal-reset type="button" class="h-11 cursor-pointer rounded-xl border border-border px-4 text-xs font-medium text-text-muted hover:text-text transition-colors">
             Reset
           </button>
         </div>
@@ -472,7 +475,7 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
           <div class="flex items-center gap-3 text-text-faint">
             <span>India: <strong data-readout data-out-in class="font-semibold text-text font-mono">{dash(d.in)}</strong></span>
             <span>FR/IT/ES: <strong data-readout data-out-fr class="font-semibold text-text font-mono">{dash(d.fr)}</strong></span>
-            <button data-recal type="button" class="-my-2 cursor-pointer px-1 py-2 text-accent-text underline underline-offset-2 hover:opacity-80 font-medium">
+            <button data-recal type="button" class="-my-2 inline-flex min-h-11 cursor-pointer items-center px-1 text-accent-text underline underline-offset-2 hover:opacity-80 font-medium">
               Calibrate
             </button>
           </div>
