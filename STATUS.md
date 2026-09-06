@@ -9,6 +9,13 @@ file** (marked 🔴 there): the competitor does *not* run per-unit URLs, screen 
 longer a differentiator, and `actual ring size chart on screen` has an incumbent. Read it before
 starting any SEO work.
 
+**Done from that plan so far (6 Sep):** #1 the tool entry reframe · Day 2 both title/description
+rewrites · Day 7 the homepage prose de-duplication (whose premise was also wrong — `#methods` was
+already a summary + link; the real duplicate was `#about-tool` restating the new source picker).
+**Still open and blocking the rest: Day 1 — URL-inspect the six content pages in GSC, and decide
+`/actual-ring-size-chart-on-screen` (finish + link, or noindex + drop from the sitemap).** Those
+are owner actions, not code.
+
 **⚠️ This file was two commits stale between 1 and 6 Sep**, and both stale lines told the next
 session to do work that was already done — a Lighthouse run and the `favicon.ico` rebuild. Both are
 corrected in place below. If you commit code, update this file in the same commit.

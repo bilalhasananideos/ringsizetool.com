@@ -123,7 +123,13 @@ export const SOURCES: SourceSpec[] = [
   {
     key: 'ring',
     label: 'A ring that fits',
-    hint: 'Lay the ring flat on the circle below, then drag the slider until the circle sits just inside it.',
+    /* "…until the circle sits just inside it" was the first draft and it was
+     * looser than the page's own wording. The homepage #methods section says
+     * OUTER edge to the INSIDE of the band, because the metal is not part of
+     * the measurement — and a hint that is vaguer than the prose two screens
+     * down is the drift this file exists to prevent. One instruction, one
+     * degree of precision, wherever it appears. */
+    hint: 'Lay the ring flat on the circle below, then size the circle until its outer edge meets the inside of the band.',
     stageCaption: 'Lay your ring on the circle',
     measure: 'dia',
   },

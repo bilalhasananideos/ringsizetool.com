@@ -49,8 +49,8 @@ const jsonLd = [
 ];
 ---
 <Layout
-  title="Ring Sizer — Find Your Ring Size Online | Ring Size Tool"
-  description="Free online ring sizer. Calibrate your screen with a bank card, then measure a ring or your finger. No printer, no download. US, UK, EU, Japan and India sizes."
+  title="Online Ring Sizer — Free Ring Size Finder | Ring Size Tool"
+  description="Free online ring sizer. Calibrate your screen with a bank card, lay a ring on the circle, and read your size in US, UK, EU, Japan and India. No app, no printer."
   noindex={NOINDEX_SITE}
   jsonLd={jsonLd}
 >
@@ -260,31 +260,28 @@ const jsonLd = [
           you.
         </p>
 
+        <!-- ⚠️ This block used to be a three-item bulleted list giving the
+             technique for each route. Since the tool gained its own source
+             picker (6 Sep) that list was a prose COPY of three buttons — same
+             three options, same order, same instructions — i.e. two copies of
+             one instruction, free to drift apart. Deleted.
+
+             What is left explains the input MODEL, which the buttons cannot:
+             why the tool asks what you have before it asks about units at all.
+             Technique lives once, in #methods, and is linked rather than
+             repeated. Keep it that way. -->
         <h3 class="mt-8 text-lg font-semibold text-text">Three ways to give it a measurement</h3>
 
         <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
-          Once calibrated, the virtual ring sizer takes whatever you have:
+          The tool asks what you have before it asks anything else, because &ldquo;diameter or circumference, and in which unit?&rdquo; is a question you can only answer once you are already holding a number. Choose <em>a ring that fits</em>, <em>just my finger</em>, or <em>a measurement already</em>, and it sets itself up for that: the ring route reads an inside diameter off the circle, the finger route expects the flat length of a paper strip as a circumference, and the third takes a jeweller&rsquo;s reading or a caliper figure straight into the field.
         </p>
 
-        <ul class="mt-4 max-w-[68ch] list-disc space-y-2 pl-5 text-text-muted leading-relaxed">
-          <li>
-            <strong class="text-text">A ring that already fits.</strong> Lay it on the circle and
-            match the circle to the ring's inside edge. This is the most accurate route, because a
-            ring is rigid and a finger is not.
-          </li>
-          <li>
-            <strong class="text-text">A finger you have measured.</strong> Wrap a strip of paper
-            round the base of the finger, mark the overlap, measure it flat, and type that in as a
-            circumference.
-          </li>
-          <li>
-            <strong class="text-text">A number from somewhere else.</strong> A jeweller's reading, a
-            caliper, a size printed inside an old band — type it straight into the field.
-          </li>
-        </ul>
+        <p class="mt-4 max-w-[68ch] text-text-muted leading-relaxed">
+          Nothing is locked by that choice. The two switchers under the picker stay live, so a route you did not pick is one click away — and the technique for each is <a href="#methods" class="text-accent-text underline underline-offset-2 hover:opacity-80">a little further down</a>.
+        </p>
 
         <p class="mt-4 max-w-[68ch] text-text-muted leading-relaxed">
-          The two switchers above the readout are deliberately separate. One asks <em>what you measured</em> — inside diameter or inside circumference — and the other asks <em>which unit</em> you want, millimetres, centimetres or inches. Those are independent
+          Those two switchers are deliberately separate. One asks <em>what you measured</em> — inside diameter or inside circumference — and the other asks <em>which unit</em> you want, millimetres, centimetres or inches. Those are independent
           questions, and putting them in one row of buttons, as this tool once did, quietly makes
           some combinations unreachable. If your ruler is marked in inches and you measured around
           the finger, that combination exists here.
