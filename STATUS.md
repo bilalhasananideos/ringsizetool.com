@@ -253,6 +253,61 @@ older figures further down this file are historical — each was correct on the 
   a vacuous assertion is worse than a missing one because it occupies the slot the real check
   should be in. Now four real circumferences walked end to end, plus both ends of the scale.
 
+- **The rest of the 30-day plan — done 7 Sep 2026.** Everything in `SEO-AUDIT.md` §19 that is not
+  an owner action is now closed. Three of the seven items did **not** end as the audit imagined:
+
+  - ✅ **Day 6** — the homepage chart H2 was *"Ring size conversion chart"*, the exact phrase
+    `/ring-size-chart` exists to rank for, so the homepage was competing with its own page. Now
+    *"Your size in every system"*; the table's `<caption>` still carries the phrase, and the link
+    out uses it as anchor text where it helps the chart page instead.
+  - ✅ **Day 16–20** — `/printable-ring-sizer` **1,032 → 2,359 words, 3 → 8 FAQs**. Print output
+    proved unchanged (headless-Chrome PDF, before and after: 3 pages, identical text).
+  - ✅ **Day 21** — `Organization` + `WebSite` sitewide as one `@id` graph. **No `Service`**: the
+    tool is already a `WebApplication`, and matching ringsize.app's *type count* is not a reason
+    to publish a type. No `sameAs` (no accounts exist), no `SearchAction` (no site search).
+  - ✅ **Day 22** — the two §18 FAQs, **labelled as Search Console-derived, not PAA**. `faq.ts`
+    claims every question is verbatim People-also-ask; blending in two of our own wording would
+    have made that claim false, so the file now documents two sources.
+  - ✅ **Day 25 — Lighthouse, which had never been run.** 13.4.1, mobile, live URL:
+    **Performance 88 · Best Practices 100 · SEO 100**, CLS 0, TBT 0 ms, LCP 3.2 s. See below.
+  - 🔴 **Day 15 — the wide-band toggle: REJECTED.** The homepage already says *"there is no
+    formula for it… anyone giving you an exact figure has invented it."* A toggle emitting +¼ is
+    that figure, and a caveat line does not fix it because people read the number, not the caveat.
+    Checked 7 Sep: ISO 8653:2016 covers measurement and designation, **not band width**, and
+    jewellers disagree on the *direction* — a comfort-fit band is domed inside and is commonly
+    sized **down**, with very wide comfort-fit rings sometimes needing no change. The toggle would
+    have been actively wrong for most wide bands. The edge-case copy says that instead, which is a
+    sharper answer than "it depends".
+  - 🔴 **Day 28 — the sitemap/canonical trailing slash: NOT A DEFECT.** RFC 3986 §6.2.3 — an empty
+    path "should be considered equivalent to a path of `/`". Same URL. And unfixable cheaply:
+    `serialize` runs *before* the integration applies `trailingSlash` (verified by logging the
+    items), so the options were slashing all nine URLs — eight real mismatches to remove one
+    imaginary one — or a permanent post-build rewrite. Recorded in `astro.config.mjs`.
+
+- **Page weight — ~340 KB cut from every deploy, 7 Sep 2026.** All three findings were measured,
+  not guessed:
+  1. **The hero shipped twice.** It lived in `public/` (copied verbatim) *and* was imported
+     (processed into `_astro/`). Both were in `dist`, 138,116 and 137,540 bytes; nothing ever
+     requested the `/images/` copy. Moved to `src/assets/`.
+  2. **Its weight was the alpha channel, not colour.** Colour quality barely moved it — 134.9 KiB
+     at q90, still 120.6 KiB at q60. Quantising only the alpha (`alphaQuality` 70) gives 82 KiB
+     and survives Astro's own re-encode. ⚠️ STATUS records a grainy halo on dark, and alpha
+     compression is what would worsen it, so this was **not** shipped on an RMSE number: both were
+     composited over the dark background and compared at 3× zoom. Indistinguishable — and the
+     grain is in **both**, i.e. it is in the source art, not the encoding.
+  3. **`logo.webp` (148 KB) was referenced by nothing** — it appears in the codebase once, in a
+     comment saying `Logo.astro` deliberately uses the 128 px derivative. Moved to `src/assets/`.
+     `logo-128.webp` **stays in `public/`** because the new `Organization` schema cites its URL.
+
+  Checked and deliberately **not** done: palette-encoding `favicon.png` takes it 10.1 → 3.8 KiB,
+  but a pixel comparison showed 13,506 differing subpixels at max delta 244. Six kilobytes is not
+  worth degrading the brand mark. `og.png` is not fetched on page load at all.
+
+- **CI actions bumped 7 Sep** — `checkout@v4→v7`, `setup-node@v4→v7`, `wrangler-action@v3→v4`.
+  Every run was being force-migrated off deprecated Node 20 with a warning. wrangler-action v4's
+  only breaking change is defaulting to Wrangler v4, which is what this project already runs
+  locally (4.112.0), so CI and the owner's machine now agree instead of differing by a major.
+
 - **Two keyword pages built** (28 Aug 2026), from the keyword pass in RESEARCH.md:
   - **`/how-to-measure-ring-size-at-home`** — >10,000/mo at KD 2, plus `how to measure ring size`
     at >10,000. The homepage's methods section is now a summary linking to it, and `howToSchema()`
@@ -993,8 +1048,10 @@ business identity rather than a personal Gmail, that is the earliest it can be d
    the code; Lighthouse measures the rendered page. They are not substitutes, and this is the same
    lesson as `verify` vs driving the tool.
 
-   ⬜ **Performance, SEO and best-practices categories are still unrun.** `og.png` is 105 KB and
-   `hero-ring-hand.webp` 135 KB — both are candidates if the score needs it.
+   ✅ **Performance, SEO and best-practices — RUN 7 Sep 2026.** 88 / 100 / 100 on mobile against
+   the live URL, CLS 0 and TBT 0 ms. `hero-ring-hand.webp` was indeed the candidate and is now
+   84 KB; `og.png` was not, because it is never fetched on page load. See the page-weight entry
+   in Done above.
 
 5. `/how-to-measure-ring-size-without-a-ring-sizer` — **still decided against** (28 Aug 2026).
    Confirmed by volume the same day: that exact keyword is only >100 and all ten of its variants
