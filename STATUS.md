@@ -3,6 +3,12 @@
 Last updated: 6 Sep 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
 
+**📊 `SEO-AUDIT.md` — new 6 Sep 2026.** Full GSC + competitor audit against the first 16 Search
+Console impressions. It **corrects three conclusions in `RESEARCH.md` and one open question in this
+file** (marked 🔴 there): the competitor does *not* run per-unit URLs, screen calibration is no
+longer a differentiator, and `actual ring size chart on screen` has an incumbent. Read it before
+starting any SEO work.
+
 **⚠️ This file was two commits stale between 1 and 6 Sep**, and both stale lines told the next
 session to do work that was already done — a Lighthouse run and the `favicon.ico` rebuild. Both are
 corrected in place below. If you commit code, update this file in the same commit.
