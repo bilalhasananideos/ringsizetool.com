@@ -31,6 +31,15 @@ ADJACENT_OK = (
     # BLOCKIFIES both spans — a flex item is never inline, whatever the span
     # said. Confirmed in a browser: innerText reads "12.90 mm\n24.34 mm".
     'data-max-label',
+    # The on-screen ruler's scale numbers (0 10 20 … 80). Two independent
+    # reasons, either of which would be enough: every label is
+    # `position: absolute`, so none of them is in the inline flow that this
+    # check models at all; and the whole scale carries `aria-hidden="true"`
+    # because it is a picture of a ruler — a reader that cannot see it cannot
+    # lay a paper strip on it either, so no assistive technology ever reads
+    # these digits, joined or otherwise. The instruction that MATTERS sits
+    # outside the graphic and is not hidden.
+    'ruler-label',
 )
 dist = sys.argv[1] if len(sys.argv) > 1 else 'dist'
 hits = []

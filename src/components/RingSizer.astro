@@ -17,6 +17,7 @@ import {
 import {
   CARD_SHORT_MM, CARD_LONG_MM, CARD_CORNER_MM, DEFAULT_PX_PER_MM, PPM_MIN, PPM_MAX,
   CAL_OBJECTS, DEFAULT_CAL_OBJECT, calObject, imprecisionVsCard,
+  RULER_MAX_MM, RULER_LABELS,
 } from '../data/calibration';
 import {
   PILL_ON as pillOn, PILL_OFF as pillOff,
@@ -303,6 +304,47 @@ const imprecisionLabel = (mm: number) => {
       </div>
 
       <p data-source-hint class="mt-4 text-center text-sm leading-relaxed text-text-muted">{initSourceSpec.hint}</p>
+
+      <!-- ── The on-screen ruler ──────────────────────────────────────────
+           Shown on the paper-strip route only, because it is the only route
+           where there is a strip to measure. "Measure it flat against a
+           ruler" quietly assumed the visitor owns one; this is that ruler,
+           drawn at the calibration they already gave us.
+
+           A scale to READ, not a control to drag — see the note in
+           calibration.ts. The strip is held flat against the glass with one
+           hand, so a draggable marker would need a second hand arriving from
+           the side with the fingertip covering the very mark it is aligning
+           to. The number goes into the field directly below, which already
+           has keyboard and screen-reader behaviour worth inheriting.
+
+           `hidden` in the markup, not a class: this element has no breakpoint
+           utilities of its own, so nothing outranks it in the cascade and the
+           attribute is the honest way to say "not applicable right now". -->
+      <div data-ruler hidden class="mt-5">
+        <div class="rounded-xl border border-border bg-surface-sunk/40 px-4 py-4">
+          <p class="text-center text-xs leading-relaxed text-text-muted">
+            Lay the strip flat on the screen with its end at <strong class="text-text">0</strong>, then read the number at your mark and type it in below.
+          </p>
+
+          <div class="mt-3 flex justify-center overflow-x-auto">
+            <!-- aria-hidden, and deliberately. This is a picture of a ruler:
+                 a visitor who cannot see it cannot lay a strip against it
+                 either, and reading out "0 10 20 30 40 50 60 70 80" would be
+                 noise in place of the instruction above, which is not
+                 hidden. -->
+            <div class="ruler shrink-0" aria-hidden="true">
+              {RULER_LABELS.map((n) => (
+                <span class="ruler-label" style={`--at:${n}`}>{n}</span>
+              ))}
+            </div>
+          </div>
+
+          <p class="mt-3 text-center text-[11px] text-text-faint">
+            Millimetres, at true scale on this screen. <span data-ruler-cal>Calibrate first, or these are a guess.</span>
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- Two switchers, because these are two independent questions: what you
@@ -642,6 +684,9 @@ const imprecisionLabel = (mm: number) => {
    * card; the script rewrites this property on the drawer when the visitor
    * picks another object, so one CSS rule draws every disc. */
   calObjMm: `${initObj.mm}`,
+  /* Static — the scale's length never changes, so define:vars stamping it on
+   * every element is harmless here. Contrast --calObjMm above, which does. */
+  rulerMaxMm: `${RULER_MAX_MM}`,
 }}>
   /* --mm is the calibrated CSS pixels per millimetre. This default is the
    * SERVER's, i.e. 96 DPI, because static HTML cannot know the viewport; the
@@ -707,6 +752,74 @@ const imprecisionLabel = (mm: number) => {
     height: calc(var(--cal-mm) * var(--calCardMm));
     width: calc(var(--cal-mm) * 18);
     min-width: 3.5rem;
+  }
+
+  /* ── The on-screen ruler ───────────────────────────────────────────
+   * Its own --mm, defaulted here and overwritten inline by setPxPerMm, the
+   * same contract the ring stage and the calibrate drawer use. (--mm is not a
+   * define:vars name, so no descendant declares it and inheritance reaches
+   * the ticks. That distinction is load-bearing — see the --cal-obj-mm note.)
+   */
+  [data-ruler] {
+    --mm: var(--calDefaultPpm);
+  }
+
+  /* The face is drawn, not marked up: three repeating gradients, one per tick
+   * tier, each clipped to its own length by background-size. Ticks in the
+   * markup would be 80 empty <span>s that assistive tech has to skip and the
+   * DOM has to carry, for a graphic nobody can interact with.
+   *
+   * Vertical is the NARROW case and therefore the base rule, because a phone
+   * has the height and not the width: 80 mm is 480 px at a phone's ~6 px/mm,
+   * against a 375 px viewport. Ticks grow from the left edge. */
+  .ruler {
+    position: relative;
+    width: 4.25rem;
+    height: calc(var(--mm) * var(--rulerMaxMm));
+    color: var(--color-text-muted, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-image:
+      repeating-linear-gradient(to bottom, currentColor 0 1px, transparent 1px calc(var(--mm) * 10)),
+      repeating-linear-gradient(to bottom, currentColor 0 1px, transparent 1px calc(var(--mm) * 5)),
+      repeating-linear-gradient(to bottom, currentColor 0 1px, transparent 1px calc(var(--mm) * 1));
+    background-size: 20px 100%, 13px 100%, 7px 100%;
+    /* The zero edge, and it is the one the strip is laid against. */
+    border-left: 1.5px solid currentColor;
+  }
+
+  .ruler-label {
+    position: absolute;
+    left: 24px;
+    top: calc(var(--mm) * var(--at));
+    transform: translateY(-50%);
+    font-size: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Wide: the same scale laid across, where there is room for it. 80 mm is
+   * 330 px at a laptop's ~4.12 px/mm, which fits a column comfortably. */
+  @media (min-width: 768px) {
+    .ruler {
+      width: calc(var(--mm) * var(--rulerMaxMm));
+      height: 4.25rem;
+      background-image:
+        repeating-linear-gradient(to right, currentColor 0 1px, transparent 1px calc(var(--mm) * 10)),
+        repeating-linear-gradient(to right, currentColor 0 1px, transparent 1px calc(var(--mm) * 5)),
+        repeating-linear-gradient(to right, currentColor 0 1px, transparent 1px calc(var(--mm) * 1));
+      background-size: 100% 20px, 100% 13px, 100% 7px;
+      border-left: 0;
+      border-top: 1.5px solid currentColor;
+    }
+
+    .ruler-label {
+      left: calc(var(--mm) * var(--at));
+      top: 24px;
+      transform: translateX(-50%);
+    }
   }
 
   /* ── The coin outline ──────────────────────────────────────────────
@@ -855,6 +968,8 @@ const imprecisionLabel = (mm: number) => {
     const calSource = $('[data-cal-source]');
     const calStage = $<HTMLElement>('[data-cal-shape]');
     const calDiscMm = $('[data-cal-disc-mm]');
+    const ruler = $<HTMLElement>('[data-ruler]');
+    const rulerCal = $('[data-ruler-cal]');
     const stageCaption = $<HTMLElement>('[data-stage-caption]');
 
 
@@ -1003,6 +1118,14 @@ const imprecisionLabel = (mm: number) => {
     function setCalibrated(yes: boolean) {
       calibrated = yes;
       renderMarker();
+      /* An uncalibrated ruler is a picture of a ruler. It still helps — the
+       * starting scale is a reasonable guess and the strip has to be measured
+       * against something — but it must not be presented as a measurement,
+       * which is the same two-state rule the scale marker follows. */
+      rulerCal.textContent = yes
+        ? 'Calibrated to this screen.'
+        : 'Calibrate first, or these are a guess.';
+      rulerCal.className = yes ? 'text-text-muted' : 'text-text-faint';
     }
 
     /* Both zoom mechanisms surface as a resize: pinch fires visualViewport's own
@@ -1060,6 +1183,9 @@ const imprecisionLabel = (mm: number) => {
        * so a recalibration moves them with the ring instead of leaving a grid
        * that looks precise while measuring nothing. */
       ringStage.style.setProperty('--mm', `${pxPerMm}px`);
+      /* Same variable, same reason, third surface: a ruler drawn at a stale
+       * scale is worse than no ruler, because it looks like an instrument. */
+      ruler.style.setProperty('--mm', `${pxPerMm}px`);
       const s = pxPerMm.toFixed(2);
       if (calRange.value !== s) calRange.value = s;
       /* Not while the visitor is typing into this very field: clamping writes
@@ -1150,6 +1276,13 @@ const imprecisionLabel = (mm: number) => {
        * its margin and pushes the ring off centre. */
       stageCaption.hidden = spec.stageCaption === null;
       if (spec.stageCaption !== null) stageCaption.textContent = spec.stageCaption;
+
+      /* The ruler is for the paper strip and nothing else. On the ring route
+       * the stage circle IS the instrument, and on 'number' the visitor
+       * already has their figure — showing a ruler there would be an
+       * instruction that has stopped applying, the same defect the caption
+       * rule above exists to avoid. */
+      ruler.hidden = s !== 'finger';
 
       /* A ring is matched at its inner edge (a diameter); a paper strip is a
        * circumference. This is the factor of pi, not a preference. 'number'

@@ -912,7 +912,7 @@ Everything here is either a decision, a copy change or an in-tool change. **No n
 | 6 | Retitle the homepage chart H2 away from "Ring size conversion chart" → "Your size in every system"; strengthen the link to `/ring-size-chart` | P1 | Medium | Low |
 | 7 | 🔴 **Premise wrong — `#methods` was already a summary + link** (its own source comment says so). The real duplication is `#about-tool`'s "Three ways to give it a measurement", which after the 6 Sep reframe restates the tool's own source picker in prose. Cut that instead. **Done 6 Sep.** | P1 | Low | Low |
 | 8–10 | **Multi-object calibration** — ✅ **SHIPPED 6 Sep**, with two coins, not three. US quarter and 1 euro are computed from 31 U.S.C. § 5112(a) and Reg. (EU) 729/2014; **₹5 is deliberately omitted** — published figures conflict (23 vs 31.1 mm) and neither issuing body is reachable. Coins are 2.2–2.3× LESS precise than the card (the error scales inversely with the object's size), so the picker ranks rather than lists, and the card stays default. 24 new assertions. | P1 | Medium | Medium |
-| 11–14 | **On-screen digital ruler** for the paper-strip method. The single biggest UX gap vs. ringsize.app. Reuse the calibrated `pxPerMm`. | P1 | Medium | **High** |
+| 11–14 | **On-screen digital ruler** — ✅ **SHIPPED 6 Sep.** A read-off scale, not a drag marker: the strip is held against the glass with one hand, so a marker would need a second hand with the fingertip over the mark. 0–80 mm, vertical under `md` (480 px at a phone's 6 px/mm will not fit 375 px across), ticks as gradients at exactly 10/5/1 mm. 19 new assertions. | P1 | Medium | **High** |
 | 15 | Wide-band toggle in the tool (+¼ / +½ for bands ≥6 mm), with a caveat line | P2 | Low | Low |
 | 16–20 | **Deepen `/printable-ring-sizer`** to ~2,000 words and 8 FAQs. The one uncontested page on the site. Add "why not a PDF" and printer-scaling troubleshooting. | P1 | Medium | Medium |
 | 21 | Add `Organization` schema sitewide and `Service`/`WebSite` on `/` — matching ringsize.app's 7 types | P2 | Low | Low |
@@ -967,7 +967,7 @@ pages beyond one smart-ring page, a secret-size estimator, photo measurement.
 | **P1** | Add the two internal links to the actual-size page | `/`, `/ring-size-chart` | 4 | High | Low | Zero inbound internal links today | Day 5 |
 | **P1** | Retitle homepage chart H2; strengthen link to chart page | `/` | 3 | Medium | Low | Homepage H2 uses the chart page's exact target phrase | Day 6 |
 | **P1** ✅ | Multi-object calibration — **SHIPPED 6 Sep** (quarter + euro; ₹5 withheld, unverifiable) | `/` | 1 | Medium | Medium | ringsize.app offers 8 — but each extra object costs precision, so this ranks them rather than matching the count | Day 10 |
-| **P1** | On-screen digital ruler for the paper strip | `/` | 1, 6 | Medium | High | Only ringsize.app has it; removes the physical-ruler prerequisite | Day 14 |
+| **P1** ✅ | On-screen digital ruler for the paper strip — **SHIPPED 6 Sep** | `/` | 1, 6 | Medium | High | Only ringsize.app has it; removes the physical-ruler prerequisite | Day 14 |
 | **P1** | Deepen to ~2,000 words + 8 FAQs | `/printable-ring-sizer` | 5 | Medium | Medium | The only uncontested page in the market, and the thinnest here | Day 20 |
 | **P1** | Build the India page | `/indian-ring-size-chart` | 9 | Medium | Medium | 10% of leader traffic; zero competitor coverage; the data already exists | Day 60 |
 | **P1** | Promote "A unit is not a size" to a full H2 section | `/` | 1 | Medium | Low | Strongest differentiating asset; currently a fragment anchor | Day 45 |

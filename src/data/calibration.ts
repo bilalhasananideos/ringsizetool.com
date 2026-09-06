@@ -258,3 +258,57 @@ export const imprecisionVsCard = (mm: number) => CARD_SHORT_MM / mm;
  */
 export const usSizeErrorPerPx = (objectMm: number, ppm: number, refDiaMm: number) =>
   refDiaMm / (ppm * objectMm * US_STEP_MM);
+
+/* ══════════════════════════════════════════════════════════════════════════
+ * The on-screen ruler
+ * ═════════════════════════════════════════════════════════════════════════
+ *
+ * For the paper-strip route, and it is the only feature on the list that
+ * removes a PREREQUISITE rather than adding a capability: "wrap a strip round
+ * your finger, then measure it flat against a ruler" quietly assumes a ruler,
+ * and most people reaching for an online ring sizer do not have one to hand.
+ * `SEO-AUDIT.md` §19 Day 11-14.
+ *
+ * ⚠️ IT IS A SCALE TO READ, NOT A CONTROL TO DRAG, and that is a UX decision
+ * rather than a shortcut. A draggable marker sounds better and is worse here:
+ * the visitor is holding a paper strip flat against the glass with one hand,
+ * so the dragging hand has to arrive from the side and their own fingertip
+ * covers the mark it is being aligned with. Reading a number off a scale and
+ * typing it into the field directly below is steadier, needs no second hand,
+ * and inherits the number input's existing keyboard and screen-reader
+ * behaviour instead of inventing a new draggable widget to make accessible.
+ *
+ * The strip is laid with its END at 0, so the scale MUST start at 0 — it
+ * cannot be trimmed to the plausible finger range the way the value slider is.
+ */
+
+/** How far the scale runs. The largest circumference the tool can express is
+ *  DIA_MAX_MM x pi = 76.49 mm, so 80 clears it and ends on a labelled major. */
+export const RULER_MAX_MM = 80;
+
+/** Majors carry a printed number; 5 mm gets a mid-length tick; 1 mm a short
+ *  one. Same three-tier convention as the ring stage's graph paper. */
+export const RULER_LABEL_EVERY_MM = 10;
+
+/** The printed numbers, derived rather than typed out. */
+export const RULER_LABELS = Array.from(
+  { length: RULER_MAX_MM / RULER_LABEL_EVERY_MM + 1 },
+  (_, i) => i * RULER_LABEL_EVERY_MM,
+);
+
+/**
+ * Why the scale turns 90 degrees on a narrow screen — the same argument as the
+ * calibration card gauge, and the same breakpoint.
+ *
+ *   80 mm at 4.12 px/mm (a laptop)  = 330 px  -> fits across a column
+ *   80 mm at 6.00 px/mm (a phone)   = 480 px  -> wider than a 375 px viewport
+ *   80 mm at 8.00 px/mm (the ceiling) = 640 px -> far wider
+ *
+ * A phone has the height and not the width, and a paper strip does not care
+ * which way it is held. Laid across, the scale would either overflow the page
+ * sideways — which CLAUDE.md forbids outright — or scroll inside its own box,
+ * and a ruler you have to scroll is not a ruler: you cannot lay a 60 mm strip
+ * against a 62 mm window and still see the zero.
+ */
+export const rulerLengthPx = (ppm: number) => RULER_MAX_MM * ppm;
+

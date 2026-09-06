@@ -21,6 +21,7 @@ import {
   PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, STAGE_MAX_CIRCLE_PX,
   CAL_OBJECTS, CARD_SHORT_MM, DEFAULT_CAL_OBJECT, calObject,
   imprecisionVsCard, usSizeErrorPerPx,
+  RULER_MAX_MM, RULER_LABELS, RULER_LABEL_EVERY_MM, rulerLengthPx,
 } from '../src/data/calibration.ts';
 
 let pass = 0, fail = 0;
@@ -571,6 +572,66 @@ for (const o of CAL_OBJECTS) {
   eq(`${o.key}: gives under 2px per quarter size (the honest limit)`,
      pxPerQuarterSize(o.mm) < 2, true);
 }
+
+console.log('\n— the on-screen ruler —');
+
+/* The scale must reach the largest circumference the tool can express, or a
+ * visitor with a large finger lays their strip past the end of the ruler and
+ * has nothing to read. This is the assertion that ties the ruler to the size
+ * data: change DIA_MAX_MM and this fails until RULER_MAX_MM follows. */
+const maxCircMm = DIA_MAX_MM * Math.PI;
+eq('ruler reaches the largest circumference', RULER_MAX_MM >= maxCircMm, true);
+/* And is not padded pointlessly — every extra millimetre is screen height on
+ * a phone, where the scale runs vertically. */
+eq('ruler is not more than 10mm longer than it needs to be',
+   RULER_MAX_MM - maxCircMm < 10, true);
+
+/* The strip is laid END-first, so the scale cannot be trimmed to the plausible
+ * finger range the way the value slider is: it must start at zero. */
+eq('ruler starts at zero', RULER_LABELS[0], 0);
+eq('ruler ends on a labelled major', RULER_LABELS.at(-1), RULER_MAX_MM);
+eq('labels are evenly spaced',
+   RULER_LABELS.every((n, i) => n === i * RULER_LABEL_EVERY_MM), true);
+
+/* Why it turns 90 degrees below the md breakpoint, asserted rather than
+ * asserted-in-a-comment: laid across, it does not fit the narrowest viewport
+ * the site supports at a phone's real density. */
+eq('ruler does NOT fit 375px horizontally at a phone scale',
+   rulerLengthPx(6) > 375, true);
+/* But it does fit down the screen, at the calibration ceiling, on the
+ * shortest phone the site is checked at (812 px tall, minus chrome). */
+eq('ruler fits vertically at the calibration ceiling',
+   rulerLengthPx(PPM_MAX) < 700, true);
+/* And fits across a desktop column at a laptop's measured density. */
+eq('ruler fits horizontally at 4.12 px/mm', rulerLengthPx(4.12) < 400, true);
+
+/* A strip reads a CIRCUMFERENCE, and the ruler is millimetres. If the finger
+ * route ever stopped reading circumference the ruler would be measuring the
+ * wrong quantity while looking exactly as convincing. */
+eq('the ruler route reads circumference', sourceSpec('finger').measure, 'circ');
+/* A reading taken off the scale round-trips to a real size, in the unit the
+ * ruler is drawn in — this is the whole path the ruler feeds, so it is walked
+ * end to end rather than asserted in the abstract.
+ *
+ * ⚠️ The first version of this read `.usExact`, which does not exist on
+ * RingSize. It PASSED — undefined ?? 0 fed formatUs(0), which is a string —
+ * so `verify` reported green on an assertion that tested nothing. `astro
+ * check` is what caught it. A vacuous assertion is worse than a missing one:
+ * it occupies the slot where the real check should be. */
+for (const circMm of [45, 54, 62, 70]) {
+  const r = fromCircumference(circMm);
+  eq(`${circMm} mm off the ruler gives a US size`, typeof r.us === 'string' && r.us.length > 0, true);
+  /* And it is the size that circumference actually is, not merely some size:
+   * back through the tool's own conversion to within a rounding step. */
+  eq(`…and ${circMm} mm round-trips to itself`,
+     r.circumferenceMm, circMm, 1e-9);
+}
+/* The two ends of the scale that matter: the smallest and largest
+ * circumferences the tool supports must both fall ON the ruler. */
+eq('the smallest supported circumference is on the scale',
+   DIA_MIN_MM * Math.PI <= RULER_MAX_MM, true);
+eq('the largest supported circumference is on the scale',
+   DIA_MAX_MM * Math.PI <= RULER_MAX_MM, true);
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

@@ -136,7 +136,10 @@ export const SOURCES: SourceSpec[] = [
   {
     key: 'finger',
     label: 'Just my finger',
-    hint: 'Wrap a strip of paper round the base of the finger, mark where it overlaps, then measure it flat and type the length below.',
+    /* "measure it flat" used to assume a ruler the visitor may not own. The
+     * on-screen scale below the picker is now that ruler, so the instruction
+     * points at it rather than at a drawer somewhere in the house. */
+    hint: 'Wrap a strip of paper round the base of the finger and mark where it overlaps, then lay it flat on the ruler below and type the length in.',
     stageCaption: null,
     measure: 'circ',
   },

@@ -147,9 +147,9 @@ One unified instrument card (not a multi-step wizard):
 - **Live region** — announces "US size N, X.XX millimetres" on change, throttled to 400ms.
 
 All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the above rewrites.
-**232 assertions, `npm run verify`, all passing** (re-run 6 Sep). This said 187 until the
-source-picker assertions landed and 208 until the calibration-object ones did; the "155", "187"
-and "208" figures further down this file are historical — each was correct on the date beside it.
+**251 assertions, `npm run verify`, all passing** (re-run 6 Sep). This has read 187, 208 and 232
+over the course of one day as the source picker, the calibration objects and the ruler landed; the
+older figures further down this file are historical — each was correct on the date beside it.
 
 ---
 
@@ -219,6 +219,39 @@ and "208" figures further down this file are historical — each was correct on 
   `verify` **208 → 232**: every object has a source and an instruction, the two statutory figures,
   the precision ordering the UI claims, disc fit at the 8 px/mm ceiling inside 375 px, and an
   unknown stored key falling back to the card.
+
+- **On-screen ruler — DONE 6 Sep 2026** (`SEO-AUDIT.md` §19, Day 11–14). A millimetre scale drawn
+  at the visitor's own calibration, shown on the **paper-strip route only**. It is the one item on
+  that list that removes a *prerequisite* rather than adding a capability: "measure it flat against
+  a ruler" quietly assumed the visitor owns one, and most people reaching for an online ring sizer
+  do not. The finger instruction now points at it.
+
+  ⚠️ **It is a scale to READ, not a marker to DRAG, and that is a UX judgement, not a shortcut.**
+  A draggable marker sounds better and is worse in the hand: the visitor is holding a paper strip
+  flat against the glass with one hand, so the dragging hand arrives from the side and their own
+  fingertip covers the mark it is aligning to. Reading a number and typing it into the field
+  directly below needs no second hand — and inherits the number input's keyboard and screen-reader
+  behaviour instead of inventing a draggable widget to make accessible.
+
+  **Vertical on narrow, horizontal from `md`** — the same rotation as the calibration card gauge,
+  and for the same measured reason. The strip is laid END-first so the scale must start at 0 and
+  run to 80 mm (`DIA_MAX_MM × π` = 76.49, rounded up to a labelled major), which is **480 px at a
+  phone's 6 px/mm against a 375 px viewport**. A ruler you have to scroll is not a ruler: you
+  cannot lay a 60 mm strip against a 62 mm window and still see the zero. A phone has the height.
+
+  The three tick tiers are three `repeating-linear-gradient`s, not 80 `<span>`s — measured in the
+  browser as exactly 10 / 5 / 1 mm at 4.12, 6 and 8 px/mm. The scale carries `aria-hidden` (a
+  reader who cannot see it cannot lay a strip on it either; the instruction beside it is not
+  hidden), which is also why `ruler-label` is now in the sweep's `ADJACENT_OK`.
+
+  `verify` **232 → 251**.
+
+  ⚠️ **One of those new assertions was vacuous and `verify` reported it green.** It read
+  `fromCircumference(54).usExact`, a property that does not exist on `RingSize`; `undefined ?? 0`
+  fed `formatUs(0)`, which is a string, so the test passed while testing nothing. **`astro check`
+  caught it — `verify` structurally cannot.** This is the argument for that gate in one line, and
+  a vacuous assertion is worse than a missing one because it occupies the slot the real check
+  should be in. Now four real circumferences walked end to end, plus both ends of the scale.
 
 - **Two keyword pages built** (28 Aug 2026), from the keyword pass in RESEARCH.md:
   - **`/how-to-measure-ring-size-at-home`** — >10,000/mo at KD 2, plus `how to measure ring size`
