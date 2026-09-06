@@ -34,9 +34,11 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      # v4 targeted Node 20, which GitHub deprecated: every run was being
+      # force-migrated to Node 24 with a warning annotation. Bumped 7 Sep 2026.
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -111,7 +113,11 @@ jobs:
       - name: Deploy to Cloudflare Pages
         # Pushes to main only. A PR gets the checks above and stops there.
         if: github.event_name != 'pull_request'
-        uses: cloudflare/wrangler-action@v3
+        # v4's only breaking change is that it defaults to Wrangler v4
+        # instead of v3 — which is what this project already runs locally
+        # (4.112.0), so CI and the owner's machine now agree rather than
+        # differing by a major. Checked in the release notes, not assumed.
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

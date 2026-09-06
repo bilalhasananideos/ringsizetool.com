@@ -23,8 +23,9 @@
 import Layout from '../layouts/Layout.astro';
 import FaqSection from '../components/FaqSection.astro';
 import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
-import { CHART_ROWS, fromDiameter, diameterFromUs, UK_NOTE } from '../data/ringSizes';
+import { CHART_ROWS, fromDiameter, diameterFromUs, US_STEP_MM, UK_NOTE } from '../data/ringSizes';
 import { CARD_SHORT_MM, CARD_LONG_MM } from '../data/calibration';
+import { CHECK_MM, HOLE_STROKE_MM } from '../data/print';
 import { breadcrumbSchema, PRINTABLE_FAQS, faqPageSchema } from '../data/faq';
 
 /* The check square. 50 mm is chosen so a 30 cm ruler measures it in one go and
@@ -50,7 +51,6 @@ import { breadcrumbSchema, PRINTABLE_FAQS, faqPageSchema } from '../data/faq';
    only on the axis whose edges happen to land on the pixel grid: see the
    PIXEL SNAPPING note below. Both axes measure 50.006 mm today; the height read
    49.742 mm one commit earlier, from nothing but a change in vertical position. */
-const CHECK_MM = 50;
 
 /* ── PIXEL SNAPPING — measured, and deliberately not chased ────────────────
    Everything on this sheet is declared in mm, but a browser lays out on a CSS
@@ -94,6 +94,28 @@ const CHECK_MM = 50;
 /* The no-ruler fallback. Generated, not typed: the whole point of this page is
    that no printed number is hand-written. */
 const CARD_GAP_MM = CARD_SHORT_MM - CHECK_MM;
+
+/* What a scaling error actually costs, computed instead of asserted.
+ *
+ * ⚠️ This page previously said a sheet printed 4% small "reads about a size
+ * and a half too tight". It does not, and the figure was never derived. A
+ * percentage error scales with the diameter, so across the sold range 4% is
+ * 0.69 of a size at US 3 and 1.09 at US 13 — call it a full size. You would
+ * need roughly 7% to lose a size and a half. Overstating an error by 1.8x is
+ * the same failure as understating it: this site's claim is that its numbers
+ * come from the data, so they have to, including the ones in the warnings. */
+const SCALE_ERR_PCT = 4;
+const scaleErrSizesAt = (us: number) =>
+  (SCALE_ERR_PCT / 100) * diameterFromUs(us) / US_STEP_MM;
+const SCALE_ERR_MIN = scaleErrSizesAt(3);
+const SCALE_ERR_MAX = scaleErrSizesAt(13);
+/* And the reverse: the error that WOULD cost a size and a half, so the page
+ * can say what the old sentence was describing. */
+const SCALE_ERR_FOR_1_5 = (1.5 * US_STEP_MM) / diameterFromUs(7) * 100;
+
+/* A quarter and a half US size, as diameters, against the printed stroke. */
+const QUARTER_MM = US_STEP_MM / 4;
+const HALF_MM = US_STEP_MM / 2;
 
 /* Ring-hole gauge: whole US sizes only. Quarter sizes would put circles 0.2 mm
    apart, which no printer resolves and no reader can distinguish — printing
@@ -150,9 +172,10 @@ const jsonLd = [
          and it costs the gauge the space it needs. -->
     <p class="no-print mt-4 max-w-[62ch] text-text-muted leading-relaxed">
       Print this page, check the square with a ruler, then measure. The check square is the part
-      that matters: browsers shrink pages to fit the paper by default, and a sizer printed 4%
-      small reads about a size and a half too tight. Every printable sizer that skips this step
-      is guessing.
+      that matters: browsers shrink pages to fit the paper by default, and a sizer printed{' '}
+      {SCALE_ERR_PCT}% small reads close to a full size too tight &mdash; {SCALE_ERR_MIN.toFixed(1)} of
+      a size at US&nbsp;3, {SCALE_ERR_MAX.toFixed(1)} at US&nbsp;13. Every printable sizer that skips
+      this step is guessing.
     </p>
 
     <!-- Print instructions: screen only. On paper they would waste the space
@@ -292,6 +315,128 @@ const jsonLd = [
       </p>
     </div>
 
+    <!-- ── Screen-only depth ───────────────────────────────────────────────
+         Everything from here to the FAQ is `no-print`, deliberately. The sheet
+         is the product and it must stay one page: this is the reading that
+         helps BEFORE you print and troubleshooting for after, neither of which
+         belongs on the paper in your hand. SEO-AUDIT.md §19 Day 16-20. -->
+
+    <section class="no-print mt-12 border-t border-border pt-8">
+      <h2 class="font-display text-2xl font-semibold text-text">Why this is a page, not a PDF</h2>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        Most printable ring sizers are a PDF, and several are behind an email form. This one is the
+        page you are reading, printed. That is a deliberate choice, and it is not about saving you
+        a download.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        <strong class="text-text">A PDF does not solve the scaling problem. It moves it.</strong>
+        Adobe Acrobat&rsquo;s page-sizing options are <em>Fit</em>, <em>Shrink oversized pages</em> and{' '}
+        <em>Actual size</em>, and only the last prints at 100%. <em>Fit</em> scales the page to your
+        printer&rsquo;s imageable area; <em>Shrink oversized pages</em> scales down anything larger than
+        that area &mdash; which a full A4 or Letter page usually is, because desktop printers cannot
+        print to the edge of the sheet. So a PDF reader hands you the same trap as a browser with a
+        different word on the button.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        Which means the thing that makes a printed sizer trustworthy is not the file format. It is the
+        check square. A PDF without one is exactly as unreliable as a web page without one. This sheet
+        has one, and measuring it is the first instruction rather than a footnote.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        The rest follows from that: nothing to download, no email address to hand over, and it prints
+        from a phone as readily as from a laptop.
+      </p>
+    </section>
+
+    <section class="no-print mt-10 border-t border-border pt-8">
+      <h2 class="font-display text-2xl font-semibold text-text">If the square does not measure {CHECK_MM} mm</h2>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        Reprint it. Do not try to correct for the error arithmetically &mdash; you would have to apply
+        it to the gauge circles and the finger strip separately, and a mistake there is silent in a way
+        a wrong square is not.
+      </p>
+
+      <h3 class="mt-6 font-semibold text-text">The square is smaller than {CHECK_MM} mm</h3>
+      <p class="mt-2 max-w-[62ch] text-text-muted leading-relaxed">
+        The page was scaled down, which is the default nearly everywhere. Set the scale to 100%:
+      </p>
+      <ul class="mt-2 max-w-[62ch] list-disc space-y-1 pl-5 text-text-muted leading-relaxed">
+        <li><strong class="text-text">Chrome and Edge</strong> &mdash; More settings → Scale → Custom → 100</li>
+        <li><strong class="text-text">Firefox</strong> &mdash; the Scale field in the print preview, set to 100 rather than &ldquo;Fit to page width&rdquo;</li>
+        <li><strong class="text-text">Safari</strong> &mdash; the Scale field, set to 100%</li>
+      </ul>
+
+      <h3 class="mt-6 font-semibold text-text">The square is larger than {CHECK_MM} mm</h3>
+      <p class="mt-2 max-w-[62ch] text-text-muted leading-relaxed">
+        Less common. Usually a scale set above 100 by hand, or a sheet laid out for one paper size
+        printed onto the other with a fit option switched on. Set the scale to 100% and pick the paper
+        size actually in the tray.
+      </p>
+
+      <h3 class="mt-6 font-semibold text-text">The sides do not match each other</h3>
+      <p class="mt-2 max-w-[62ch] text-text-muted leading-relaxed">
+        One side right and the other wrong is not a scale problem &mdash; the paper fed skewed, or the
+        printer is scaling the two axes independently. Reprint, and if it repeats, try the other paper
+        size or another printer. A sheet that is out of square cannot be rescued by measuring more
+        carefully.
+      </p>
+
+      <h3 class="mt-6 font-semibold text-text">Measuring the square itself</h3>
+      <p class="mt-2 max-w-[62ch] text-text-muted leading-relaxed">
+        Lay the sheet flat on a table rather than holding it up, use the millimetre edge of the ruler,
+        and read <strong class="text-text">outside edge to outside edge</strong> of the printed outline.
+        Reading inside-to-inside instead costs you twice the stroke width &mdash; about{' '}
+        {(2 * HOLE_STROKE_MM).toFixed(1)} mm, which is most of a size before you have measured anything.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        If your print dialog will not give you 100% at all, use the on-screen sizer instead. It
+        calibrates against a bank card and never involves a printer.
+      </p>
+    </section>
+
+    <section class="no-print mt-10 border-t border-border pt-8">
+      <h2 class="font-display text-2xl font-semibold text-text">Why this sheet is in whole sizes</h2>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        The on-screen sizer gives quarter sizes. This sheet does not, and the reason is the ink.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        A quarter of a US size is <strong class="text-text">{QUARTER_MM.toFixed(2)} mm</strong> of inner
+        diameter. The outline of each gauge circle is drawn{' '}
+        <strong class="text-text">{HOLE_STROKE_MM.toFixed(2)} mm</strong> thick. The line you would be
+        matching your ring against is wider than the difference it would have to show you, so a
+        quarter-size gauge on paper would be decoration rather than measurement. Half sizes are{' '}
+        {HALF_MM.toFixed(2)} mm &mdash; only about a third wider than the stroke &mdash; which is why
+        they are not here either.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        On screen there is no stroke to fall inside. The circle is drawn at your own calibration and
+        moves a hundredth of a millimetre at a time. That is the honest reason both versions exist,
+        rather than one being a lesser copy of the other.
+      </p>
+    </section>
+
+    <section class="no-print mt-10 border-t border-border pt-8">
+      <h2 class="font-display text-2xl font-semibold text-text">What accuracy to expect</h2>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        With the square measuring {CHECK_MM} mm and an unhurried reading, a printed sheet will put you
+        within roughly a third of a size. Two things dominate what is left: how snugly you pull the
+        paper strip, and whether the ring is sitting flat over the circle rather than tilted.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        What the check square removes is the largest source of error and the only silent one. A page
+        printed at &ldquo;fit to page&rdquo; is commonly {SCALE_ERR_PCT}% small, which is{' '}
+        {SCALE_ERR_MIN.toFixed(1)} of a size at US&nbsp;3 and {SCALE_ERR_MAX.toFixed(1)} at US&nbsp;13
+        &mdash; and nothing on the sheet would look wrong. For a sheet to be a size and a half out it
+        would have to be about {SCALE_ERR_FOR_1_5.toFixed(0)}% small, which is rarer, but the point is
+        that you cannot see either one without measuring the square.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
+        If the reading matters &mdash; an engagement ring, or a size you cannot return &mdash; measure
+        on a day when your hands are neither cold nor swollen, take it twice, and have a jeweller
+        confirm it on a steel ring stick before you buy.
+      </p>
+    </section>
+
     <!-- Screen-only: send people to the tool that does not depend on a printer -->
     <section class="no-print mt-12 border-t border-border pt-8">
       <h2 class="font-display text-2xl font-semibold text-text">No printer?</h2>
@@ -313,7 +458,7 @@ const jsonLd = [
   </main>
 </Layout>
 
-<style define:vars={{ checkMm: `${CHECK_MM}mm` }}>
+<style define:vars={{ checkMm: `${CHECK_MM}mm`, holeStrokeMm: `${HOLE_STROKE_MM}mm` }}>
   /* ── The printable sheet ───────────────────────────────────────────────────
      EVERY physical dimension here is mm. Do not convert any of it to px, rem
      or any relative unit: this block's whole purpose is that a printed
@@ -368,7 +513,8 @@ const jsonLd = [
   .ps-hole {
     display: block;
     flex: none;
-    border: 0.3mm solid var(--color-text);
+    /* HOLE_STROKE_MM — the prose quotes this figure, so it comes from there. */
+    border: var(--holeStrokeMm) solid var(--color-text);
     border-radius: 50%;
     /* The BORDER marks the ring's inner edge, so it must be thin and the box
        must be content-box: with border-box the stroke would eat into the

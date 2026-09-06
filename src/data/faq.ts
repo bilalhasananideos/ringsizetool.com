@@ -1,15 +1,26 @@
 /**
  * FAQ.
  *
- * ⚠️ THE QUESTIONS ARE VERBATIM. Every one below was collected from Google
- * "People also ask" for `ring sizer` and is recorded in RESEARCH.md. Never
- * reword them and never invent a new one — the whole point is that a real
- * person searched for exactly this string. Answers are ours; questions are not.
+ * ⚠️ EVERY QUESTION HAS A NAMED, CHECKABLE SOURCE, and there are now two of
+ * them. Never invent one, and never move a question between the groups.
+ *
+ *   1. GOOGLE "PEOPLE ALSO ASK" — verbatim, collected for `ring sizer` and
+ *      recorded in RESEARCH.md. Never reword these: the whole point is that a
+ *      real person searched for exactly this string.
+ *   2. SEARCH CONSOLE QUERIES — added 7 Sep 2026, and marked as such at the
+ *      point of use. The DEMAND is measured (the queries are in GSC), but the
+ *      question wording is ours, so these must never be described as PAA.
+ *
+ * That distinction is the whole integrity of this file. `SEO-AUDIT.md` §18
+ * proposed two additions "justified by the GSC evidence"; they are justified,
+ * and they are still not PAA, so they are labelled rather than blended in.
+ * Answers are always ours.
  *
  * Numbers come from the conversion engine, never typed, so an answer can never
  * drift from what the tool says.
  */
-import { fromDiameter, diameterFromUs, AVERAGE_US_SIZE, MM_PER_INCH } from './ringSizes';
+import { fromDiameter, diameterFromUs, US_STEP_MM, AVERAGE_US_SIZE, MM_PER_INCH } from './ringSizes';
+import { CHECK_MM, HOLE_STROKE_MM } from './print';
 
 const six = fromDiameter(diameterFromUs(6));
 const seven = fromDiameter(diameterFromUs(7));
@@ -108,6 +119,28 @@ export const FAQS: Faq[] = [
   {
     q: 'What is 7 inches in ring size?',
     a: `Nothing — 7 inches is far too large for a finger, and anyone measuring that has almost certainly measured a wrist. A ring is roughly 2 inches around: US size 7 has an inner circumference of ${inch(seven.circumferenceIn)} (${mm(seven.circumferenceMm)}) and an inner diameter of ${inch(seven.diameterIn)} (${mm(seven.diameterMm)}). If you meant 7 inches of paper strip wrapped around your finger, measure again — the strip should read close to ${inch(seven.circumferenceIn)}.`,
+  },
+
+  /* ── Source 2: Search Console queries, not PAA ──────────────────────────
+   * Added 7 Sep 2026 per SEO-AUDIT.md §18. The three queries this site was
+   * actually receiving impressions for in its first GSC window (30 Aug – 4 Sep
+   * 2026) were `ring sizer online for free`, `ring sizer online` and `ring size
+   * finder online` — so "free" and "online, without owning a sizer" are
+   * measured demand, not a guess. The wording of the two questions below is
+   * OURS. Do not relabel them as People-also-ask. */
+  {
+    q: 'Is this ring sizer free?',
+    /* ⚠️ Do NOT write "the site is funded by ads" here. As of 7 Sep 2026 there
+     * are none, and /privacy says so in as many words: "There are no ads and
+     * no advertising cookies today." That page's own header records a version
+     * that described AdSense and consent flows which did not exist. An FAQ
+     * that contradicts the privacy policy is worse than a vague one — if ads
+     * ever ship, update BOTH, in the same commit. */
+    a: `Yes — the whole tool, the chart and the printable sheet, with no account, no email address and no trial. Nothing you measure is uploaded: the sizing runs entirely in your browser, and the only thing stored is your screen calibration, which stays on your own device. There are no ads and no advertising cookies on the site today; if that ever changes, the privacy policy will say so before it happens.`,
+  },
+  {
+    q: 'Can I find my ring size online without a ring sizer?',
+    a: `Yes, and there are two honest ways. If you own a ring that fits, calibrate your screen against a bank card and match the on-screen circle to the inside of the band — that measures a real object and is the more accurate of the two. If you do not, wrap a strip of paper round the base of the finger, mark the overlap and read it against the ruler on this page. What does not work is estimating from height, glove size or shoe size; the spread on those is wider than the whole range of sizes sold.`,
   },
 ];
 
@@ -249,6 +282,31 @@ export const PRINTABLE_FAQS: Faq[] = [
   {
     q: 'Can I make my own ring sizer?',
     a: `Yes. Cut a strip of paper about 1 cm wide and 10 cm long, wrap it round the base of the finger, mark where it overlaps and measure the flat length — that is your inner circumference. A home-made strip is as accurate as a printed one, because the accuracy comes from the ruler, not the paper.`,
+  },
+  /* Five added 7 Sep 2026, taking this page from 3 to 8. Written to answer the
+   * things the sheet itself provokes — a square that measures wrong, a missing
+   * PDF, whether paper is good enough — rather than to hit a count. None of
+   * them is labelled as a Google "People also ask" question, because none of
+   * them was taken from one. */
+  {
+    q: 'Why is there no PDF to download?',
+    a: `Because a PDF would not make the sheet more accurate, and it would add a step. Adobe Acrobat's page-sizing options are Fit, Shrink oversized pages, and Actual size — only the last prints at 100%, and the first two scale a full A4 or Letter page down because desktop printers cannot print to the edge of the sheet. A PDF reader offers the same trap as a browser with different wording on the button. What makes a printed sizer trustworthy is the check square, not the file format, so this page carries the square and skips the download.`,
+  },
+  {
+    q: `My printed square measures 48 mm instead of ${CHECK_MM}. Is that close enough?`,
+    a: `No — reprint it with the scale set to 100%. That is a ${(((CHECK_MM - 48) / CHECK_MM) * 100).toFixed(0)}% error, and because it scales with the size you are measuring it is worth ${(0.04 * diameterFromUs(3) / US_STEP_MM).toFixed(1)} of a US size at the small end of the range and ${(0.04 * diameterFromUs(13) / US_STEP_MM).toFixed(1)} at the large end — roughly a full size either way. Do not try to subtract it afterwards: the correction lands differently on the gauge circles and the finger strip, and getting it wrong is invisible.`,
+  },
+  {
+    q: 'Can I print a ring sizer from my phone?',
+    a: `Yes, and this page is built for it — there is no file to open in another app first. The scale control still matters: in iOS and Android print dialogs it usually sits behind an options or settings expander, and the default is to fit the page. Set it to 100%, print, and measure the square exactly as you would from a laptop. If the phone's dialog gives you no scale control at all, use the on-screen sizer instead.`,
+  },
+  {
+    q: 'Does it matter whether I print on A4 or US Letter?',
+    a: `No. The sheet is laid out to fit inside both, so either works as long as the paper in the tray matches the paper size selected in the print dialog. A mismatch is one of the common ways a page gets silently scaled — a sheet set for A4 sent to a Letter tray with a fit option enabled will shrink. The check square catches it.`,
+  },
+  {
+    q: 'Is a printed ring sizer as accurate as measuring on screen?',
+    a: `Not quite, and the difference is the ink rather than the paper. Each gauge circle here is outlined at ${HOLE_STROKE_MM.toFixed(2)} mm, while a quarter of a US size is only ${(US_STEP_MM / 4).toFixed(2)} mm of diameter — the printed line is wider than the difference it would have to show, so this sheet carries whole sizes only. On screen the circle is drawn at your own calibration with no stroke to fall inside, which is what makes quarter sizes meaningful there. A correctly printed sheet is still good to about a third of a size, which is enough for most purchases.`,
   },
 ];
 
