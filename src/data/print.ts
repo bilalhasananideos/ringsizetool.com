@@ -12,6 +12,18 @@
 export const CHECK_MM = 50;
 
 /**
+ * The check square's own outline, in mm.
+ *
+ * ⚠️ NOT the same number as HOLE_STROKE_MM below, and confusing the two has
+ * already produced a wrong sentence on this page once. `box-sizing` is
+ * border-box on the square, so this stroke sits INSIDE the 50 mm: measuring
+ * inside-to-inside instead of outside-to-outside reads 2 x this figure small,
+ * and the copy quotes that. Two different strokes, two constants, both used
+ * by prose.
+ */
+export const CHECK_STROKE_MM = 0.4;
+
+/**
  * The stroke on each ring-hole gauge circle.
  *
  * Load-bearing in the copy, not just the CSS: the sheet explains that it

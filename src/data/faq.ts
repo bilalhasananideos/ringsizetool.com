@@ -135,8 +135,13 @@ export const FAQS: Faq[] = [
      * no advertising cookies today." That page's own header records a version
      * that described AdSense and consent flows which did not exist. An FAQ
      * that contradicts the privacy policy is worse than a vague one — if ads
-     * ever ship, update BOTH, in the same commit. */
-    a: `Yes — the whole tool, the chart and the printable sheet, with no account, no email address and no trial. Nothing you measure is uploaded: the sizing runs entirely in your browser, and the only thing stored is your screen calibration, which stays on your own device. There are no ads and no advertising cookies on the site today; if that ever changes, the privacy policy will say so before it happens.`,
+     * ever ship, update BOTH, in the same commit.
+     *
+     * The storage list is also exhaustive on purpose. A first draft said "the
+     * only thing stored is your screen calibration"; the site actually writes
+     * FOUR keys — rst.pxPerMm, rst.dprAtCalibration, rst.calObject and theme.
+     * "Only" is a claim, and it was false. */
+    a: `Yes — the whole tool, the chart and the printable sheet, with no account, no email address and no trial. Nothing you measure is uploaded: the sizing runs entirely in your browser. Three things are remembered on your own device and sent nowhere — your screen calibration, which reference object you calibrated with, and whether you chose the light or dark theme. There are no ads and no advertising cookies today; the site is intended to carry advertising eventually, and the privacy policy will name the network, and ask EEA and UK visitors for consent, before any advertising cookie is set.`,
   },
   {
     q: 'Can I find my ring size online without a ring sizer?',

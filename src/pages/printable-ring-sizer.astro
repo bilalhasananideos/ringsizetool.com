@@ -25,7 +25,7 @@ import FaqSection from '../components/FaqSection.astro';
 import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
 import { CHART_ROWS, fromDiameter, diameterFromUs, US_STEP_MM, UK_NOTE } from '../data/ringSizes';
 import { CARD_SHORT_MM, CARD_LONG_MM } from '../data/calibration';
-import { CHECK_MM, HOLE_STROKE_MM } from '../data/print';
+import { CHECK_MM, CHECK_STROKE_MM, HOLE_STROKE_MM } from '../data/print';
 import { breadcrumbSchema, PRINTABLE_FAQS, faqPageSchema } from '../data/faq';
 
 /* The check square. 50 mm is chosen so a 30 cm ruler measures it in one go and
@@ -112,6 +112,21 @@ const SCALE_ERR_MAX = scaleErrSizesAt(13);
 /* And the reverse: the error that WOULD cost a size and a half, so the page
  * can say what the old sentence was describing. */
 const SCALE_ERR_FOR_1_5 = (1.5 * US_STEP_MM) / diameterFromUs(7) * 100;
+
+/* What reading the check square inside-to-inside actually costs.
+ *
+ * ⚠️ BOTH sentences that quoted this were wrong, found on a read-through
+ * 7 Sep 2026. The original copy said "about half a millimetre" — it is 0.8 mm.
+ * The troubleshooting section added the same day said "about 0.6 mm, which is
+ * most of a size", which is wrong twice: 0.6 mm is HOLE_STROKE_MM doubled, the
+ * wrong stroke entirely, and a millimetre misread of a 50 mm square is a
+ * PERCENTAGE error rather than a diameter error. It is 1.6%, worth about a
+ * third of a size — not "most" of one. Overstating it 2x is precisely the
+ * failure this page had just been corrected for at 4%. Now computed, once. */
+const MISREAD_MM = 2 * CHECK_STROKE_MM;
+const MISREAD_PCT = (MISREAD_MM / CHECK_MM) * 100;
+const misreadSizesAt = (us: number) =>
+  (MISREAD_MM / CHECK_MM) * diameterFromUs(us) / US_STEP_MM;
 
 /* A quarter and a half US size, as diameters, against the printed stroke. */
 const QUARTER_MM = US_STEP_MM / 4;
@@ -214,7 +229,7 @@ const jsonLd = [
       <section class="ps-block">
         <h2 class="ps-h">1 · Check the scale first</h2>
         <p class="ps-p">
-          Measure this square from the <strong>outside</strong> of the outline to the outside of the outline opposite — not inside to inside, which reads about half a millimetre small. Every side must be exactly {CHECK_MM} mm. If it is not, the sheet
+          Measure this square from the <strong>outside</strong> of the outline to the outside of the outline opposite — not inside to inside, which reads {MISREAD_MM.toFixed(1)} mm small. Every side must be exactly {CHECK_MM} mm. If it is not, the sheet
           is scaled and every size below it will be wrong.
         </p>
         <div class="ps-check-wrap">
@@ -324,12 +339,12 @@ const jsonLd = [
     <section class="no-print mt-12 border-t border-border pt-8">
       <h2 class="font-display text-2xl font-semibold text-text">Why this is a page, not a PDF</h2>
       <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
-        Most printable ring sizers are a PDF, and several are behind an email form. This one is the
+        Most printable ring sizers are a PDF download. This one is the
         page you are reading, printed. That is a deliberate choice, and it is not about saving you
         a download.
       </p>
       <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
-        <strong class="text-text">A PDF does not solve the scaling problem. It moves it.</strong>
+        <strong class="text-text">A PDF does not solve the scaling problem. It moves it.</strong>{' '}
         Adobe Acrobat&rsquo;s page-sizing options are <em>Fit</em>, <em>Shrink oversized pages</em> and{' '}
         <em>Actual size</em>, and only the last prints at 100%. <em>Fit</em> scales the page to your
         printer&rsquo;s imageable area; <em>Shrink oversized pages</em> scales down anything larger than
@@ -385,8 +400,10 @@ const jsonLd = [
       <p class="mt-2 max-w-[62ch] text-text-muted leading-relaxed">
         Lay the sheet flat on a table rather than holding it up, use the millimetre edge of the ruler,
         and read <strong class="text-text">outside edge to outside edge</strong> of the printed outline.
-        Reading inside-to-inside instead costs you twice the stroke width &mdash; about{' '}
-        {(2 * HOLE_STROKE_MM).toFixed(1)} mm, which is most of a size before you have measured anything.
+        Reading inside-to-inside instead measures {(CHECK_MM - MISREAD_MM).toFixed(1)} mm, because the
+        outline is {CHECK_STROKE_MM.toFixed(1)} mm thick on each side. That is a{' '}
+        {MISREAD_PCT.toFixed(1)}% error &mdash; about {misreadSizesAt(7).toFixed(1)} of a size &mdash; and
+        it is the wrong kind of wrong: it sends you back to reprint a sheet that was already correct.
       </p>
       <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
         If your print dialog will not give you 100% at all, use the on-screen sizer instead. It
@@ -424,7 +441,7 @@ const jsonLd = [
       </p>
       <p class="mt-3 max-w-[62ch] text-text-muted leading-relaxed">
         What the check square removes is the largest source of error and the only silent one. A page
-        printed at &ldquo;fit to page&rdquo; is commonly {SCALE_ERR_PCT}% small, which is{' '}
+        printed at &ldquo;fit to page&rdquo; can easily be {SCALE_ERR_PCT}% small, which is{' '}
         {SCALE_ERR_MIN.toFixed(1)} of a size at US&nbsp;3 and {SCALE_ERR_MAX.toFixed(1)} at US&nbsp;13
         &mdash; and nothing on the sheet would look wrong. For a sheet to be a size and a half out it
         would have to be about {SCALE_ERR_FOR_1_5.toFixed(0)}% small, which is rarer, but the point is
@@ -458,7 +475,7 @@ const jsonLd = [
   </main>
 </Layout>
 
-<style define:vars={{ checkMm: `${CHECK_MM}mm`, holeStrokeMm: `${HOLE_STROKE_MM}mm` }}>
+<style define:vars={{ checkMm: `${CHECK_MM}mm`, checkStrokeMm: `${CHECK_STROKE_MM}mm`, holeStrokeMm: `${HOLE_STROKE_MM}mm` }}>
   /* ── The printable sheet ───────────────────────────────────────────────────
      EVERY physical dimension here is mm. Do not convert any of it to px, rem
      or any relative unit: this block's whole purpose is that a printed
@@ -494,7 +511,8 @@ const jsonLd = [
        the 50 mm: outside edge to outside edge is CHECK_MM. That is what the copy
        above tells the reader to measure. Do not switch to content-box without
        changing the copy too. */
-    border: 0.4mm solid var(--color-text);
+    /* CHECK_STROKE_MM — the copy quotes this figure, so it comes from there. */
+    border: var(--checkStrokeMm) solid var(--color-text);
     /* No border-radius: a square with rounded corners cannot be measured
        edge-to-edge with a ruler, which is the entire point of it. */
   }
