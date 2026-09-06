@@ -9,12 +9,34 @@ file** (marked 🔴 there): the competitor does *not* run per-unit URLs, screen 
 longer a differentiator, and `actual ring size chart on screen` has an incumbent. Read it before
 starting any SEO work.
 
-**Done from that plan so far (6 Sep):** #1 the tool entry reframe · Day 2 both title/description
-rewrites · Day 7 the homepage prose de-duplication (whose premise was also wrong — `#methods` was
-already a summary + link; the real duplicate was `#about-tool` restating the new source picker).
-**Still open and blocking the rest: Day 1 — URL-inspect the six content pages in GSC, and decide
-`/actual-ring-size-chart-on-screen` (finish + link, or noindex + drop from the sitemap).** Those
-are owner actions, not code.
+**Shipped from that plan (6 Sep, `4bd3613` — deployed and verified live):** #1 the tool entry
+reframe · Day 2 both title/description rewrites · Day 7 the homepage prose de-duplication (whose
+premise was also wrong — `#methods` was already a summary + link; the real duplicate was
+`#about-tool` restating the new source picker). Plus the sr-only figure labels, the 44px touch
+targets, and `astro check` as a CI gate.
+
+**⚠️ "Done" now means DEPLOYED in this file. It did not before, and that cost five days.** All six
+of those commits sat on an unmerged local branch (`feat/tool-entry-reframe`) while this line said
+"Done", and `main` itself was one commit behind `origin/main`. The deploy only fires on a push to
+`main`, so the live homepage still served the exact title `SEO-AUDIT.md` §P6 had rejected —
+confirmed by fetching it. Merged fast-forward and pushed 6 Sep; run `34043840387` green; live
+`<title>`, both meta descriptions, and the source picker's ring-first default re-verified against
+the live HTML afterwards. **Committed ≠ merged ≠ deployed. Say which one you mean.**
+
+**Still open — Day 1, an owner action, and no longer blocking:** URL-inspect the six content pages
+in GSC and request indexing for any that are not indexed. At six days of age, zero impressions on
+four of six pages is unremarkable, so this informs the Day-30 re-read rather than gating the work
+before it.
+
+**🔴 `SEO-AUDIT.md` §P3 is wrong about production — downgrade it from P0.** It says an unreviewed
+draft page is in the sitemap and being fed to Google. It is not.
+`/actual-ring-size-chart-on-screen` exists only on the unmerged branch
+`draft/actual-size-chart-on-screen` (`c384f35`) and has never been on `main`. The live sitemap
+carries **nine** URLs and does not include it — fetched and checked 6 Sep. The audit's stated
+method was a read of `src/`+`dist/`, which must have happened with that branch's file in the
+working tree. So there is no live indexing risk and no "decide today" pressure: either finish the
+draft and merge it, or delete the branch. The audit's page count of ten URLs is nine in
+production.
 
 **⚠️ This file was two commits stale between 1 and 6 Sep**, and both stale lines told the next
 session to do work that was already done — a Lighthouse run and the `favicon.ico` rebuild. Both are
@@ -125,8 +147,9 @@ One unified instrument card (not a multi-step wizard):
 - **Live region** — announces "US size N, X.XX millimetres" on change, throttled to 400ms.
 
 All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the above rewrites.
-**187 assertions, `npm run verify`, all passing** (re-run 6 Sep). The "155" figures further down
-this file are historical — they were correct on the date beside them.
+**208 assertions, `npm run verify`, all passing** (re-run 6 Sep, and green in CI run `34043840387`).
+This said 187 until the source-picker assertions landed; the "155" and "187" figures further down
+this file are historical — each was correct on the date beside it.
 
 ---
 

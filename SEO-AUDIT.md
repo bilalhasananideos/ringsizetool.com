@@ -81,10 +81,23 @@ Compare the three competitors, all of which lead with the object, not the unit:
 
 This is the highest-ROI fix on the list and it costs a heading, a sentence and a mode default.
 
-### P3 — An unreviewed draft page is in the sitemap and indexable
+### P3 — ~~An unreviewed draft page is in the sitemap and indexable~~ — 🔴 WRONG, corrected 6 Sep
+
+> **This finding does not hold for production, and it is not a P0.** Verified 6 Sep 2026 by
+> fetching `https://ringsizetool.com/sitemap-0.xml`: the live sitemap carries **nine** URLs and
+> `/actual-ring-size-chart-on-screen` is not among them. The page has never existed on `main` — it
+> lives only on the unmerged branch `draft/actual-size-chart-on-screen` (`c384f35`), so it is
+> neither built, nor deployed, nor submitted to anything. This audit's stated method was a read of
+> `src/` + `dist/`, which must have been done with that branch's file in the working tree; the
+> finding is an artefact of which branch was checked out, not a live defect.
+>
+> **Google is not being fed this page.** There is nothing to decide today. The real, un-urgent
+> choice is: finish the draft and merge it, or delete the branch. Everything below is still an
+> accurate description of the draft's *content* — only the indexing claim is wrong. The URL count
+> of "ten" used elsewhere in this audit is **nine** in production.
 
 `/actual-ring-size-chart-on-screen` has **zero internal inbound links** — not in `NAV`, not in
-`FOOTER_LINKS`, not linked from any of the other nine pages. It is in `sitemap-0.xml`.
+`FOOTER_LINKS`, not linked from any of the other nine pages. ~~It is in `sitemap-0.xml`.~~
 
 This is not an oversight. `src/pages/actual-ring-size-chart-on-screen.astro:53` says:
 
@@ -891,11 +904,11 @@ Everything here is either a decision, a copy change or an in-tool change. **No n
 | Day | Action | Priority | Impact | Effort |
 |---|---|---|---|---|
 | 1 | **URL-inspect all six content pages in GSC.** Confirm indexed/not. Request indexing for any that are not. This unblocks every other judgement. | **P0** | High | Low |
-| 1 | **Decide `/actual-ring-size-chart-on-screen`:** owner reviews the draft → link it (§17), or set it `noindex` and drop it from the sitemap until reviewed. Not both, not neither. | **P0** | High | Low |
-| 2 | Homepage title + meta description (§18) | **P0** | High | Low |
-| 2 | `/ring-size-chart` title + meta description (§18) | P1 | Medium | Low |
-| 3–5 | **Reframe the tool's entry (§20 STEP 1–2).** Add a heading and one instruction line inside the instrument card: *"Put a ring on the circle"* / *"I measured my finger"* / *"I already have a number."* Default to ring-on-circle. | **P0** | **High** | Medium |
-| 5 | Add the two internal links to `/actual-…` (§17) — only if day 1 resolved to "link it" | **P0** | High | Low |
+| 1 | 🔴 **Premise wrong — downgraded to P2, see §P3.** The page is not in the live sitemap and never was; it sits on the unmerged branch `draft/actual-size-chart-on-screen`. Nothing is being fed to Google. Un-urgent choice: finish + merge the draft, or delete the branch. | ~~P0~~ **P2** | Low | Low |
+| 2 | Homepage title + meta description (§18) — ✅ **SHIPPED 6 Sep, live-verified** | **P0** | High | Low |
+| 2 | `/ring-size-chart` title + meta description (§18) — ✅ **SHIPPED 6 Sep, live-verified** | P1 | Medium | Low |
+| 3–5 | **Reframe the tool's entry (§20 STEP 1–2).** — ✅ **SHIPPED 6 Sep.** Live as a *"What do you have?"* radiogroup: *A ring that fits* / *Just my finger* / *A measurement already*, ring-first by default, one instruction per source inside the card. Verified in the live HTML (ring hint server-rendered, roving tabindex correct). | **P0** | **High** | Medium |
+| 5 | Add the two internal links to `/actual-…` (§17) — **moot until the draft branch is merged.** ~~P0~~ P2 | ~~P0~~ **P2** | Low | Low |
 | 6 | Retitle the homepage chart H2 away from "Ring size conversion chart" → "Your size in every system"; strengthen the link to `/ring-size-chart` | P1 | Medium | Low |
 | 7 | 🔴 **Premise wrong — `#methods` was already a summary + link** (its own source comment says so). The real duplication is `#about-tool`'s "Three ways to give it a measurement", which after the 6 Sep reframe restates the tool's own source picker in prose. Cut that instead. **Done 6 Sep.** | P1 | Low | Low |
 | 8–10 | **Multi-object calibration:** add US quarter, 1 euro, ₹5 rupee alongside the bank card. Data-driven from `calibration.ts`; add assertions to `verify-sizes.ts`. | P1 | Medium | Medium |
@@ -946,9 +959,9 @@ pages beyond one smart-ring page, a secret-size estimator, photo measurement.
 | Priority | Action | Target URL | Cluster | Impact | Effort | Reason | Deadline |
 |---|---|---|---|---|---|---|---|
 | **P0** | URL-inspect all 6 content pages; request indexing | all | all | High | Low | 4 of 6 pages have zero impressions; ranking work is guesswork until this is known | **Day 1** |
-| **P0** | Resolve the orphaned draft: review + link, or noindex + desitemap | `/actual-ring-size-chart-on-screen` | 4 | High | Low | An unreviewed page is being fed to Google while the site refuses to link it | **Day 1** |
-| **P0** | Reframe tool entry: "Put a ring on the circle" first, unit toggles second | `/` | 1, 2 | **High** | Medium | All 3 competitors lead with the object; this tool leads with a unit question | **Day 5** |
-| **P0** | Rewrite homepage title + description | `/` | 1, 2 | High | Low | Title omits "Free" and buries "Online"; both are in the queries earning impressions | **Day 2** |
+| ~~P0~~ **P2** | 🔴 **Corrected — not a live issue (§P3).** The page is on an unmerged branch, absent from the live nine-URL sitemap. Finish + merge, or delete the branch. | `/actual-ring-size-chart-on-screen` | 4 | Low | Low | Nothing is being fed to Google; the P0 framing was a checked-out-branch artefact | — |
+| **P0** ✅ | Reframe tool entry: object first, unit toggles second — **SHIPPED 6 Sep, live-verified** | `/` | 1, 2 | **High** | Medium | All 3 competitors lead with the object; this tool led with a unit question | **Day 5** |
+| **P0** ✅ | Rewrite homepage title + description — **SHIPPED 6 Sep, live-verified** | `/` | 1, 2 | High | Low | Title omitted "Free" and buried "Online"; both are in the queries earning impressions | **Day 2** |
 | **P0** | Re-read GSC and re-plan against the kill line | — | — | — | Low | ~80 imp/mo vs a 500/mo kill line on 1 Jan 2027 | **Day 30** |
 | **P1** | Rewrite `/ring-size-chart` title to capture `ring size chart online` | `/ring-size-chart` | 3 | Medium | Low | 2,100/mo held #1 by ringssizechart | Day 2 |
 | **P1** | Add the two internal links to the actual-size page | `/`, `/ring-size-chart` | 4 | High | Low | Zero inbound internal links today | Day 5 |
@@ -1250,7 +1263,7 @@ smart-ring page.
 |---|---|---|
 | **1** | **Put "Lay a ring on the circle" inside the instrument, and make it the default entry.** Unit toggles become the third option. | The tool asks for a unit before it asks for a ring. All three competitors do the reverse. Fixes intent match for a 26,000/mo head term *and* the conversion rate, for the cost of a heading and a default. |
 | **2** | **URL-inspect all six content pages in GSC and request indexing.** | Four of six pages have earned zero impressions in six days. Until this is known, every ranking judgement — including the rest of this list — is guesswork. One hour. |
-| **3** | **Resolve `/actual-ring-size-chart-on-screen`: review and link it, or `noindex` it and drop it from the sitemap.** | It is an unreviewed draft with zero internal links that the sitemap is actively feeding to Google. It targets a >1,000/mo keyword that ringsize.app is winning from a homepage title tag. Both states are recoverable; the current one is not a state. |
+| **3** | 🔴 **Corrected 6 Sep — drop from this list (see §P3).** The sitemap is *not* feeding it to Google: the page is on an unmerged branch and the live sitemap has nine URLs without it. | The urgency was an artefact of which branch was checked out when this audit read `src/`. It still targets a >1,000/mo keyword that ringsize.app wins from a homepage title tag, so finishing and merging the draft remains worth doing — just not this week, and not as a P0. |
 | **4** | **Rewrite the homepage title to `Online Ring Sizer — Free Ring Size Finder \| Ring Size Tool`.** | The three queries actually earning impressions are *ring sizer online for free*, *ring sizer online*, *ring size finder online*. The current title buries "Online" and omits "Free". Ten minutes. |
 | **5** | **Stop selling calibration; start selling the two things nobody else has** — that it tells you when it is *not* calibrated, and when your browser zoom has drifted. | Two of three competitors calibrate with a bank card and one calibrates with eight objects. The H1's differentiator is now table stakes. `DPR_STORE_KEY` and the two-state marker are genuinely unique and currently invisible. |
 | **6** | **Build the on-screen digital ruler for the paper-strip method.** | The only feature gap that removes a *prerequisite* rather than adding a feature. ringsize.app has it; the other two do not. Uses `pxPerMm` that is already stored. |
