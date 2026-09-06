@@ -480,15 +480,72 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
       </div>
     </div>
 
-    <!-- Hidden data points for schema and accessibility -->
-    <div class="sr-only">
-      <span data-readout data-cal-status>{DEFAULT_PPM}</span>
-      <span data-readout data-out-dia-mm>{`${d.diameterMm.toFixed(2)} mm`}</span>
-      <span data-readout data-out-dia-in>{`${d.diameterIn.toFixed(3)} in`}</span>
-      <span data-readout data-out-circ-mm>{`${d.circumferenceMm.toFixed(2)} mm`}</span>
-      <span data-readout data-out-circ-in>{`${d.circumferenceIn.toFixed(3)} in`}</span>
-      <p data-live aria-live="polite"></p>
-    </div>
+    {/* ── The four figures the visible UI never says out loud ───────────
+         This was five bare <span>s in one .sr-only div, and it did not work.
+
+         Astro eats the newline between a tag and the next one, so they came out
+         with nothing between them and a screen reader read the lot as one run:
+         "4.1216.51 mm0.650 in51.87 mm2.042 in". Measured in a browser, 6 Sep.
+
+         ⚠️ `npm run sweep` could not have caught this, and that is worth
+         knowing rather than assuming otherwise. Its two variants both miss the
+         shape:
+           variant 1 replaces every tag with a SPACE before looking for joins,
+             so `</span><span>` becomes a gap and the evidence is erased — the
+             same blind spot its own docstring describes in the older one-liner;
+           variant 2 wants `word</span>word`, and here `</span>` is followed by
+             `<span`, not by a word character.
+         Neither sees ADJACENT INLINE ELEMENTS with nothing between them. A
+         third variant for exactly that is now in the sweep, added with this fix.
+
+         Adding spaces would not have been the whole fix. Two deeper faults:
+
+         1. NOTHING WAS LABELLED. Even separated, "16.51 mm 0.650 in 51.87 mm
+            2.042 in" does not say which figure is the diameter. The visible
+            grid carries the same four numbers as <dt>/<dd> pairs, and the
+            September Lighthouse pass already settled that this is how this tool
+            names a value for assistive tech. So: a real <dl>, the house
+            pattern, matching the grid it duplicates.
+         2. BLOCK, NOT INLINE, is what actually fixes the run-together. Screen
+            readers concatenate adjacent inline text within one block whatever
+            the whitespace, so span-then-span would still merge on some of them.
+            <dt>/<dd> are separate blocks and cannot.
+
+         ⚠️ The mm and inch spans sit on ONE SOURCE LINE with the " or " between
+         them. Break the line and Astro eats that space too, and this regresses
+         to a smaller version of the same bug.
+
+         `data-readout` is gone from these: it is a VISUAL hook only (monospace
+         and tabular numerals, "must never shift the layout as they update"),
+         and nothing here is visible. It stays on the spans that are.
+
+         Written as an expression comment rather than an html one, and
+         deliberately: Astro SHIPS html comments to dist, so the paragraph above
+         quoting the bug string landed in index.html and the sweep dutifully
+         flagged its own description as a defect. An expression comment never
+         reaches the page. Most of this file still uses html comments; that is a
+         separate cleanup, and it is also why index.html is 115 kB.
+
+         (Do not write an html comment terminator inside one of these. The
+         compiler sees it and fails with "Unexpected token", which is how this
+         paragraph came to be phrased the long way round.) */}
+    <dl class="sr-only">
+      <dt>Inside diameter</dt>
+      <dd><span data-out-dia-mm>{`${d.diameterMm.toFixed(2)} mm`}</span> or <span data-out-dia-in>{`${d.diameterIn.toFixed(3)} in`}</span></dd>
+      <dt>Inside circumference</dt>
+      <dd><span data-out-circ-mm>{`${d.circumferenceMm.toFixed(2)} mm`}</span> or <span data-out-circ-in>{`${d.circumferenceIn.toFixed(3)} in`}</span></dd>
+    </dl>
+
+    <!-- Calibration plumbing, not information. The server renders the starting
+         px/mm here and the boot script reads it back rather than either side
+         retyping the constant — see `pxPerMm` in the script. It was in the
+         .sr-only block, so a screen reader announced a bare "4.12" among the
+         measurements, which is meaningless to a person and was never meant for
+         one. `hidden` keeps textContent readable by the script and takes it out
+         of the accessibility tree, which is exactly the intent. -->
+    <span data-cal-status hidden>{DEFAULT_PPM}</span>
+
+    <p data-live aria-live="polite" class="sr-only"></p>
   </div>
 </section>
 

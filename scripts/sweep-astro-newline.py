@@ -12,6 +12,26 @@ Exit 1 if anything is found.
 import re, html, glob, sys, os
 
 INLINE = r'(?:strong|em|b|i|u|a|code|span|abbr|small|sub|sup)'
+
+# Adjacency that CSS already prevents, which this script cannot see.
+# Variant 3 flags `</span><span>` with nothing between, and that is the right
+# signal — but a neighbour set to display:block does not run together however
+# little whitespace there is, and no amount of regex will know that. Declare
+# those here rather than letting the gate cry wolf: nine standing false
+# positives is how a CI check gets switched off, and this codebase already has
+# the lesson written down in calibration.ts — "a warning that fires when
+# nothing is wrong is worse than no warning".
+#
+# Each entry is a substring of the offending fragment, and each needs a reason.
+ADJACENT_OK = (
+    # /printable-ring-sizer gauge labels. `.ps-gauge-label strong` is
+    # display:block, so "US 6" sits on its own line above the sub-label.
+    'ps-gauge-sub',
+    # RingSizer's slider end labels. Their parent is display:flex, which
+    # BLOCKIFIES both spans — a flex item is never inline, whatever the span
+    # said. Confirmed in a browser: innerText reads "12.90 mm\n24.34 mm".
+    'data-max-label',
+)
 dist = sys.argv[1] if len(sys.argv) > 1 else 'dist'
 hits = []
 
@@ -35,6 +55,30 @@ for f in sorted(glob.glob(os.path.join(dist, '*.html'))):
         for m in re.finditer(pat, body):
             frag = re.sub(r'\s+', ' ', body[max(0, m.start() - 45):m.end() + 45])
             hits.append((f, 'tag/' + label, frag))
+
+    # ── Variant 3: one inline tag runs straight into the NEXT one ─────────
+    # `</span><span>` with nothing between. Both variants above are blind to
+    # this: variant 1 turns every tag into a space and so erases the join it is
+    # hunting, and variant 2 wants a word character straight after `</span>`,
+    # where this shape has `<`. It shipped a screen-reader defect in
+    # RingSizer.astro's sr-only block on 6 Sep 2026 — five adjacent <span>s that
+    # assistive tech read as one run of digits — and neither variant said a word.
+    #
+    # Whitespace of any kind between the two tags is the fix and is accepted
+    # here, so this only fires on a genuinely eaten separator.
+    #
+    # <nav> is excluded, and that is the difference between a signal and 17
+    # false positives. A nav is a list of discrete labels laid out by flex, so
+    # `</a><a href>` with no space between them is how every nav on this site is
+    # built and means nothing is wrong; each link is its own node to a reader.
+    # A sentence is not like that. Everything outside a nav is fair game.
+    prose = re.sub(r'<nav\b.*?</nav>', '', body, flags=re.S | re.I)
+    adjacent = (r'[A-Za-z0-9]</' + INLINE + r'><' + INLINE + r'\b[^>]*>[A-Za-z0-9]')
+    for m in re.finditer(adjacent, prose):
+        frag = re.sub(r'\s+', ' ', prose[max(0, m.start() - 45):m.end() + 45])
+        if any(ok in frag for ok in ADJACENT_OK):
+            continue
+        hits.append((f, 'tag/adjacent', frag))
 
 if hits:
     print('ASTRO NEWLINE SWEEP — %d candidate(s):\n' % len(hits))

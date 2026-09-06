@@ -204,7 +204,32 @@ this file are historical — they were correct on the date beside them.
     became "2.50" under the cursor. It now syncs on commit (blur/Enter), like the ring field
   - dead `set('[data-out-br]', …)` — no Brazil element exists in the markup
 
-## ⚠️ Astro gotcha that has now bitten three times
+## ⚠️ Astro gotcha that has now bitten FOUR times
+
+**Fourth, 6 Sep 2026 — and the sweep could not see it.** `RingSizer.astro`'s `sr-only` block was
+five adjacent `<span>`s; Astro ate the newlines and a screen reader read the lot as one run,
+`4.1216.51 mm0.650 in51.87 mm2.042 in`. Both existing sweep variants are blind to that shape —
+variant 1 replaces every tag with a *space* before looking (erasing the evidence, the same hole its
+own docstring describes), and variant 2 wants a word character straight after `</span>`, where this
+has `<`. **Variant 3 now covers adjacent inline tags**, with a synthetic regression case proving it
+catches the original.
+
+Two things learned adding it, both worth keeping:
+
+- **Astro ships `<!-- -->` comments to `dist`.** The comment written to *document* this bug quoted
+  the joined string, landed in `index.html`, and the sweep flagged its own description as a defect.
+  Long design notes belong in `{/* */}` expression comments, which never reach the page. (It is
+  also part of why `index.html` is 115 kB.) ⚠️ Never put an html comment terminator inside one —
+  the compiler fails with `Unexpected token`.
+- **The sweep needed a whitelist, and now has one** (`ADJACENT_OK`). Variant 3's first run produced
+  26 false positives: every `</a><a>` in a nav, plus two places where CSS blockifies the neighbour
+  (`display:block` on the printable's gauge label, and flex blockification of the slider's end
+  labels — flex items are never inline). `<nav>` is excluded wholesale; the other two are declared
+  with reasons. Nine standing false positives is how a CI gate gets switched off — the same lesson
+  already written into `calibration.ts`: a warning that fires when nothing is wrong is worse than
+  no warning.
+
+
 
 **Astro deletes the newline between text and a following `{expression}` or tag.** Write this:
 
