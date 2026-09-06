@@ -19,6 +19,8 @@ import {
 } from '../src/data/ringModes.ts';
 import {
   PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, STAGE_MAX_CIRCLE_PX,
+  CAL_OBJECTS, CARD_SHORT_MM, DEFAULT_CAL_OBJECT, calObject,
+  imprecisionVsCard, usSizeErrorPerPx,
 } from '../src/data/calibration.ts';
 
 let pass = 0, fail = 0;
@@ -500,6 +502,74 @@ for (const src of SOURCES) {
   if (src.measure === null) continue;
   const back = toDia(toMode(dia6src, src.measure, 'mm'), src.measure, 'mm');
   eq(`${src.key} route returns US 6 for a US 6 ring`, fromDiameter(back).us, '6');
+}
+
+console.log('\n— calibration references: every object traces to a standard —');
+
+/* An object whose size cannot be sourced must never reach this list: it turns a
+ * visitor who knows they are uncalibrated into one who believes they are. The
+ * Indian 5-rupee coin was asked for and is deliberately absent — the published
+ * figures conflict (23 mm vs 31.1 mm in the same article) and neither issuing
+ * body could be reached. See the note in calibration.ts. */
+for (const o of CAL_OBJECTS) {
+  eq(`${o.key}: has a governing source`, o.source.length > 10, true);
+  eq(`${o.key}: has an instruction`, o.hint.length > 20, true);
+  /* Nothing plausible-but-wrong: every reference is a real hand-held object,
+   * so anything outside 15-100 mm is a typo or a unit slip, not a coin. */
+  eq(`${o.key}: dimension is hand-held`, o.mm > 15 && o.mm < 100, true);
+}
+
+/* The card is the reference the whole design leans on, and it is the ONLY one
+ * whose figure the tool has always used. If this drifts, every stored
+ * calibration in the world silently means something else. */
+eq('card is the default object', DEFAULT_CAL_OBJECT, 'card');
+eq('default object resolves to the card figure', calObject(DEFAULT_CAL_OBJECT).mm, CARD_SHORT_MM, 1e-12);
+eq('an unknown stored key falls back to the card', calObject('rupee-5').key, 'card');
+
+/* 31 U.S.C. 5112(a)(4) states the quarter in INCHES. The mm figure is derived
+ * from the statute, not transcribed from a chart, so it is asserted against
+ * the statute's own number. */
+eq('US quarter = 0.955 inch, computed', calObject('quarter').mm, 0.955 * 25.4, 1e-12);
+/* Council Regulation (EU) No 729/2014, Annex I. */
+eq('1 euro = 23.25 mm per Reg. 729/2014', calObject('euro').mm, 23.25, 1e-12);
+
+console.log('\n— calibration references: the precision ordering the UI claims —');
+
+/* The picker labels the card "Most precise" and every coin "N x less precise".
+ * That claim is the ratio of the two lengths and nothing else, so it is
+ * testable — and if a future object ever beat the card, the label would be a
+ * lie before anyone noticed. */
+eq('card is exactly 1.00x (its own baseline)', imprecisionVsCard(CARD_SHORT_MM), 1, 1e-12);
+for (const o of CAL_OBJECTS) {
+  if (o.key === DEFAULT_CAL_OBJECT) continue;
+  eq(`${o.key}: is less precise than the card`, imprecisionVsCard(o.mm) > 1, true);
+  /* And the UI rounds that multiplier to 1 dp. A ratio under 1.05 would print
+   * "1.0x less precise", which reads as a contradiction. */
+  eq(`${o.key}: multiplier survives 1dp rounding`, imprecisionVsCard(o.mm) >= 1.05, true);
+}
+
+/* Every reference must physically fit the drawer at the calibration ceiling,
+ * or the visitor is asked to match an outline that is clipped. The card is the
+ * known exception — 432 px at PPM_MAX — which is exactly why the narrow layout
+ * rotates it into a width gauge and the discs do not need that trick. */
+for (const o of CAL_OBJECTS) {
+  if (o.shape !== 'disc') continue;
+  eq(`${o.key}: fits a 375px viewport at the ceiling`, o.mm * PPM_MAX < 375, true);
+}
+
+/* The number that decided the design, asserted so it cannot rot: at the
+ * owner's own measured laptop scale a coin gives roughly one pixel of slack
+ * per quarter size, which is finer than the 2px outline being matched. The
+ * card gives about 2.7. This is why the picker ranks rather than lists. */
+const LAPTOP_PPM = 4.12;
+const REF_DIA = diameterFromUs(6);
+const pxPerQuarterSize = (mm: number) =>
+  0.25 / usSizeErrorPerPx(mm, LAPTOP_PPM, REF_DIA);
+eq('card gives >2px of slack per quarter size', pxPerQuarterSize(CARD_SHORT_MM) > 2, true);
+for (const o of CAL_OBJECTS) {
+  if (o.shape !== 'disc') continue;
+  eq(`${o.key}: gives under 2px per quarter size (the honest limit)`,
+     pxPerQuarterSize(o.mm) < 2, true);
 }
 
 console.log(`\n${pass} passed, ${fail} failed\n`);

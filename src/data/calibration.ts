@@ -17,7 +17,7 @@
  * a real millimetre and calibration would only corrupt it.
  */
 
-import { MM_PER_INCH } from './ringSizes.ts';
+import { MM_PER_INCH, US_STEP_MM } from './ringSizes.ts';
 
 /**
  * ISO/IEC 7810 ID-1 — the format of every payment card, driving licence and
@@ -111,3 +111,150 @@ export const DPR_STORE_KEY = 'rst.dprAtCalibration';
 
 /** Clamp any candidate value into the usable range. */
 export const clampPpm = (v: number) => Math.min(PPM_MAX, Math.max(PPM_MIN, v));
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+ * Reference objects
+ * ═════════════════════════════════════════════════════════════════════════
+ *
+ * The card is the best reference almost everyone owns, and it stays the
+ * default. These exist for the visitor who has no card at all — for whom the
+ * alternative is not "a slightly worse calibration", it is the uncalibrated
+ * 96 DPI / phone guess, which can be 40% out. A 2%-error calibration beats
+ * that by a wide margin, and that is the whole case for this list.
+ *
+ * It is NOT the case that more objects make the tool more accurate. They make
+ * it LESS accurate, and by a computable amount — see `imprecisionVsCard`
+ * below and the assertions in `verify-sizes.ts`. Every object here is smaller
+ * than the card, so the same slip of the eye costs proportionally more.
+ * `SEO-AUDIT.md` proposed this feature on competitive-parity grounds
+ * (ringsize.app offers eight objects); the accuracy argument runs the other
+ * way, so the UI ranks the card first and says which options cost precision.
+ *
+ * ⚠️ EVERY `mm` HERE MUST TRACE TO A GOVERNING SOURCE, and the source ships in
+ * the UI beside the object. Where a standard states the figure in inches, the
+ * millimetre value is COMPUTED from it rather than copied from a chart — the
+ * same rule `ringSizes.ts` follows for the size systems.
+ *
+ * ⚠️ WHY THERE IS NO ₹5 RUPEE COIN HERE. It was the third object asked for,
+ * and it is deliberately absent. Searched 6 Sep 2026: the RBI and SPMCIL both
+ * block automated access, and the best secondary source available
+ * (Wikipedia's "Indian 5-rupee coin") CONTRADICTS ITSELF — 23 mm in the
+ * infobox, 31.1 mm in the body of the same article. India has also issued the
+ * denomination in several alloys since 1992. A calibration reference whose
+ * true size cannot be established is worse than no reference: it converts a
+ * visitor who knows they are uncalibrated into one who believes they are.
+ * Do NOT add it on the strength of a chart. What would settle it: a physical
+ * measurement of a current coin with a caliper, or a first-party RBI/SPMCIL
+ * specification obtained by hand.
+ */
+
+/** How the outline is drawn: a straight-edge width gauge, or a full circle. */
+export type CalShape = 'edge' | 'disc';
+
+export type CalObjectKey = 'card' | 'quarter' | 'euro';
+
+export interface CalObject {
+  key: CalObjectKey;
+  /** Picker label. Short — three of these sit in a row at 375px. */
+  label: string;
+  /** The dimension the visitor matches, in mm. */
+  mm: number;
+  shape: CalShape;
+  /** The one instruction shown once this object is selected. */
+  hint: string;
+  /** The governing source for `mm`. Rendered in the UI, not just here. */
+  source: string;
+}
+
+export const CAL_OBJECTS: readonly CalObject[] = [
+  {
+    key: 'card',
+    label: 'Bank or ID card',
+    mm: CARD_SHORT_MM,
+    shape: 'edge',
+    /* "Bank card" was the old wording everywhere. ID-1 is the format of
+     * payment cards, driving licences, national ID cards and most membership
+     * and transit cards, so naming only one of them sent people away who had
+     * a conforming card in the same wallet. Broadening the words costs
+     * nothing and keeps the most precise reference in play. */
+    hint: 'Hold the card against the screen and match its short edge to the outline. Bank, ID, driving licence and most membership cards are all this exact size.',
+    source: 'ISO/IEC 7810 ID-1 — 85.60 × 53.98 mm',
+  },
+  {
+    key: 'quarter',
+    label: 'US quarter',
+    /* 31 U.S.C. § 5112(a)(4) states the diameter in INCHES — "a quarter
+     * dollar coin that is 0.955 inch in diameter" — so the millimetre figure
+     * is derived, not transcribed. 0.955 × 25.4 = 24.257 mm. Charts quoting
+     * "24.26 mm" are rounding this, and rounding at 2 dp throws away 3 µm
+     * that costs nothing to keep. */
+    mm: 0.955 * MM_PER_INCH,
+    shape: 'disc',
+    hint: 'Lay a quarter flat on the screen and match the circle to the coin\u2019s edge.',
+    source: '31 U.S.C. § 5112(a) — 0.955 inch',
+  },
+  {
+    key: 'euro',
+    label: '1 euro coin',
+    /* Council Regulation (EU) No 729/2014, Annex I, states 23,25 mm for the
+     * 1 euro coin. This regulation replaced 975/98, which is repealed —
+     * anything citing 975/98 is citing a dead instrument, even though the
+     * figure itself did not change. */
+    mm: 23.25,
+    shape: 'disc',
+    hint: 'Lay a 1 euro coin flat on the screen and match the circle to its edge.',
+    source: 'Regulation (EU) No 729/2014, Annex I — 23.25 mm',
+  },
+] as const;
+
+export const DEFAULT_CAL_OBJECT: CalObjectKey = 'card';
+
+/** Look up an object, falling back to the card for any unknown key — a stored
+ *  key from a future build must never leave the drawer with no reference. */
+export const calObject = (key: string): CalObject =>
+  CAL_OBJECTS.find((o) => o.key === key) ??
+  CAL_OBJECTS.find((o) => o.key === DEFAULT_CAL_OBJECT)!;
+
+/** Which object was last used. Its own key, so an existing visitor's saved
+ *  px/mm keeps loading untouched — same reasoning as DPR_STORE_KEY. */
+export const CAL_OBJECT_STORE_KEY = 'rst.calObject';
+
+/**
+ * How much worse this object is than the card, as a multiplier of matching
+ * error — and it is exactly the ratio of the two lengths.
+ *
+ * Calibration sets pxPerMm = matchedPx / objectMm. A misjudgement of the
+ * outline edge by d pixels is therefore a RELATIVE error of
+ * d / (pxPerMm × objectMm): inversely proportional to the object's size and
+ * nothing else. So a reference half the card's width doubles the error for
+ * the same steadiness of hand. No screen density term survives the ratio,
+ * which is why this function takes no pxPerMm.
+ *
+ *   card    53.980 mm -> 1.00x
+ *   quarter 24.257 mm -> 2.23x
+ *   1 euro  23.250 mm -> 2.32x
+ */
+export const imprecisionVsCard = (mm: number) => CARD_SHORT_MM / mm;
+
+/**
+ * The error, expressed in the unit the visitor actually cares about: how much
+ * of a US ring size one pixel of mis-matching costs.
+ *
+ *   error in reported diameter = refDiaMm × d / (pxPerMm × objectMm)
+ *   in US sizes                = that / US_STEP_MM
+ *
+ * Computed at the owner's own measured laptop scale (4.12 px/mm) with a US 6
+ * reference finger, this is the figure that decided the design:
+ *
+ *   card    0.091 US size per px  ->  2.7 px of slack before a quarter size
+ *   quarter 0.203 US size per px  ->  1.2 px
+ *   1 euro  0.212 US size per px  ->  1.2 px
+ *
+ * 1.2 px is below the width of the 2 px outline being matched, i.e. a coin
+ * cannot deliver quarter-size precision on a typical laptop however careful
+ * the visitor is. That is a real limit of the reference, not of the tool, and
+ * the UI says so rather than implying every option is equivalent.
+ */
+export const usSizeErrorPerPx = (objectMm: number, ppm: number, refDiaMm: number) =>
+  refDiaMm / (ppm * objectMm * US_STEP_MM);

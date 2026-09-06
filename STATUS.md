@@ -147,9 +147,9 @@ One unified instrument card (not a multi-step wizard):
 - **Live region** — announces "US size N, X.XX millimetres" on change, throttled to 400ms.
 
 All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the above rewrites.
-**208 assertions, `npm run verify`, all passing** (re-run 6 Sep, and green in CI run `34043840387`).
-This said 187 until the source-picker assertions landed; the "155" and "187" figures further down
-this file are historical — each was correct on the date beside it.
+**232 assertions, `npm run verify`, all passing** (re-run 6 Sep). This said 187 until the
+source-picker assertions landed and 208 until the calibration-object ones did; the "155", "187"
+and "208" figures further down this file are historical — each was correct on the date beside it.
 
 ---
 
@@ -182,6 +182,44 @@ this file are historical — each was correct on the date beside it.
 - `web-design-guidelines` skill audit passed
 - **4 regressions from the visual rewrite fixed** (see Gotchas) — calibrate-card visibility, numeric
   entry, live region, ARIA on the unit toggle
+- **Multi-object calibration — DONE 6 Sep 2026** (`SEO-AUDIT.md` §19, Day 8–10). The drawer now
+  opens on *"What will you hold against the screen?"* — **Bank or ID card** (default) · **US
+  quarter** · **1 euro coin** — as a fourth `role="radiogroup"` with roving tabindex, data-driven
+  from `CAL_OBJECTS` in `calibration.ts`. Coins draw as a disc, the card keeps the two shapes the
+  phone layout was verified against, and the shape switch is one attribute on the stage rather
+  than `hidden` on each piece, because Tailwind's `md:flex` outranks a bare `[hidden]`.
+
+  **The audit asked for three coins and this ships two, on purpose.**
+  - **No ₹5 rupee.** Searched 6 Sep 2026: RBI and SPMCIL both block automated access, and the best
+    secondary source available *contradicts itself* — Wikipedia's "Indian 5-rupee coin" says 23 mm
+    in the infobox and 31.1 mm in its own body — with several alloys issued since 1992. A
+    reference whose true size cannot be established is worse than none: it converts a visitor who
+    **knows** they are uncalibrated into one who **believes** they are. What would settle it: a
+    caliper on a current coin, or a first-party spec fetched by hand.
+  - **The two that shipped are computed from law, not copied from charts.** The US quarter is
+    `0.955 × MM_PER_INCH` because **31 U.S.C. § 5112(a)** states it in inches; 1 euro is 23.25 mm
+    per **Council Regulation (EU) No 729/2014, Annex I** (975/98 is repealed — anything citing it
+    is citing a dead instrument). Both sources render **in the UI**, beside the object.
+
+  ⚠️ **More objects make this tool LESS accurate, and the picker says so.** Calibration sets
+  `pxPerMm = matchedPx / objectMm`, so a d-pixel misjudgement is a relative error of
+  `d / (pxPerMm × objectMm)` — inversely proportional to the object's size, with no screen-density
+  term. Every coin is under half the card's width, so each roughly doubles the error: the card is
+  1.00×, the quarter **2.2×**, the euro **2.3×**. At the owner's own measured 4.12 px/mm that is
+  **2.7 px of slack per quarter size on the card and 1.2 px on a coin** — finer than the 2 px
+  outline being matched, i.e. *a coin cannot deliver quarter-size precision on a laptop, however
+  careful the visitor is.* The sub-label on each option is that multiplier, computed by
+  `imprecisionVsCard`, not a marketing word. The card is first, default, and labelled
+  "Most precise".
+
+  The case for shipping them anyway is not accuracy, it is coverage: for a visitor with **no
+  card**, the alternative is not a slightly worse calibration, it is the uncalibrated 96 DPI /
+  phone guess, which can be 40% out. A 2% error beats that by a wide margin.
+
+  `verify` **208 → 232**: every object has a source and an instruction, the two statutory figures,
+  the precision ordering the UI claims, disc fit at the 8 px/mm ceiling inside 375 px, and an
+  unknown stored key falling back to the card.
+
 - **Two keyword pages built** (28 Aug 2026), from the keyword pass in RESEARCH.md:
   - **`/how-to-measure-ring-size-at-home`** — >10,000/mo at KD 2, plus `how to measure ring size`
     at >10,000. The homepage's methods section is now a summary linking to it, and `howToSchema()`
@@ -227,7 +265,26 @@ this file are historical — each was correct on the date beside it.
     became "2.50" under the cursor. It now syncs on commit (blur/Enter), like the ring field
   - dead `set('[data-out-br]', …)` — no Brazil element exists in the markup
 
-## ⚠️ Astro gotcha that has now bitten FOUR times
+## ⚠️ Astro gotcha that has now bitten FIVE times
+
+**Fifth, 6 Sep 2026 — `define:vars` is not a variable on the component root.**
+It stamps its custom properties as an inline `style` on **every element the template renders**.
+Building the reference-object picker, the script set `--calObjMm` on the calibrate drawer and the
+outline did not move: the disc, its wrapper and the stage each carry `--calObjMm: 53.98` inline
+from `define:vars`, and an element's own inline declaration beats anything inherited from an
+ancestor. So picking "US quarter" drew a 53.98 mm circle labelled *24.26 mm* — **measured 204 px
+where 91.7 was expected.** Silent, plausible, and wrong in the one direction this site cannot
+afford.
+
+`--cal-mm` had always worked for exactly the reason this failed: it is **not** a `define:vars`
+name, so no descendant declares it and inheritance reaches them. The fix follows that shape — the
+CSS seeds `--cal-obj-mm: var(--calObjMm)` once on the drawer and the script writes
+`--cal-obj-mm`. **Rule: any custom property the client script must change needs a name that
+`define:vars` does not also emit.** Both halves are commented in place.
+
+It was caught by driving the built page and dividing the rendered px by the calibration, not by
+reading the code — `npm run check` and all 232 assertions passed against the broken build, because
+neither can see a CSS cascade.
 
 **Fourth, 6 Sep 2026 — and the sweep could not see it.** `RingSizer.astro`'s `sr-only` block was
 five adjacent `<span>`s; Astro ate the newlines and a screen reader read the lot as one run,
@@ -911,11 +968,23 @@ business identity rather than a personal Gmail, that is the earliest it can be d
    are <100. The homepage covers the methods and a page here would cannibalise it for nothing.
    **Do not confuse this with the built pages below.**
 
-6. **Remaining from the keyword plan, not started:** the `oura` and `pandora` brand pages.
+6. ⬜ **The accuracy win that is still on the table: match the card's LONG edge on desktop.**
+   Found while computing the precision figures for the object picker, and deliberately NOT
+   smuggled into that change — it alters the primary flow, which was verified on a real phone.
+
+   The error is inversely proportional to the matched dimension, so the 85.6 mm long edge is
+   **1.59× more precise than the 53.98 mm short edge the tool matches today** — at 4.12 px/mm it
+   gives 4.3 px of slack per quarter size against 2.7. It is free: no new reference object, no new
+   source, the card is already in the visitor's hand. It fits desktop (85.6 × 4.12 = 353 px) and
+   cannot fit a phone, which is why it must be desktop-only and why the phone gauge stays exactly
+   as it is. This is a better accuracy buy than any coin on the picker, and it is the opposite of
+   what the audit's competitive-parity reasoning suggested.
+
+7. **Remaining from the keyword plan, not started:** the `oura` and `pandora` brand pages.
    (The `/ring-size-chart` cm column and the `/printable-ring-sizer` title were on this list and
    are now done — 29 Aug.)
 
-7. ✅ **`astro check` is installed and is now a CI gate — done 6 Sep 2026.**
+8. ✅ **`astro check` is installed and is now a CI gate — done 6 Sep 2026.**
    `astro build` does **not** type-check: esbuild strips the types in the tool's `<script>`
    without reading them, so a real type error compiles and ships. Nothing had ever run against
    these files.
@@ -945,7 +1014,7 @@ business identity rather than a personal Gmail, that is the earliest it can be d
    `~/.local/bin`), and CI never used it — `deploy.yml` deploys with `cloudflare/wrangler-action@v3`.
    The "should wrangler be a declared dependency" question below is still open and untouched.
 
-8. **Deploy to Cloudflare Pages** — `wrangler` is not in `package.json`, so `npm run deploy`
+9. **Deploy to Cloudflare Pages** — `wrangler` is not in `package.json`, so `npm run deploy`
    depends on a global/npx binary. Decide that before the first deploy.
    ⚠️ Running `npm run verify` has twice caused npm to add `wrangler` as a devDependency and
    rewrite `package-lock.json` on its own. That churn has been reverted each time, not committed.
