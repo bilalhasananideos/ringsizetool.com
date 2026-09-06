@@ -1,7 +1,11 @@
 # ringsizetool.com — status
 
-Last updated: 1 Sep 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
+Last updated: 6 Sep 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
+
+**⚠️ This file was two commits stale between 1 and 6 Sep**, and both stale lines told the next
+session to do work that was already done — a Lighthouse run and the `favicon.ico` rebuild. Both are
+corrected in place below. If you commit code, update this file in the same commit.
 
 Tool + homepage + chart page + printable page + how-to page built. Size logic audited against the
 published standards and 187 assertions. The tool has been driven end-to-end in a real browser three
@@ -97,7 +101,8 @@ One unified instrument card (not a multi-step wizard):
 - **Live region** — announces "US size N, X.XX millimetres" on change, throttled to 400ms.
 
 All conversion maths lives in `src/data/ringSizes.ts`, untouched by any of the above rewrites.
-**155 assertions, `npm run verify`, all passing.**
+**187 assertions, `npm run verify`, all passing** (re-run 6 Sep). The "155" figures further down
+this file are historical — they were correct on the date beside them.
 
 ---
 
@@ -404,6 +409,14 @@ describing a site that does not exist.
 Weekly is often enough. There is nothing a daily check surfaces that a weekly one misses on a
 domain this young, and the zeros are not a signal.
 
+**6 Sep, day 5 of indexing — the origin side re-checked, nothing changed:** `/` returns 200,
+`sitemap-index.xml` returns 200, and the live homepage still serves `index, follow, max-snippet:-1,
+max-image-preview:large, max-video-preview:-1`. That is everything checkable from here. **The two
+open items above (Request indexing on the homepage, Crawler Hints/IndexNow) both live in a
+dashboard and are still unticked**, along with reading the GSC sitemap status — which by this date
+should have left `Couldn't fetch` and reached `Success`. If it has not, and "Last read" is now
+populated, that is the real failure the 1 Sep note said to watch for.
+
 ### 📋 OWNER CHECKLIST — live, 31 Aug 2026. Tick these as they happen.
 
 This replaces the scattered "two physical checks" notes. Everything a machine could verify has
@@ -674,7 +687,9 @@ before committing: a real page leaking noindex fails, and a 404 losing its noind
 
 ### Not blockers — ship without them, add after
 
-- **Lighthouse** — never run. `og.png` 105 KB, `hero-ring-hand.webp` 135 KB are the candidates.
+- **Lighthouse — accessibility run and fixed 2 Sep (`58363e8`); performance still unrun.** See the
+  Next list for what the a11y pass found. `og.png` 105 KB and `hero-ring-hand.webp` 135 KB are
+  unchanged and are still the performance candidates.
 - **Ads / AdSense** — needs traffic and approval anyway; applying to an unindexed site is wasted.
 - **`ring size adjuster`** affiliate section — real (>1,000/mo, the only affiliate path in the
   keyword data) but a monetisation decision, not a launch item.
@@ -715,24 +730,23 @@ The duty and the sentence are separate: a privacy policy has to describe the sit
 because the law requires it, not because of anything written here. Deleting the sentence removes
 a promise, not the obligation.
 
-**⬜ `public/favicon.ico` is stale — the template's default, not this site's logo.** Two icon files
-sit in `public/`: `favicon.ico` (655 b, 26 Aug, the Astro starter's) and `favicon.png` (10 kb,
-28 Aug, the real one). `Layout.astro` only declares the PNG:
+**✅ `public/favicon.ico` — FIXED 1 Sep, commit `9dc918c`.** It is now a 16/32/48 multi-size ICO
+(10.6 kb) rebuilt from `logo.webp`, and `Layout.astro` declares it alongside the PNG:
 
 ```html
+<link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.png" type="image/png">
-<link rel="apple-touch-icon" href="/favicon.png">
 ```
 
-So every HTML page shows the correct icon — including in GSC's own sidebar. But a non-HTML
-response has no `<head>` for the browser to read, so it falls back to requesting `/favicon.ico`
-from the origin, and gets the starter's. That is why the tab on `/sitemap-index.xml` shows the
-wrong icon.
+**Keep the reasoning, because the trap is inherited by every future site in the factory.** The
+starter's 655-byte black "A" survived to launch because HTML pages looked right everywhere anyone
+checked — including GSC's own sidebar — since `Layout.astro` declared only the PNG and every HTML
+page therefore got the correct icon. **A non-HTML response has no `<head>`**, so the browser falls
+back to requesting `/favicon.ico` from the origin, which is why the tab on `/sitemap-index.xml`
+was the one place the wrong icon showed. Check XML, not just HTML.
 
-Cosmetic only: it does not touch indexing, and Google's search-result favicon comes from the
-`<link rel="icon">` tag, which is right. To close it, regenerate `favicon.ico` from `favicon.png`
-as a multi-size (16+32) ICO, overwrite the stale file, and declare the `.ico` in `Layout.astro`
-alongside the PNG.
+It was cosmetic — it never touched indexing, and Google's search-result favicon comes from the
+`<link rel="icon">` tag, which was always right.
 
 **Cloudflare obfuscates the contact address.** `contact@ringsizetool.com` is absent from the
 served HTML as a plain string — it appears as `__cf_email__` with a `data-cfemail` hex blob and is
@@ -795,8 +809,28 @@ business identity rather than a personal Gmail, that is the earliest it can be d
    `actual ring size chart on screen` (>1,000/mo) is still unwritten, and this marker is the hook
    for it.
 
-4. **Lighthouse pass.** Still not run. `og.png` is 105 KB and `hero-ring-hand.webp` 135 KB — both
-   are candidates if the score needs it.
+4. ✅ **Lighthouse accessibility — DONE 2 Sep, commit `58363e8`.** Three findings, all real, and
+   worth reading because two of them had passed every earlier audit on this site:
+
+   - **Neither range slider had a label at all.** `#cal-range` and `#ring-range` each sit beside a
+     paired number input, and it was the *number input* that carried the `<label>`. A sighted
+     person reads the label as belonging to both; a screen reader announces the slider as an
+     unnamed control. Two controls sharing one visual label is not two labels.
+   - **The size-grid's `<dt>`/`<dd>` pairs had no `<dl>` ancestor** — they sat in plain `<div>`s,
+     which makes the term/definition relationship invisible to assistive tech. The grid container
+     itself is now the `<dl>`.
+   - **`--accent-text` (`#B8860B`) measured 3.25:1 on white**, under the 4.5:1 that normal text
+     needs, and it is the link and small-print colour on nearly every page. Now `#8F6B0A` at
+     4.89:1, still gold. Dark mode's `#E9C349` was already 10:1+ and is untouched.
+
+   `npm run verify` still 187/187 — none of it touches the maths.
+
+   ⚠️ **The `web-design-guidelines` audit had already "passed" before this.** A skill audit reads
+   the code; Lighthouse measures the rendered page. They are not substitutes, and this is the same
+   lesson as `verify` vs driving the tool.
+
+   ⬜ **Performance, SEO and best-practices categories are still unrun.** `og.png` is 105 KB and
+   `hero-ring-hand.webp` 135 KB — both are candidates if the score needs it.
 
 5. `/how-to-measure-ring-size-without-a-ring-sizer` — **still decided against** (28 Aug 2026).
    Confirmed by volume the same day: that exact keyword is only >100 and all ten of its variants
