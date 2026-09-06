@@ -239,7 +239,12 @@ const jsonLd = [
                 That is what makes the strip a ruler rather than a decoration. */}
             {Array.from({ length: STRIP_MAX + 1 }, (_, mm) => {
               const major = mm % 5 === 0;
-              const inRange = mm >= STRIP_LOW && mm <= STRIP_HIGH;
+              /* Written as two >= rather than a >= and a <=, and not by choice:
+                 `astro check` mis-parses the `<` of a `<=` inside an expression
+                 block as the start of a tag and fails with astro(1002)
+                 "Unable to assign attributes when using <> Fragment shorthand".
+                 The build itself is fine — this is the checker's parser only. */
+              const inRange = mm >= STRIP_LOW && STRIP_HIGH >= mm;
               return (
                 <span
                   class={`ps-tick${major ? ' ps-tick-major' : ''}${inRange ? ' ps-tick-live' : ''}`}

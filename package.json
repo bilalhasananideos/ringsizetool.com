@@ -11,6 +11,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "verify": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/verify-sizes.ts",
+    "check": "astro check",
     "deploy": "astro build && wrangler pages deploy dist --project-name=ringsizetool",
     "sweep": "python3 scripts/sweep-astro-newline.py dist"
   },
@@ -22,5 +23,9 @@
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3"
   }
 }

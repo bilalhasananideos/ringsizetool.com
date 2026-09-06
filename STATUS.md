@@ -892,7 +892,37 @@ business identity rather than a personal Gmail, that is the earliest it can be d
    (The `/ring-size-chart` cm column and the `/printable-ring-sizer` title were on this list and
    are now done — 29 Aug.)
 
-7. **Deploy to Cloudflare Pages** — `wrangler` is not in `package.json`, so `npm run deploy`
+7. ✅ **`astro check` is installed and is now a CI gate — done 6 Sep 2026.**
+   `astro build` does **not** type-check: esbuild strips the types in the tool's `<script>`
+   without reading them, so a real type error compiles and ships. Nothing had ever run against
+   these files.
+
+   It was not installed before because `npx astro check` sits on an interactive
+   `@astrojs/check` install prompt and hangs forever with no output — 71 minutes of it looked
+   like a slow type-check. `npm i -D @astrojs/check typescript`, plus a `check` script, plus a
+   step in `deploy.yml` before the build.
+
+   **Two real errors on the first clean run**, both pre-existing:
+   - `root` possibly null inside `updateDisplay`'s `set()` — TypeScript drops a `const`'s
+     narrowing at a hoisted `function` boundary, which is why `$` already asserts. Now `root!`.
+   - `astro(1002)` on `/printable-ring-sizer`. **A checker parser bug, not our code**: it reads
+     the `<` of a `<=` inside an expression block as the start of a tag. Written as two `>=`
+     instead, with a comment saying why. The built HTML is byte-identical — diffed, not assumed.
+
+   Also removed four genuinely dead bindings it surfaced (`DIA_MIN_MM`/`DIA_MAX_MM` from
+   RingSizer's frontmatter — the script block has its own import; `inRange` and `six` in
+   `index.astro`; `SITE_NAME` in `ring-size-chart.astro`).
+
+   Now **0 errors, 0 warnings, 1 hint**. The hint is Layout's JSON-LD `<script>` being treated
+   as `is:inline`, which is correct and must stay.
+
+   ⚠️ **The install pruned `wrangler` from `node_modules`** — it was there undeclared, which is
+   the exact drift the note below warns about, and `npm` removed it because `package.json` never
+   listed it. Nothing broke: `npm run deploy` resolves the global `wrangler` (4.112.0 in
+   `~/.local/bin`), and CI never used it — `deploy.yml` deploys with `cloudflare/wrangler-action@v3`.
+   The "should wrangler be a declared dependency" question below is still open and untouched.
+
+8. **Deploy to Cloudflare Pages** — `wrangler` is not in `package.json`, so `npm run deploy`
    depends on a global/npx binary. Decide that before the first deploy.
    ⚠️ Running `npm run verify` has twice caused npm to add `wrangler` as a devDependency and
    rewrite `package-lock.json` on its own. That churn has been reverted each time, not committed.

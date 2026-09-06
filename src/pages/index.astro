@@ -15,11 +15,9 @@ const chart = CHART_ROWS.filter(
 );
 
 /* Used in prose so the numbers can never drift from the conversion engine. */
-const six = fromDiameter(diameterFromUs(6));
 const smallest = fromDiameter(diameterFromUs(3));
 const largest = fromDiameter(diameterFromUs(13));
 
-const inRange = (r: typeof six) => r.circumferenceIn.toFixed(1);
 
 /* Figures quoted in the "about this ring sizer" prose. Derived, so the copy
    cannot drift from the tool the way competitors' copy drifts from their own

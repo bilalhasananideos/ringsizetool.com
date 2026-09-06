@@ -48,6 +48,15 @@ jobs:
       - name: Verify the size data
         run: npm run verify
 
+      # `astro build` does NOT type-check: esbuild strips the types in the tool's
+      # <script> without looking at them, so a real error compiles and ships.
+      # Installed 6 Sep 2026 after 71 minutes of a backgrounded `astro check`
+      # turned out to be a dependency prompt waiting for a keypress. It found two
+      # genuine errors on its first clean run.
+      # Remove this step and the `check` script together if it is ever dropped.
+      - name: Type-check the components and pages
+        run: npm run check
+
       - run: npm run build
 
       # Astro deletes the newline between text and a following {expression} or

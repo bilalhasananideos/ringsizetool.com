@@ -12,7 +12,6 @@
 import { fromDiameter, diameterFromUs, UK_NOTE, INDIA_NOTE } from '../data/ringSizes';
 import {
   MEASURES, UNITS, SOURCES, sourceSpec, sourceFromMeasure, modeSpec, toMode, ceilTo, floorTo,
-  DIA_MIN_MM, DIA_MAX_MM,
   type Measure, type Unit,
 } from '../data/ringModes';
 import {
@@ -1211,8 +1210,13 @@ const dash = (v: string | number | null) => (v === null ? '—' : String(v));
 
       // Convert diameter to official standards
       const r = fromDiameter(d);
+      /* root! and not root: everything here runs inside `if (root)`, but this
+       * closure lives in a hoisted `function updateDisplay()`, and TypeScript
+       * drops a const's narrowing at that boundary because such a function
+       * could in principle be called before the check. The `$` helper above
+       * asserts for the same reason. */
       const set = (sel: string, v: string) => { 
-        const el = root.querySelector(sel);
+        const el = root!.querySelector(sel);
         if (el) el.textContent = v;
       };
 
