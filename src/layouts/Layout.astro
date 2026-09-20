@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { SITE_NAME, SITE_URL, EMAIL } from '../config';
+import { SITE_NAME, SITE_URL, EMAIL, GA_MEASUREMENT_ID, NOINDEX_SITE } from '../config';
 
 interface Props {
   title: string;
@@ -183,6 +183,20 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
         window.setThemeColor();
       })();
     </script>
+
+    {!NOINDEX_SITE && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}></script>
+        <script is:inline define:vars={{ GA_MEASUREMENT_ID }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          gtag('js', new Date());
+          gtag('config', GA_MEASUREMENT_ID);
+        </script>
+      </>
+    )}
 
     <slot name="head" />
   </head>

@@ -27,6 +27,10 @@ export const EMAIL = 'contact@ringsizetool.com';
  */
 export const NOINDEX_SITE = false;
 
+/** GA4 measurement ID. Only fires when NOINDEX_SITE is false, so preview/dev
+ *  builds never pollute production analytics. */
+export const GA_MEASUREMENT_ID = 'G-JR8CR281H4';
+
 /** Only list routes that exist — a nav link to a 404 is worse than no link.
  *  Add each entry as its page ships: chart, printable, virtual, converter. */
 export const NAV = [
