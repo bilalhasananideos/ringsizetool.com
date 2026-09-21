@@ -14,9 +14,9 @@ import Layout from '../layouts/Layout.astro';
 import Prose from '../components/Prose.astro';
 import { SITE_NAME, NOINDEX_SITE } from '../config';
 import { diameterFromUs, ISO_MIN, ISO_MAX, JP_MAX } from '../data/ringSizes';
+import { CARD_SHORT_MM } from '../data/calibration';
 
 const quarterMm = diameterFromUs(6.25) - diameterFromUs(6);
-const CARD_SHORT_MM = 53.98;   // ISO/IEC 7810 ID-1
 ---
 <Layout
   title={`About — ${SITE_NAME}`}

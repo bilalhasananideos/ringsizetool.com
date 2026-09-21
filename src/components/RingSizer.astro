@@ -540,8 +540,10 @@ const imprecisionLabel = (mm: number) => {
           </div>
         </div>
 
-        <!-- 2x2 Country Size Grid Cards -->
-        <div>
+        <!-- 2x2 Country Size Grid Cards.
+             id is the deep-link target for the HowTo schema's "Read your size"
+             step; without it that step had nowhere on the page to point. -->
+        <div id="sizer-result">
           <p class="text-xs font-semibold uppercase tracking-wider text-text-faint mb-2">Your Size Is</p>
           <dl class="grid grid-cols-2 gap-3 sm:gap-4">
             <!-- US & Canada -->

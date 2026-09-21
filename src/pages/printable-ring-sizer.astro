@@ -177,8 +177,20 @@ const jsonLd = [
 ---
 
 <Layout title={title} description={description} noindex={NOINDEX_SITE} jsonLd={jsonLd}>
-  <main id="main" class="mx-auto w-full max-w-4xl px-6 py-12 sm:px-8 sm:py-16">
-    <h1 class="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-text">
+  {/* A <div>, not a <main>: Layout already renders <main id="main">, and this
+      page used to nest a second one inside it — two landmarks and a duplicate
+      id, which left the sitewide skip link pointing at an ambiguous target. */}
+  <div class="mx-auto w-full max-w-4xl px-6 py-12 sm:px-8 sm:py-16">
+    {/* The BreadcrumbList in this page's JSON-LD described a trail the page did
+        not render. Structured data must describe what is on the page, so here
+        it is — and it doubles as the only way back on mobile, where the header
+        nav is hidden. */}
+    <nav aria-label="Breadcrumb" class="no-print text-sm text-text-faint">
+      <a href="/" class="text-accent-text underline underline-offset-2">Ring Sizer</a>
+      <span aria-hidden="true"> · </span>Printable Ring Sizer
+    </nav>
+
+    <h1 class="mt-6 font-display text-3xl sm:text-4xl font-semibold tracking-tight text-text">
       Printable ring sizer
     </h1>
 
@@ -474,7 +486,7 @@ const jsonLd = [
       <FaqSection faqs={PRINTABLE_FAQS} heading="Printable ring sizer questions" id="faq" />
     </div>
 
-  </main>
+  </div>
 </Layout>
 
 <style define:vars={{ checkMm: `${CHECK_MM}mm`, checkStrokeMm: `${CHECK_STROKE_MM}mm`, holeStrokeMm: `${HOLE_STROKE_MM}mm` }}>

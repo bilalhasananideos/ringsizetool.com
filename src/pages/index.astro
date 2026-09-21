@@ -6,7 +6,8 @@ import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
 import { CHART_ROWS, AVERAGE_US_SIZE, diameterFromUs, fromDiameter, INDIA_MAX,
          ISO_MIN, ISO_MAX, JP_MAX, MM_PER_INCH } from '../data/ringSizes';
 import { DIA_MIN_MM, DIA_MAX_MM } from '../data/ringModes';
-import { FAQS, faqPageSchema, webAppSchema, breadcrumbSchema } from '../data/faq';
+import { CARD_SHORT_MM } from '../data/calibration';
+import { FAQS, faqPageSchema, webAppSchema } from '../data/faq';
 
 /* The chart below is generated, never typed. Half-size steps from US 3 to 13 —
    the range actually sold. Quarter steps live on /ring-size-chart when it ships. */
@@ -22,7 +23,6 @@ const largest = fromDiameter(diameterFromUs(13));
 /* Figures quoted in the "about this ring sizer" prose. Derived, so the copy
    cannot drift from the tool the way competitors' copy drifts from their own
    charts — which is the single claim this site is built on. */
-const CARD_SHORT_MM = 53.98;                       // ISO/IEC 7810 ID-1, held upright
 /* The same physical ring written three ways, for the "a unit is not a size"
    section. Generated rather than typed: the whole point of that passage is that
    these three numbers describe ONE object, so they must come from one source. */
@@ -43,7 +43,11 @@ const jsonLd = [
      describes. Two pages declaring one procedure is a conflict, and a page
      declaring a HowTo it no longer contains is simply wrong. */
   faqPageSchema(),
-  breadcrumbSchema([{ name: 'Ring Sizer', url: SITE_URL }]),
+  /* No BreadcrumbList here. This page had a one-item trail — "Ring Sizer" —
+     which states that the home page is reachable from the home page. A
+     breadcrumb describes a path; a path of length one is not one, and the
+     page renders no breadcrumb either. The subpages keep theirs, where the
+     trail is real. */
 ];
 ---
 <Layout
@@ -70,7 +74,7 @@ const jsonLd = [
         <div class="absolute top-1/2 -right-24 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-accent/15 blur-[120px]"></div>
         
         <!-- Precision Jeweler Blueprint / Measurement SVG Geometry -->
-        <svg class="absolute inset-0 h-full w-full opacity-40 dark:opacity-30" xmlns="http://www.w3.org/2000/svg">
+        <svg class="absolute inset-0 h-full w-full opacity-40 dark:opacity-30" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
             <pattern id="hero-grid" width="48" height="48" patternUnits="userSpaceOnUse">
               <path d="M 48 0 L 0 0 0 48" fill="none" stroke="currentColor" stroke-width="0.75" class="text-border-strong/50" />
@@ -111,7 +115,7 @@ const jsonLd = [
               Free online ring sizer, <br class="hidden sm:inline" />
               <span class="relative inline-block mt-1">
                 <span class="bg-gradient-to-r from-accent via-[#E9C349] to-accent bg-clip-text text-transparent">calibrated to your screen</span>
-                <svg class="absolute -bottom-1.5 left-0 w-full text-accent/50" height="6" viewBox="0 0 200 6" fill="none" preserveAspectRatio="none">
+                <svg class="absolute -bottom-1.5 left-0 w-full text-accent/50" height="6" viewBox="0 0 200 6" fill="none" preserveAspectRatio="none" aria-hidden="true">
                   <path d="M0 3 Q 50 6, 100 3 T 200 3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
                 </svg>
               </span>

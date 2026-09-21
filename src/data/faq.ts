@@ -325,6 +325,12 @@ export const faqPageSchema = (faqs: Faq[] = FAQS) => ({
   })),
 });
 
+/* ⚠️ Every `url` below must be an id that EXISTS on the page this schema is
+   attached to. All three steps used to point at `#tool`, which was on no page
+   — the schema deep-linked readers and crawlers into nothing. The three ids
+   used now are rendered by RingSizer.astro (`cal-object-heading`,
+   `source-heading`, `sizer-result`); if you rename one there, fix it here in
+   the same commit. */
 export const howToSchema = (url: string) => ({
   '@context': 'https://schema.org',
   '@type': 'HowTo',
@@ -341,19 +347,19 @@ export const howToSchema = (url: string) => ({
       '@type': 'HowToStep',
       name: 'Calibrate your screen',
       text: 'Hold a bank card upright against the screen and drag the slider until the outline matches the short edge of the card, which is 53.98 mm. Every card is 85.60 × 53.98 mm, so this establishes how many pixels your screen puts in a millimetre. Keep browser zoom at 100%.',
-      url: `${url}#tool`,
+      url: `${url}#cal-object-heading`,
     },
     {
       '@type': 'HowToStep',
       name: 'Measure the ring or the finger',
       text: "Place a ring that already fits on the screen and adjust the circle until its outer edge meets the inside of the band. If you have no ring, wrap a paper strip around the base of the finger, mark the overlap and enter the flat length.",
-      url: `${url}#tool`,
+      url: `${url}#source-heading`,
     },
     {
       '@type': 'HowToStep',
       name: 'Read your size',
       text: 'The result shows US/Canada, UK/Australia, EU/ISO (which is also the French taille), Japan, India and Italy/Spain/Switzerland sizes at once, plus inner diameter and circumference in millimetres and inches.',
-      url: `${url}#tool`,
+      url: `${url}#sizer-result`,
     },
   ],
 });

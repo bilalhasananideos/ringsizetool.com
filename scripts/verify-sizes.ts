@@ -19,7 +19,7 @@ import {
 } from '../src/data/ringModes.ts';
 import {
   PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, STAGE_MAX_CIRCLE_PX,
-  CAL_OBJECTS, CARD_SHORT_MM, DEFAULT_CAL_OBJECT, calObject,
+  CAL_OBJECTS, CARD_SHORT_MM, CARD_LONG_MM, CARD_CORNER_MM, DEFAULT_CAL_OBJECT, calObject,
   imprecisionVsCard, usSizeErrorPerPx,
   RULER_MAX_MM, RULER_LABELS, RULER_LABEL_EVERY_MM, rulerLengthPx,
 } from '../src/data/calibration.ts';
@@ -550,6 +550,29 @@ for (const o of CAL_OBJECTS) {
 eq('card is the default object', DEFAULT_CAL_OBJECT, 'card');
 eq('default object resolves to the card figure', calObject(DEFAULT_CAL_OBJECT).mm, CARD_SHORT_MM, 1e-12);
 eq('an unknown stored key falls back to the card', calObject('rupee-5').key, 'card');
+
+/* ── ISO/IEC 7810 ID-1, the card itself ───────────────────────────────────
+ * ⚠️ These are the most load-bearing constants on the site and until 21 Sep
+ * 2026 NOTHING pinned them to an outside number. The only checks were
+ * `calObject('card').mm === CARD_SHORT_MM` and `imprecisionVsCard(CARD_SHORT_MM)
+ * === 1`, i.e. x compared with x. Every measurement the tool makes scales
+ * linearly with CARD_SHORT_MM, so swapping the short and long edges would make
+ * every size on the site wrong by 59% and the suite would still have printed
+ * all-green.
+ *
+ * ID-1 is 85.60 x 53.98 mm with a 3.18 mm corner radius. Asserted as literals
+ * against the published dimensions, not against each other. */
+eq('ID-1 short edge = 53.98 mm (ISO/IEC 7810)', CARD_SHORT_MM, 53.98, 1e-12);
+eq('ID-1 long edge  = 85.60 mm (ISO/IEC 7810)', CARD_LONG_MM,  85.60, 1e-12);
+eq('ID-1 corner radius = 3.18 mm',              CARD_CORNER_MM, 3.18, 1e-12);
+/* The swap guard. The failure this is built for is not a typo in one digit,
+ * it is the two edges changing places — which leaves both literals present and
+ * only their roles wrong. */
+eq('the short edge is shorter than the long edge', CARD_SHORT_MM < CARD_LONG_MM, true);
+eq('ID-1 aspect ratio 85.60/53.98', CARD_LONG_MM / CARD_SHORT_MM, 1.58577, 0.00001);
+/* And the tool must actually measure against the SHORT edge: the card is held
+ * upright against the screen, so the height is what the outline matches. */
+eq('the card object measures the short edge', calObject('card').mm, 53.98, 1e-12);
 
 /* 31 U.S.C. 5112(a)(4) states the quarter in INCHES. The mm figure is derived
  * from the statute, not transcribed from a chart, so it is asserted against
