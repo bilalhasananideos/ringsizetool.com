@@ -591,6 +591,15 @@ const imprecisionLabel = (mm: number) => {
               <dd data-readout data-out-jp class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">{dash(d.jp)}</dd>
             </div>
           </dl>
+
+          {/* What one pixel of the stage circle is worth, in the units printed
+              directly above. The site's whole claim is that it does not pretend
+              to precision it lacks, and until 21 Sep 2026 it printed a bare EU
+              integer and a 0.01 mm diameter from an instrument that cannot
+              resolve either — see the stage error note in calibration.ts.
+              Written from the live calibration, so it tracks the visitor's own
+              screen rather than quoting a typical one. */}
+          <p data-precision-note class="mt-3 text-xs leading-relaxed text-text-faint"></p>
         </div>
 
         <!-- The two systems we are least certain about are the two the tool
@@ -960,6 +969,7 @@ const imprecisionLabel = (mm: number) => {
     PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, PHONE_PX_PER_MM, PHONE_VIEWPORT_MAX_PX,
     PPM_STORE_KEY, DPR_STORE_KEY, clampPpm,
     calObject, DEFAULT_CAL_OBJECT, CAL_OBJECT_STORE_KEY,
+    stageUsSizePerPx, stageCircMmPerPx,
   } from '../data/calibration';
   import { PILL_ON, PILL_OFF, SOURCE_ON, SOURCE_OFF } from './pillClasses';
 
@@ -997,6 +1007,7 @@ const imprecisionLabel = (mm: number) => {
     const ruler = $<HTMLElement>('[data-ruler]');
     const rulerCal = $('[data-ruler-cal]');
     const stageCaption = $<HTMLElement>('[data-stage-caption]');
+    const precisionNote = $<HTMLElement>('[data-precision-note]');
 
 
 
@@ -1604,6 +1615,16 @@ const imprecisionLabel = (mm: number) => {
       set('[data-out-jp]', dash(r.jp));
       set('[data-out-in]', dash(r.in));
       set('[data-out-it]', dash(r.it));
+
+      /* One pixel of the stage circle, in the units printed above it. Rounded
+       * to one decimal because quoting the error to three would be the same
+       * mistake in a smaller font. */
+      const usPerPx = stageUsSizePerPx(pxPerMm);
+      const circPerPx = stageCircMmPerPx(pxPerMm);
+      precisionNote.textContent =
+        `On your screen one pixel of the circle is about ${usPerPx.toFixed(1)} of a US size `
+        + `and ${circPerPx.toFixed(1)} mm of circumference, so read the EU, Japan and India `
+        + `numbers as give or take one.`;
       set('[data-out-dia-mm]', `${r.diameterMm.toFixed(2)} mm`);
       set('[data-out-dia-in]', `${r.diameterIn.toFixed(3)} in`);
       set('[data-out-circ-mm]', `${r.circumferenceMm.toFixed(2)} mm`);

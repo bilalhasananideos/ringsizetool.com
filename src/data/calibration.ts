@@ -259,6 +259,31 @@ export const imprecisionVsCard = (mm: number) => CARD_SHORT_MM / mm;
 export const usSizeErrorPerPx = (objectMm: number, ppm: number, refDiaMm: number) =>
   refDiaMm / (ppm * objectMm * US_STEP_MM);
 
+/* ── The OTHER error term, and the larger one ─────────────────────────────
+ * `usSizeErrorPerPx` above models the CALIBRATION step: how much a pixel of
+ * slack in matching the card costs, amplified by the ratio between the card
+ * and a finger. It was, until 21 Sep 2026, the only error this file described,
+ * and the UI presented results as though it were the whole story.
+ *
+ * It is not. The dominant term is the second matching step - laying the ring
+ * against the stage circle - where one pixel is one pixel OF THE DIAMETER, with
+ * no amplification and no averaging:
+ *
+ *   4.12 px/mm (a laptop)  ->  1 px = 0.243 mm  ->  0.30 of a US size
+ *   6.00 px/mm (a phone)   ->  1 px = 0.167 mm  ->  0.21 of a US size
+ *
+ * In circumference that is 0.76 mm at 4.12 px/mm - MORE THAN ONE WHOLE EU,
+ * French, Indian or Italian size, every one of which the tool prints as a bare
+ * integer. The US column is quantised to quarters, which is honest about its
+ * own resolution; the integer columns are not, and the inner diameter is
+ * printed to 0.01 mm, roughly 24x finer than one pixel of the instrument
+ * producing it.
+ *
+ * These exist so the UI can state that, in the visitor's actual units, instead
+ * of implying a precision the method cannot deliver. */
+export const stageUsSizePerPx = (ppm: number) => 1 / (ppm * US_STEP_MM);
+export const stageCircMmPerPx = (ppm: number) => Math.PI / ppm;
+
 /* ══════════════════════════════════════════════════════════════════════════
  * The on-screen ruler
  * ═════════════════════════════════════════════════════════════════════════
