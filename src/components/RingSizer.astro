@@ -538,6 +538,27 @@ const imprecisionLabel = (mm: number) => {
               +
             </button>
           </div>
+
+          {/* Shown only when a typed value was clamped to a rail AND the same
+              number is in range under the other measure — i.e. the reading is
+              almost certainly a circumference typed into diameter, or the
+              reverse. That mistake used to produce a confident wrong size with
+              no warning at all, which is the worst failure this tool can have. */}
+          <p
+            data-unit-hint
+            hidden
+            role="status"
+            class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-accent/40
+                   bg-accent-sunk/40 px-3 py-2 text-sm text-text-muted"
+          >
+            <span data-unit-hint-text></span>
+            <button
+              type="button"
+              data-unit-hint-switch
+              class="-my-2 inline-flex min-h-11 cursor-pointer items-center font-medium
+                     text-accent-text underline underline-offset-2 hover:opacity-80"
+            ></button>
+          </p>
         </div>
 
         <!-- 2x2 Country Size Grid Cards.
@@ -930,7 +951,7 @@ const imprecisionLabel = (mm: number) => {
 <script>
   import { fromDiameter, diameterFromUs } from '../data/ringSizes';
   import {
-    modeSpec, toMode, toDia, ceilTo, floorTo, modeFromParams,
+    MEASURES, modeSpec, toMode, toDia, ceilTo, floorTo, modeFromParams,
     sourceSpec, sourceFromMeasure,
     DIA_MIN_MM, DIA_MAX_MM,
     type Measure, type Unit, type Source,
@@ -965,6 +986,9 @@ const imprecisionLabel = (mm: number) => {
     const unitButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-unit-btn]')];
     const sourceButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-source-btn]')];
     const sourceHint = $('[data-source-hint]');
+    const unitHint = $<HTMLElement>('[data-unit-hint]');
+    const unitHintText = $('[data-unit-hint-text]');
+    const unitHintSwitch = $<HTMLButtonElement>('[data-unit-hint-switch]');
     const calObjButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-cal-obj-btn]')];
     const calHint = $('[data-cal-hint]');
     const calSource = $('[data-cal-source]');
@@ -1427,14 +1451,60 @@ const imprecisionLabel = (mm: number) => {
        * fight the user's cursor. */
       const b = bounds();
       const clamped = toMode(currentDia, activeMeasure, activeUnit);
-      if (writeBack && Math.abs(clamped - val) > 10 ** -(b.dp + 1)) {
+      const didClamp = Math.abs(clamped - val) > 10 ** -(b.dp + 1);
+      if (writeBack && didClamp) {
         const s = clamped.toFixed(b.dp);
         ringRange.value = s;
         ringNum.value = s;
       }
 
+      if (writeBack) showUnitHint(val, didClamp);
       updateDisplay();
     }
+
+    /* ── The wrong-measure detector ──────────────────────────────────────────
+     * Typing a circumference into diameter mode is the one input mistake this
+     * tool cannot catch from the number alone: 51.87 is a perfectly ordinary
+     * quantity, so it clamps to the rail and reports a confident, wrong size.
+     * The tell is that the SAME number is in range under the other measure.
+     * When that holds we say so and offer the switch; we never switch by
+     * ourselves, because the reading might genuinely be an enormous ring. */
+    const otherMeasure = (m: Measure): Measure => (m === 'dia' ? 'circ' : 'dia');
+
+    function showUnitHint(typed: number, didClamp: boolean) {
+      const other = otherMeasure(activeMeasure);
+      const o = modeSpec(other, activeUnit);
+      const fits = Number.isFinite(typed) && typed >= o.min && typed <= o.max;
+
+      if (!didClamp || !fits) {
+        unitHint.hidden = true;
+        return;
+      }
+
+      /* ModeSpec carries only the long label ("Inside Circumference"); the
+         short one lives in MEASURES. */
+      const shortOf = (m: Measure) => MEASURES.find((x) => x.key === m)!.short.toLowerCase();
+      const unit = bounds().unitLabel;
+      unitHintText.textContent =
+        `${typed} ${unit} is outside the ${shortOf(activeMeasure)} range, `
+        + `but it is a normal ${shortOf(other)}. Did you measure around the finger?`;
+      unitHintSwitch.textContent = `Use it as ${shortOf(other)}`;
+      unitHintSwitch.dataset.value = String(typed);
+      unitHintSwitch.dataset.measure = other;
+      unitHint.hidden = false;
+    }
+
+    unitHintSwitch.addEventListener('click', () => {
+      const v = parseFloat(unitHintSwitch.dataset.value ?? '');
+      const m = unitHintSwitch.dataset.measure as Measure | undefined;
+      if (!Number.isFinite(v) || !m) return;
+      setMode(m, activeUnit);
+      ringNum.value = String(v);
+      ringRange.value = String(v);
+      handleValueChange(v, false);
+      unitHint.hidden = true;
+      ringNum.focus();
+    });
 
     ringRange.addEventListener('input', () => {
       // toFixed, not the raw string: the slider hands back "22.2" where the
