@@ -62,7 +62,7 @@ eq('ISO at 51.87 mm circ -> 52', euFromCircumference(51.8677), 52);
 eq('ISO at 62.20 mm circ -> 62', euFromCircumference(62.2), 62);
 eq('ISO below its 41 floor -> null', euFromCircumference(38), null);
 
-console.log('\n— France / Italy / Spain: circumference - 40 —');
+console.log('\n— Italy / Spain / Switzerland: circumference - 40 (NOT France) —');
 // Wikipedia: "size 10 in this system is equivalent to ISO 8653:2016 size 50"
 eq('IT at ISO 50 -> 10  (Wikipedia worked example)', circMinus40(50), 10);
 eq('IT at ISO 60 -> 20', circMinus40(60), 20);
@@ -111,6 +111,23 @@ console.log('\n— Internal consistency: circumference must equal PI x diameter 
 const r6 = fromDiameter(diameterFromUs(6));
 eq('US 6 circumference mm', r6.circumferenceMm, Math.PI * 16.5100, 0.01);
 eq('US 6 round-trips back to US 6', r6.us, '6');
+/* ── The France anchor ────────────────────────────────────────────────────
+ * External referent, not a round-trip: French jewellers publish "un diamètre
+ * de bague de 16,5 mm correspond à une taille 52 France, soit environ une
+ * taille 6 bague US". That single published row is what makes this a real
+ * assertion rather than a restatement of `fr = eu`.
+ *
+ * The sibling check `fr === eu` guards the WIRING: it cannot fail while
+ * frFromCircumference aliases euFromCircumference, but re-point France at
+ * another scale and it breaks immediately. Mutation-tested 21 Sep 2026 —
+ * restoring the old `fr = circMinus40` fails six assertions, this one
+ * reporting got=12 want=52, which is the original defect exactly.
+ *
+ * Keep both. That one proves France is still wired to ISO; this one proves
+ * ISO is still the right answer for France, which no amount of internal
+ * consistency can establish on its own. */
+eq('US 6 -> FR 52 (French jewellers, taille 52 = 16.5 mm)', r6.fr, 52);
+eq('US 6 -> IT 12 (minus-40 scale, NOT the French answer)', r6.it, 12);
 console.log(`      US 6 -> UK ${r6.uk} | EU ${r6.eu} (exact ${r6.euExact.toFixed(2)}) | JP ${r6.jp} | IN ${r6.in} | IT ${r6.it} | FR ${r6.fr} | BR ${r6.br}`);
 
 console.log('\n— No mode may disagree with another (the #1 competitor fails this) —');
