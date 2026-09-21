@@ -3,7 +3,13 @@ import ThemeToggle from './ThemeToggle.astro';
 import Logo from './Logo.astro';
 import { SITE_NAME, NAV } from '../config';
 
-const path = Astro.url.pathname;
+/* `build.format: 'file'` emits ring-size-chart.html, so Astro.url.pathname is
+ * "/ring-size-chart.html" at build time and "/index.html" at the root. Compared
+ * raw against NAV's "/ring-size-chart" it never matched, so aria-current="page"
+ * and the accent underline rendered on ZERO built pages — the nav has never
+ * marked where you are in production. Same normalisation Layout.astro applies
+ * to the canonical URL, and for the same reason. */
+const path = Astro.url.pathname.replace(/index\.html$/, '').replace(/\.html$/, '') || '/';
 ---
 <header class="no-print sticky top-0 z-40 border-b border-border bg-bg/80 backdrop-blur-md backdrop-saturate-150">
   <!-- Tight on purpose: at 375px the wordmark plus two nav labels plus the
@@ -42,4 +48,33 @@ const path = Astro.url.pathname;
       </a>
     </div>
   </div>
+
+  {/* The nav above is hidden below md because the wordmark, four labels and the
+      toggle cannot share one line at 375px. Hiding it was leaving phones with no
+      site navigation at all — not a hamburger, and not in the footer either,
+      which carries only the trust pages. Mobile is roughly 44% of impressions.
+
+      A second row rather than a disclosure: four links need no menu, and a
+      <details> or a checkbox toggle would add a control to open something that
+      fits on screen as it is. Scrolls itself if a fifth label ever arrives. */}
+  <nav
+    aria-label="Main"
+    class="md:hidden -mt-1 flex gap-1 overflow-x-auto border-t border-border/60 px-4 pb-1
+           [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+  >
+    {NAV.map((item) => (
+      <a
+        href={item.href}
+        aria-current={path === item.href ? 'page' : undefined}
+        class:list={[
+          'inline-flex min-h-11 shrink-0 items-center whitespace-nowrap px-3 text-sm font-medium no-underline transition-colors duration-150',
+          path === item.href
+            ? 'text-text border-b-2 border-accent'
+            : 'text-text-muted border-b-2 border-transparent hover:text-text',
+        ]}
+      >
+        {item.label}
+      </a>
+    ))}
+  </nav>
 </header>
