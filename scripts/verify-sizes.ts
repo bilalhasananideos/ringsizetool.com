@@ -51,7 +51,7 @@ eq('JP from 17.00 mm  (table says 13)', jpFromDiameter(17.00), 13);
 eq('JP from 19.00 mm  (table says 19)', jpFromDiameter(19.00), 19);
 eq('JP from 24.33 mm  (table says 35)', jpFromDiameter(24.33), 35);
 
-console.log('\n— UK BS EN 28653:1993, C = 40 mm, +1.25/letter —');
+console.log('\n— UK: C = 40 mm, +1.25/letter (attributed to BS 6820:1987) —');
 eq('UK at 37.5 mm circ  -> A', ukFromCircumference(37.5), 'A');
 eq('UK at 40.0 mm circ  -> C  (Wikipedia check)', ukFromCircumference(40.0), 'C');
 eq('UK at 50.0 mm circ  -> K', ukFromCircumference(50.0), 'K');
@@ -165,7 +165,7 @@ console.log('\n— Upper bounds: no system may invent a size above its published
  * any number. Bounds confirmed against the standards on 28 Aug 2026:
  *   ISO 8653:2016    41 to 76
  *   JIS S 4700:2022  1 to 35   (13.00 mm to 24.33 mm inner diameter)
- *   BS EN 28653:1993 A to Z+6
+ *   the British letter scale, A to Z+6
  */
 const top = fromDiameter(25);
 eq('slider top (25 mm) -> EU refused, not 79', top.eu, null);
@@ -204,7 +204,8 @@ eq('exactly A at base circumference', ukFromCircumference(37.5), 'A');
 eq('a hair below A is refused', ukFromCircumference(37.5 - 0.7), null);
 
 console.log('\n— UK letter indexing across the whole scale —');
-/* Only one of these is a true external anchor: BS EN 28653 states C = 40 mm,
+/* Only one of these is a true external anchor: the published British rule
+ * states C = 40 mm,
  * and that is the single published figure the whole letter scale hangs off.
  * The rest are position checks: circ = 37.5 + 1.25n for the nth letter,
  * 0-indexed from A. They are NOT independent evidence, and they are not
@@ -212,7 +213,7 @@ console.log('\n— UK letter indexing across the whole scale —');
  * sequence, which is precisely where published British charts drift from each
  * other (see UK_NOTE). An off-by-one here would shift every UK answer the
  * site gives, and the C anchor alone would not catch it at the far end. */
-eq('C  = 40.00 mm  (BS EN 28653, external)', ukFromCircumference(40.0),  'C');
+eq('C  = 40.00 mm  (published British rule, external)', ukFromCircumference(40.0),  'C');
 eq('H  = 46.25 mm  (n=7)',                   ukFromCircumference(46.25), 'H');
 eq('L  = 51.25 mm  (n=11)',                  ukFromCircumference(51.25), 'L');
 eq('P  = 56.25 mm  (n=15)',                  ukFromCircumference(56.25), 'P');

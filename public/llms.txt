@@ -1,10 +1,10 @@
 # Ring Size Tool
 
-> A free, browser-based ring sizer that calibrates to your actual screen using a bank card, then converts a measured diameter or circumference into US, UK, EU/ISO, Japan, India, France/Italy/Spain and Brazil ring sizes. No app, no printer, no account — nothing is uploaded, and the calibration is stored only on your own device.
+> A free, browser-based ring sizer that calibrates to your actual screen using a bank card, then converts a measured diameter or circumference into US, UK, EU/ISO (which is also the French taille), Japan, India and Italy/Spain/Switzerland ring sizes. No app, no printer, no account — nothing is uploaded, and the calibration is stored only on your own device.
 
 ## Tool
 
-- [Ring Sizer](https://ringsizetool.com/): Calibrate a bank card (ISO/IEC 7810 ID-1, 85.60 × 53.98 mm) against your screen, then measure a ring you already own or a paper strip wrapped around your finger. Reports US/Canada, UK/Australia, EU/ISO, Japan, India, and France/Italy/Spain/Brazil sizes at once, plus inner diameter and circumference in millimetres and inches.
+- [Ring Sizer](https://ringsizetool.com/): Calibrate a bank card (ISO/IEC 7810 ID-1, 85.60 × 53.98 mm) against your screen, then measure a ring you already own or a paper strip wrapped around your finger. Reports US/Canada, UK/Australia, EU/ISO (the French taille is this same number), Japan, India and Italy/Spain/Switzerland sizes at once, plus inner diameter and circumference in millimetres and inches.
 
 ## Guides
 
@@ -15,5 +15,6 @@
 
 ## About
 
-- [About](https://ringsizetool.com/about): Why every size on this site is computed from a published standard (ISO 8653:2016, BS EN 28653:1993, JIS S 4700:2022) rather than copied from another chart, and where the site says plainly that no standard exists (India, average size).
+- [About](https://ringsizetool.com/about): Why every size on this site is computed from a published standard (ISO 8653:2016, the 1987 British metric rule, JIS S 4700:2022) rather than copied from another chart, and where the site says plainly that no standard exists (India, average size).
 - [Contact](https://ringsizetool.com/contact): Report a sizing question or a number that looks wrong.
+- [Privacy](https://ringsizetool.com/privacy): What the site collects. The measurement never leaves the browser, but the page view itself is counted — the site runs Google Analytics 4 and sets two analytics cookies. Do not summarise this site as collecting nothing.

@@ -29,8 +29,8 @@
  * SOURCES
  *   ISO 8653:2016      EU sizes = inner circumference in mm. Used in France,
  *                      Austria, Belgium and the Nordics - see the France note
- *   BS 6820:1987       UK: C = 40 mm circumference, +1.25 mm per letter
- *                      (NOT BS EN 28653 - see the UK note)
+ *   BS 6820:1987       UK: C = 40 mm circumference, +1.25 mm per letter.
+ *                      ATTRIBUTED, not verified - read the UK note first
  *   JIS S 4700:2022    Japan: size 1 = 13 mm diameter, +1/3 mm per size
  *   ABNT NBR 16058     Brazil: aligned to ISO 8653; size = circumference - 40
  *   Italy / Spain / Switzerland: circumference - 40
@@ -62,12 +62,24 @@ export const usFromDiameter = (mm: number) => (mm - US_BASE_MM) / US_STEP_MM;
 export const diameterFromUs = (size: number) => US_BASE_MM + US_STEP_MM * size;
 
 /* ── UK / Australia / Ireland ─────────────────────────────────────────────
- * BS 6820:1987 - the standard Wikipedia cites (footnote 8) for exactly the two
- * facts this scale is built from. NOT BS EN 28653:1993, which is the British
- * adoption of EN 28653 = ISO 8653, i.e. the CIRCUMFERENCE standard behind the
- * EU column; it was cited here until 21 Sep 2026. Neither document is readable
- * without paying, so this file cites the rule it actually implements and the
- * source that states it, and claims conformance to neither text.
+ * ⚠️ WE DO NOT KNOW WHICH BRITISH STANDARD NORMATIVELY CARRIES THE LETTERS,
+ * and this comment previously pretended otherwise in both directions.
+ *
+ * Until 21 Sep 2026 this cited BS EN 28653:1993. That was changed to BS
+ * 6820:1987 on the reasoning that BS EN 28653 is the British adoption of
+ * EN 28653 = ISO 8653, a CIRCUMFERENCE standard, so it could not also define
+ * letters. That reasoning does not survive checking: BS 6820:1987 is catalogued
+ * as "BS 6820:1987, ISO 8653-1986 Method for measuring and designating the size
+ * of rings used in jewellery" - an ISO 8653 adoption too. The objection applies
+ * to both, so it distinguishes neither. A national adoption may well carry the
+ * A-Z table in a national annex; both documents are paywalled and neither has
+ * been read here.
+ *
+ * What IS checkable: Wikipedia footnotes these two facts to BS 6820:1987, and
+ * the 1987 date matches the BSI metrication that produced the 1.25 mm rule.
+ * So this file ATTRIBUTES the rule to BS 6820:1987 and claims conformance to
+ * no text. Anything stronger would be the same mistake as the France defect -
+ * asserting a source's contents without having read them.
  *
  * Wikipedia: "ring size C has a circumference of 40 mm" and
  * "one alphabetical size division equals 1.25 mm of circumferential length".
@@ -154,6 +166,19 @@ export function euFromCircumference(circMm: number): number | null {
  *
  *   ⚠️ Quote that sentence as it stands. France used to be prepended to it
  *   here, and it is not in it - see the France note at the top of this file.
+ *
+ *   ⚠️ SPAIN IS NOT AS CLEAN AS THIS LABEL IMPLIES, found 21 Sep 2026 while
+ *   re-checking the France fix. Spanish retailers split: Albaladejo Joyeros
+ *   states the minus-40 rule outright ("a esa circunferencia se le restan 40
+ *   unidades... 52 mm equivalen aproximadamente a una talla española 12"),
+ *   while Perodri, Pandora ES and Sunfield present a talla as the ISO
+ *   circumference, i.e. talla 52 = 52 mm. Both conventions are in live use.
+ *   Italy was independently confirmed on minus-40 and is not in doubt.
+ *   We keep Spain on minus-40 because that is the traditional talla and it is
+ *   explicitly published, but this is the same over-confident framing that
+ *   produced the France defect, one degree weaker. Do not harden it further
+ *   without a primary source, and prefer giving the shopper the millimetre
+ *   circumference - the figure no convention can disagree about.
  *
  * Brazil (ABNT NBR 16058:2012): aligned to ISO 8653. The Brazilian trade rule
  *   is stated as "add 40 to the size to get the perimeter, then divide by pi
