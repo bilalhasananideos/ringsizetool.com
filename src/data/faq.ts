@@ -173,7 +173,7 @@ export const CHART_FAQS: Faq[] = [
   },
   {
     q: 'Are UK and US ring sizes the same?',
-    a: `No, and they are not even the same kind of scale. US sizes are numbers on a scale with no governing standard; UK sizes are letters defined by BS EN 28653, one letter per 1.25 mm of inner circumference. US ${six.us} is UK ${six.uk}, and US ${seven.us} is UK ${seven.uk}. Because the two scales step by different amounts, half of all US sizes land between two UK letters.`,
+    a: `No, and they are not even the same kind of scale. US sizes are numbers on a scale with no governing standard; UK sizes are letters on the British scale standardised by BSI in 1987, one letter per 1.25 mm of inner circumference. US ${six.us} is UK ${six.uk}, and US ${seven.us} is UK ${seven.uk}. Because the two scales step by different amounts, half of all US sizes land between two UK letters.`,
   },
   {
     q: 'What is US size 7 to UK?',

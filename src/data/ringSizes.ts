@@ -29,7 +29,8 @@
  * SOURCES
  *   ISO 8653:2016      EU sizes = inner circumference in mm. Used in France,
  *                      Austria, Belgium and the Nordics - see the France note
- *   BS EN 28653:1993   UK: C = 40 mm circumference, +1.25 mm per letter
+ *   BS 6820:1987       UK: C = 40 mm circumference, +1.25 mm per letter
+ *                      (NOT BS EN 28653 - see the UK note)
  *   JIS S 4700:2022    Japan: size 1 = 13 mm diameter, +1/3 mm per size
  *   ABNT NBR 16058     Brazil: aligned to ISO 8653; size = circumference - 40
  *   Italy / Spain / Switzerland: circumference - 40
@@ -61,7 +62,14 @@ export const usFromDiameter = (mm: number) => (mm - US_BASE_MM) / US_STEP_MM;
 export const diameterFromUs = (size: number) => US_BASE_MM + US_STEP_MM * size;
 
 /* ── UK / Australia / Ireland ─────────────────────────────────────────────
- * BS EN 28653:1993. Wikipedia: "ring size C has a circumference of 40 mm" and
+ * BS 6820:1987 - the standard Wikipedia cites (footnote 8) for exactly the two
+ * facts this scale is built from. NOT BS EN 28653:1993, which is the British
+ * adoption of EN 28653 = ISO 8653, i.e. the CIRCUMFERENCE standard behind the
+ * EU column; it was cited here until 21 Sep 2026. Neither document is readable
+ * without paying, so this file cites the rule it actually implements and the
+ * source that states it, and claims conformance to neither text.
+ *
+ * Wikipedia: "ring size C has a circumference of 40 mm" and
  * "one alphabetical size division equals 1.25 mm of circumferential length".
  * C is the third letter, so A = 40 - 2 x 1.25 = 37.5 mm.
  * Half sizes sit halfway, at +0.625 mm.
@@ -71,7 +79,7 @@ export const UK_STEP_MM = 1.25;
 
 const UK_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-/** BS EN 28653:1993 runs A to Z+6. Z is letter index 25, so Z+6 is half-size
+/** The British scale runs A to Z+6. Z is letter index 25, so Z+6 is half-size
  *  step 31 - the last position the British scale actually names. Beyond it we
  *  report nothing rather than minting letters like "Z+7½" that no jeweller
  *  stocks and no chart lists. */
@@ -81,7 +89,7 @@ export const UK_MAX_STEP = 31;
  * ⚠️ Published UK charts disagree with each other by up to half a letter, and
  * ours sits half a letter below most of them. That is not an arithmetic error.
  *
- * Our value follows BS EN 28653:1993 exactly. The competitor charts are also
+ * Our value follows the published British rule exactly. The competitor charts are also
  * internally consistent — each US quarter-size advances one UK half-letter,
  * which matches the physics (US ¼ = 0.638 mm of circumference, UK ½ = 0.625 mm).
  * The offset comes from the LETTER SEQUENCE, not the maths: some published
@@ -98,7 +106,8 @@ export const UK_MAX_STEP = 31;
  */
 export const UK_NOTE =
   'Published UK letter charts vary by up to half a size, because British scales ' +
-  'do not all include the same half letters. Ours follows BS EN 28653 exactly. ' +
+  'do not all include the same half letters. Ours follows the published British ' +
+  'rule of 1.25 mm per letter exactly. ' +
   'If your jeweller uses a different chart, give them the circumference in ' +
   'millimetres above instead.';
 
