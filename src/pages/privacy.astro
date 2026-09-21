@@ -11,19 +11,33 @@
  * numbers are verified rather than copied, a policy listing cookies that are
  * never set is the same failure in a different file. If analytics or ads are
  * added, this page changes in the same commit — not after.
+ *
+ * ⚠️ That rule was then broken in the other direction. GA4 shipped in 99d303f
+ * (20 Sep 2026) and this page was left saying "no analytics", "no Google
+ * Analytics" and "no cookies are set" for a day — three false sentences on the
+ * one page a reader consults precisely because they do not want to take the
+ * rest of the site on trust. Both failures have the same shape: the page
+ * described an intention rather than the deployment. Every fact below was read
+ * off the live site (cookie names and the 400-day expiry from `cookieStore`,
+ * the tag from the rendered `<head>`), not inferred from this repo.
  */
 import Layout from '../layouts/Layout.astro';
 import Prose from '../components/Prose.astro';
-import { SITE_NAME, EMAIL, NOINDEX_SITE } from '../config';
+import { SITE_NAME, EMAIL, NOINDEX_SITE, GA_MEASUREMENT_ID } from '../config';
 import { PPM_STORE_KEY } from '../data/calibration';
 
 /* Dated from the commit that made it true, not auto-generated: a policy whose
    date moves on every build tells the reader nothing about when it changed. */
-const LAST_UPDATED = '29 August 2026';
+const LAST_UPDATED = '21 September 2026';
+
+/* Read from the live cookies rather than from Google's documentation, which
+   describes defaults this property may not be using. Both GA4 cookies came
+   back at 400 days — the ceiling Chrome caps any cookie at. */
+const GA_COOKIE_DAYS = 400;
 ---
 <Layout
   title={`Privacy Policy — ${SITE_NAME}`}
-  description={`${SITE_NAME} collects nothing. The tool runs in your browser, no account, no analytics, no advertising. What is stored on your device, and why.`}
+  description={`What ${SITE_NAME} collects: Google Analytics page views and two analytics cookies. What it does not: your measurements, which never leave your browser. No account, no ads.`}
   noindex={NOINDEX_SITE}
 >
   <Prose title="Privacy Policy">
@@ -31,9 +45,14 @@ const LAST_UPDATED = '29 August 2026';
 
     <h2>The short version</h2>
     <p>
-      We collect nothing. There is no account, no sign-up, no analytics and no advertising on this
-      site today. The tool runs entirely in your browser, so the measurements you type are never
+      There is no account, no sign-up and no advertising on this site today. The ring sizer itself
+      runs entirely in your browser: the measurements you type, and the size it works out, are never
       sent anywhere — there is no server here to send them to.
+    </p>
+    <p>
+      What we do collect is ordinary web analytics. Since 20 September 2026 this site has run Google
+      Analytics 4, which records that a page was visited and sets two cookies to do it. That is the
+      whole of it, and it is described in full below.
     </p>
 
     <h2>What is stored on your device</h2>
@@ -49,16 +68,40 @@ const LAST_UPDATED = '29 August 2026';
         against the screen every time.
       </li>
     </ul>
-    <p>
-      Clearing this site&rsquo;s data in your browser removes both. Nothing else is written, and no
-      cookies are set.
-    </p>
+    <p>Clearing this site&rsquo;s data in your browser removes both.</p>
 
     <h2>Analytics</h2>
     <p>
-      <strong>None.</strong> There is no Google Analytics, no Cloudflare Web Analytics and no other
-      measurement script on this site. If that changes, this page will say so before it does, and
-      will name whatever is added.
+      This site runs <strong>Google Analytics 4</strong> (measurement ID <code>{GA_MEASUREMENT_ID}</code>).
+      It is the only measurement script here — there is no Cloudflare Web Analytics and no other
+      tracker.
+    </p>
+    <p>It records the ordinary things an analytics tool records:</p>
+    <ul>
+      <li>which page you opened, when, and which page or search sent you here;</li>
+      <li>an approximate location — country, region, roughly the city — worked out from your IP address;</li>
+      <li>your device type, browser, operating system and screen size;</li>
+      <li>
+        engagement on the page: how far you scrolled, outbound link clicks and file downloads.
+        Google calls this &ldquo;enhanced measurement&rdquo; and it is switched on.
+      </li>
+    </ul>
+    <p>
+      It does <strong>not</strong> receive anything you type into the ring sizer. The measurement,
+      the calibration and the resulting size stay in your browser; no event carries them.
+    </p>
+    <p>Two cookies make this work, both first-party and both expiring after {GA_COOKIE_DAYS} days:</p>
+    <ul>
+      <li><code>_ga</code> — distinguishes one browser from another.</li>
+      <li><code>_ga_{GA_MEASUREMENT_ID.replace('G-', '')}</code> — holds the session state for this property.</li>
+    </ul>
+    <p>
+      Being straight about the consequence: these are set when the page loads, before anyone is
+      asked. There is no consent banner on this site yet. If you would rather not be counted, block
+      cookies for this domain, use Google&rsquo;s <a
+        href="https://tools.google.com/dlpage/gaoptout"
+        rel="nofollow noopener">opt-out add-on</a>, or any content blocker — the ring sizer works
+      exactly the same either way, because it never needed the network in the first place.
     </p>
 
     <h2>Advertising</h2>
@@ -79,9 +122,17 @@ const LAST_UPDATED = '29 August 2026';
 
     <h2>Your choices</h2>
     <p>
-      Clear this site&rsquo;s data to remove the theme and calibration values. Since nothing is
-      collected, there is nothing to request, correct or delete on our side — we hold no record
-      that you were ever here.
+      Clear this site&rsquo;s data in your browser to remove the theme and calibration values, and
+      the two analytics cookies with them. To stay out of the analytics altogether, see the opt-out
+      options above.
+    </p>
+    <p>
+      What we hold is the aggregate Google Analytics reports — visit counts by page, country, device
+      and referrer. There is no account, no email and no name attached to any of it, so we cannot
+      look you up, and there is nothing personal for us to hand over or correct. If you want a
+      visit deleted from those reports, write to us with the approximate date and country and we
+      will submit a deletion request to Google; be aware that aggregate counts cannot be unpicked
+      per visitor, which is the honest answer rather than a promise we cannot keep.
     </p>
 
     <h2>Contact</h2>
