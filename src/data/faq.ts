@@ -102,7 +102,7 @@ export const FAQS: Faq[] = [
   },
   {
     q: 'How do I convert my finger diameter to ring size?',
-    a: `Multiply the diameter by π to get the circumference, then read off the scale you need. EU/ISO 8653 sizes are the circumference in millimetres; France, Italy, Spain, Brazil and most Indian jewellers use that number minus 40; the US scale is diameter in inches, where size 0 is 0.458 in and each size adds 0.032 in. The tool on this page does all of these at once from one diameter, which is why its outputs cannot contradict each other.`,
+    a: `Multiply the diameter by π to get the circumference, then read off the scale you need. EU/ISO 8653 sizes are the circumference in millimetres, and France uses the same number (taille 52 = 52 mm); Italy, Spain, Switzerland, Brazil and most Indian jewellers use that number minus 40; the US scale is diameter in inches, where size 0 is 0.458 in and each size adds 0.032 in. The tool on this page does all of these at once from one diameter, which is why its outputs cannot contradict each other.`,
   },
   {
     q: 'How to size a ring with a sizer?',
@@ -197,7 +197,7 @@ export const CHART_FAQS: Faq[] = [
   },
   {
     q: 'What is ring size 7 in India?',
-    a: `Indian size ${seven.in}. State plainly, though: India has no ring size standard. The figure comes from the scale four large Indian jewellers agree on — inner circumference in millimetres minus 40 — which is the same arithmetic France, Italy, Spain and Brazil use. Check against your jeweller's own chart before buying.`,
+    a: `Indian size ${seven.in}. State plainly, though: India has no ring size standard. The figure comes from the scale four large Indian jewellers agree on — inner circumference in millimetres minus 40 — which is the same arithmetic Italy, Spain, Switzerland and Brazil use. Check against your jeweller's own chart before buying.`,
   },
   {
     q: 'How does India measure ring size?',
@@ -352,7 +352,7 @@ export const howToSchema = (url: string) => ({
     {
       '@type': 'HowToStep',
       name: 'Read your size',
-      text: 'The result shows US/Canada, UK/Australia, EU/ISO, Japan, India, France/Italy/Spain and Brazil sizes at once, plus inner diameter and circumference in millimetres and inches.',
+      text: 'The result shows US/Canada, UK/Australia, EU/ISO (which is also the French taille), Japan, India and Italy/Spain/Switzerland sizes at once, plus inner diameter and circumference in millimetres and inches.',
       url: `${url}#tool`,
     },
   ],
@@ -372,7 +372,7 @@ export const webAppSchema = (url: string, name: string) => ({
     'Measure from a ring you already own',
     'Measure a finger with a paper strip',
     'Enter a diameter you already know',
-    'US, UK, EU/ISO, Japan, India, France/Italy/Spain and Brazil sizes',
+    'US, UK, EU/ISO/France, Japan, India and Italy/Spain/Switzerland sizes',
     'Runs entirely in the browser — nothing is uploaded',
   ],
 });

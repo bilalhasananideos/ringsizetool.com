@@ -27,13 +27,23 @@
  * ────────────────────────────────────────────────────────────────────────────
  *
  * SOURCES
- *   ISO 8653:2016      EU sizes = inner circumference in mm
+ *   ISO 8653:2016      EU sizes = inner circumference in mm. Used in France,
+ *                      Austria, Belgium and the Nordics - see the France note
  *   BS EN 28653:1993   UK: C = 40 mm circumference, +1.25 mm per letter
  *   JIS S 4700:2022    Japan: size 1 = 13 mm diameter, +1/3 mm per size
  *   ABNT NBR 16058     Brazil: aligned to ISO 8653; size = circumference - 40
- *   France / Italy / Spain / Switzerland: circumference - 40
+ *   Italy / Spain / Switzerland: circumference - 40
  *   US                 no governing standard; de facto 0.458" + 0.032" per size
  *   India              NO STANDARD EXISTS - see the India section below
+ *
+ * ⚠️ FRANCE IS NOT ON THE "MINUS 40" SCALE. It was listed here as one until
+ * 21 Sep 2026, which put a wrong number in front of a named market: a US 6 was
+ * reported as French "12" when the French answer is taille 52. The cause was a
+ * quotation that had been widened past its source - Wikipedia's sentence names
+ * "Italy, Spain, and Switzerland", and the same article lists France under ISO.
+ * Confirmed against French jewellers: 16.5 mm diameter = taille 52 = US 6.
+ * The rule this broke is in CLAUDE.md, and it is the rule this whole file
+ * exists to enforce: compute from the standard, never widen someone's chart.
  */
 
 export const MM_PER_INCH = 25.4;
@@ -124,13 +134,17 @@ export function euFromCircumference(circMm: number): number | null {
 }
 
 /* ── The "circumference minus 40" family ──────────────────────────────────
- * France, Italy, Spain, Switzerland, Brazil and - in practice - India all
- * number rings by inner circumference in millimetres minus 40. They are the
- * same physical scale wearing four different labels.
+ * Italy, Spain, Switzerland, Brazil and - in practice - India number rings by
+ * inner circumference in millimetres minus 40. They are the same physical
+ * scale wearing four different labels.
  *
- * France / Italy / Spain / Switzerland: Wikipedia, "ring sizes are specified
- *   as the circumference minus 40 mm: for example, size 10 in this system is
- *   equivalent to ISO 8653:2016 size 50."
+ * Italy / Spain / Switzerland: Wikipedia, under the section headed exactly
+ *   "Italy, Spain, Switzerland": "In Italy, Spain, and Switzerland, ring sizes
+ *   are specified as the circumference minus 40 mm: for example, size 10 in
+ *   this system is equivalent to ISO 8653:2016 size 50."
+ *
+ *   ⚠️ Quote that sentence as it stands. France used to be prepended to it
+ *   here, and it is not in it - see the France note at the top of this file.
  *
  * Brazil (ABNT NBR 16058:2012): aligned to ISO 8653. The Brazilian trade rule
  *   is stated as "add 40 to the size to get the perimeter, then divide by pi
@@ -148,8 +162,13 @@ export function circMinus40(circMm: number): number | null {
   return n >= 1 && n <= CIRC_MINUS_40_MAX ? n : null;
 }
 
-export const frFromCircumference = circMinus40;
+export const itFromCircumference = circMinus40;
 export const brFromCircumference = circMinus40;
+
+/** France numbers rings by inner circumference in mm, i.e. ISO 8653 — taille 52
+ *  is a 52 mm circumference. It is the EU/ISO number, not a scale of its own,
+ *  so this is an alias rather than a fourth copy of the same arithmetic. */
+export const frFromCircumference = euFromCircumference;
 
 /* ── Japan - JIS S 4700:2022 ──────────────────────────────────────────────
  * Size 1 = 13 mm inner diameter; each size adds exactly 1/3 mm.
@@ -181,7 +200,7 @@ export function jpFromDiameter(mm: number): number | null {
  * charts of four Indian jewellers (Jewelove, RishiRich Jewels, Gems Mart
  * Jewellers, Sukkhi). All four agree, across the entire range they publish,
  * that the Indian size number is the inner circumference in millimetres minus
- * 40 - the same scale France, Italy, Spain and Brazil use:
+ * 40 - the same scale Italy, Spain, Switzerland and Brazil use:
  *
  *      size  1 -> 41 mm circumference      size 20 -> 60 mm
  *      size 10 -> 50 mm                    size 30 -> ~69.7 mm
@@ -256,6 +275,12 @@ export interface RingSize {
   uk: string | null;
   eu: number | null;
   euExact: number;
+  /** Italy, Spain, Switzerland — circumference minus 40. NOT France; France is
+   *  on ISO, so its size is `eu`. See the France note at the top of this file. */
+  it: number | null;
+  /** France — ISO 8653, so always equal to `eu`. Kept as its own field because
+   *  the UI names France explicitly and a reader should not have to know that
+   *  "taille" and "ISO" are the same number to trust the answer. */
   fr: number | null;
   jp: number | null;
   br: number | null;
@@ -277,6 +302,7 @@ export function fromDiameter(diameterMm: number): RingSize {
     uk: ukFromCircumference(circumferenceMm),
     eu: euFromCircumference(circumferenceMm),
     euExact: circumferenceMm,
+    it: itFromCircumference(circumferenceMm),
     fr: frFromCircumference(circumferenceMm),
     jp: jpFromDiameter(diameterMm),
     br: brFromCircumference(circumferenceMm),

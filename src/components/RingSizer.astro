@@ -558,7 +558,7 @@ const imprecisionLabel = (mm: number) => {
 
             <!-- Europe -->
             <div class="rounded-xl border border-border bg-surface-sunk/40 p-4 sm:p-5 text-center transition-all hover:border-accent/40 hover:shadow-xs">
-              <dt class="text-xs font-medium text-text-muted">EU / ISO</dt>
+              <dt class="text-xs font-medium text-text-muted">EU / ISO / FR</dt>
               <dd data-readout data-out-eu class="mt-2 font-display text-2xl sm:text-3xl font-semibold text-text">{dash(d.eu)}</dd>
             </div>
 
@@ -597,7 +597,7 @@ const imprecisionLabel = (mm: number) => {
 
           <div class="flex items-center gap-3 text-text-faint">
             <span>India: <strong data-readout data-out-in class="font-semibold text-text font-mono">{dash(d.in)}</strong></span>
-            <span>FR/IT/ES: <strong data-readout data-out-fr class="font-semibold text-text font-mono">{dash(d.fr)}</strong></span>
+            <span>IT/ES/CH: <strong data-readout data-out-it class="font-semibold text-text font-mono">{dash(d.it)}</strong></span>
             <button data-recal type="button" class="-my-2 inline-flex min-h-11 cursor-pointer items-center px-1 text-accent-text underline underline-offset-2 hover:opacity-80 font-medium">
               Calibrate
             </button>
@@ -1531,7 +1531,7 @@ const imprecisionLabel = (mm: number) => {
       set('[data-out-eu]', dash(r.eu));
       set('[data-out-jp]', dash(r.jp));
       set('[data-out-in]', dash(r.in));
-      set('[data-out-fr]', dash(r.fr));
+      set('[data-out-it]', dash(r.it));
       set('[data-out-dia-mm]', `${r.diameterMm.toFixed(2)} mm`);
       set('[data-out-dia-in]', `${r.diameterIn.toFixed(3)} in`);
       set('[data-out-circ-mm]', `${r.circumferenceMm.toFixed(2)} mm`);

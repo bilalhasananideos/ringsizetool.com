@@ -106,26 +106,27 @@ const SECTIONS = [
       <h2 id="full" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Every size, every system</h2>
 
       <p class="mt-5 max-w-[62ch] text-text-muted">
-        US sizes are sold in quarters, so the chart is built in quarters. India, France, Italy,
-        Spain and Brazil share one scale — inner circumference in millimetres minus 40 — which is
-        why those columns agree.
+        US sizes are sold in quarters, so the chart is built in quarters. India, Italy, Spain,
+        Switzerland and Brazil share one scale — inner circumference in millimetres minus 40 —
+        which is why those columns agree. France is not on it: a French <em>taille</em> is the
+        ISO number, so read France from the EU / ISO / FR column.
       </p>
 
       <div class="table-scroll mt-6">
         <table class="w-full min-w-[58rem] text-left text-sm">
           <caption class="sr-only">
-            Ring size conversion chart in quarter sizes: US and Canada, UK and Australia, EU/ISO,
-            Japan, India, France/Italy/Spain, Brazil, with inner diameter and circumference in
+            Ring size conversion chart in quarter sizes: US and Canada, UK and Australia, EU/ISO/France,
+            Japan, India, Italy/Spain/Switzerland, Brazil, with inner diameter and circumference in
             millimetres, centimetres and inches.
           </caption>
           <thead>
             <tr class="bg-surface-sunk">
               <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">US / CA</th>
               <th scope="col" class="px-3 py-2 font-medium">UK / AU</th>
-              <th scope="col" class="px-3 py-2 font-medium">EU / ISO</th>
+              <th scope="col" class="px-3 py-2 font-medium">EU / ISO / FR</th>
               <th scope="col" class="px-3 py-2 font-medium">Japan</th>
               <th scope="col" class="px-3 py-2 font-medium">India</th>
-              <th scope="col" class="px-3 py-2 font-medium">FR / IT / ES</th>
+              <th scope="col" class="px-3 py-2 font-medium">IT / ES / CH</th>
               <th scope="col" class="px-3 py-2 font-medium">Brazil</th>
               <th scope="col" class="px-3 py-2 font-medium">Diameter</th>
               <th scope="col" class="px-3 py-2 font-medium">Ø cm</th>
@@ -142,7 +143,7 @@ const SECTIONS = [
                 <td class="px-3 py-2.5">{r.eu ?? '—'}</td>
                 <td class="px-3 py-2.5">{r.jp ?? '—'}</td>
                 <td class="px-3 py-2.5">{r.in ?? '—'}</td>
-                <td class="px-3 py-2.5">{r.fr ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.it ?? '—'}</td>
                 <td class="px-3 py-2.5">{r.br ?? '—'}</td>
                 <td class="px-3 py-2.5">{r.diameterMm.toFixed(2)} mm</td>
                 {/* 3 dp. Two would be 0.1 mm of resolution, and a UK half size
@@ -307,9 +308,11 @@ const SECTIONS = [
           </thead>
           <tbody>
             <tr class="border-t border-border">
-              <th scope="row" class="px-3 py-3 font-medium">EU / ISO</th>
+              <th scope="row" class="px-3 py-3 font-medium">EU / ISO / FR</th>
               <td class="px-3 py-3 text-text-muted">ISO 8653:2016</td>
-              <td class="px-3 py-3 text-text-muted">Size = inner circumference in mm</td>
+              <td class="px-3 py-3 text-text-muted">
+                Size = inner circumference in mm. France uses it too — taille 52 is 52 mm
+              </td>
             </tr>
             <tr class="border-t border-border">
               <th scope="row" class="px-3 py-3 font-medium">UK / AU</th>
@@ -327,7 +330,7 @@ const SECTIONS = [
               <td class="px-3 py-3 text-text-muted">Size = circumference − 40 (aligned to ISO 8653)</td>
             </tr>
             <tr class="border-t border-border">
-              <th scope="row" class="px-3 py-3 font-medium">FR / IT / ES</th>
+              <th scope="row" class="px-3 py-3 font-medium">IT / ES / CH</th>
               <td class="px-3 py-3 text-text-muted">—</td>
               <td class="px-3 py-3 text-text-muted">Size = circumference − 40</td>
             </tr>

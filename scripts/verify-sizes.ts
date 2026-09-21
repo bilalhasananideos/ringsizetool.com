@@ -64,8 +64,8 @@ eq('ISO below its 41 floor -> null', euFromCircumference(38), null);
 
 console.log('\n— France / Italy / Spain: circumference - 40 —');
 // Wikipedia: "size 10 in this system is equivalent to ISO 8653:2016 size 50"
-eq('FR at ISO 50 -> 10  (Wikipedia worked example)', circMinus40(50), 10);
-eq('FR at ISO 60 -> 20', circMinus40(60), 20);
+eq('IT at ISO 50 -> 10  (Wikipedia worked example)', circMinus40(50), 10);
+eq('IT at ISO 60 -> 20', circMinus40(60), 20);
 
 console.log('\n— Brazil ABNT NBR 16058, aligned to ISO 8653 —');
 // Brazilian trade rule: size + 40 = perimeter; perimeter / pi = diameter.
@@ -85,11 +85,14 @@ eq('IN at 77.4 mm circ -> 37  (Sukkhi, fullest)',  fromCircumference(77.4).in, 3
 // Sukkhi lists size 12 at 16.51 mm - the same diameter as US 6.
 eq('IN at 16.51 mm diameter -> 12 (Sukkhi)', fromDiameter(16.51).in, 12);
 
-console.log('\n— India, Brazil and FR/IT/ES are one scale under three names —');
+console.log('\n— India, Brazil and IT/ES/CH are one scale under three names —');
 for (const d of [14.0, 16.51, 19.0, 22.0]) {
   const r = fromDiameter(d);
-  eq(`at ${d} mm: IN === FR`, r.in, r.fr);
-  eq(`at ${d} mm: BR === FR`, r.br, r.fr);
+  eq(`at ${d} mm: IN === IT`, r.in, r.it);
+  eq(`at ${d} mm: BR === IT`, r.br, r.it);
+  /* France is ISO, not minus-40. This is the guard for the 21 Sep 2026 defect
+     that shipped a French "12" for a ring whose French size is 52. */
+  eq(`at ${d} mm: FR === EU (France is ISO)`, r.fr, r.eu);
 }
 
 console.log('\n— Low-end guards: no system may invent a size it does not define —');
@@ -98,7 +101,7 @@ eq('11 mm -> US null (was "-1¼")', tiny.us, null);
 eq('11 mm -> UK null',             tiny.uk, null);
 eq('11 mm -> EU null',             tiny.eu, null);
 eq('11 mm -> JP null (was -5)',    tiny.jp, null);
-eq('11 mm -> FR null (was -5)',    tiny.fr, null);
+eq('11 mm -> IT null (was -5)',    tiny.it, null);
 eq('11 mm -> BR null (was -5)',    tiny.br, null);
 eq('11 mm -> IN null',             tiny.in, null);
 eq('formatUs(-1.25) -> null (was "-2¾")', formatUs(-1.25), null);
@@ -108,7 +111,7 @@ console.log('\n— Internal consistency: circumference must equal PI x diameter 
 const r6 = fromDiameter(diameterFromUs(6));
 eq('US 6 circumference mm', r6.circumferenceMm, Math.PI * 16.5100, 0.01);
 eq('US 6 round-trips back to US 6', r6.us, '6');
-console.log(`      US 6 -> UK ${r6.uk} | EU ${r6.eu} (exact ${r6.euExact.toFixed(2)}) | JP ${r6.jp} | IN ${r6.in} | FR ${r6.fr} | BR ${r6.br}`);
+console.log(`      US 6 -> UK ${r6.uk} | EU ${r6.eu} (exact ${r6.euExact.toFixed(2)}) | JP ${r6.jp} | IN ${r6.in} | IT ${r6.it} | FR ${r6.fr} | BR ${r6.br}`);
 
 console.log('\n— No mode may disagree with another (the #1 competitor fails this) —');
 for (const d of [14.0, 16.5100, 17.32, 19.76]) {
@@ -151,7 +154,7 @@ const top = fromDiameter(25);
 eq('slider top (25 mm) -> EU refused, not 79', top.eu, null);
 eq('slider top (25 mm) -> JP refused, not 37', top.jp, null);
 eq('slider top (25 mm) -> UK refused, not Z+7½', top.uk, null);
-eq('slider top (25 mm) -> FR refused', top.fr, null);
+eq('slider top (25 mm) -> IT refused', top.it, null);
 eq('slider top (25 mm) -> BR refused', top.br, null);
 
 // The last valid value on each scale must still come through.
@@ -163,12 +166,12 @@ eq('JP refuses 24.7 mm, past the table', jpFromDiameter(24.7), null);
 // Z+6 is half-step 31: circumference = 37.5 + 31 x 1.25 = 76.25 mm.
 eq('UK Z+6 is the last British size', ukFromCircumference(37.5 + UK_MAX_STEP * 1.25), 'Z+6');
 eq('UK refuses one full letter past Z+6', ukFromCircumference(37.5 + (UK_MAX_STEP + 1) * 1.25), null);
-eq(`FR/BR cap at ${CIRC_MINUS_40_MAX} (= ISO ${ISO_MAX})`, circMinus40(ISO_MAX), CIRC_MINUS_40_MAX);
-eq('FR/BR refuse ISO 77', circMinus40(77), null);
+eq(`IT/BR cap at ${CIRC_MINUS_40_MAX} (= ISO ${ISO_MAX})`, circMinus40(ISO_MAX), CIRC_MINUS_40_MAX);
+eq('IT/BR refuse ISO 77', circMinus40(77), null);
 /* India is NOT ISO, so it does not inherit ISO's ceiling. Sukkhi - the fullest
  * published Indian table we found - runs 1 to 37, so India stops at 37 while
- * FR/BR stop at 36. The two scales are deliberately not aliased at the top. */
-eq(`India reaches ${INDIA_MAX}, past FR/BR's ${CIRC_MINUS_40_MAX}`,
+ * IT/BR stop at 36. The two scales are deliberately not aliased at the top. */
+eq(`India reaches ${INDIA_MAX}, past IT/BR's ${CIRC_MINUS_40_MAX}`,
    inFromCircumference(40 + INDIA_MAX), INDIA_MAX);
 eq('India refuses 38', inFromCircumference(40 + INDIA_MAX + 1), null);
 
@@ -208,7 +211,10 @@ console.log('\n— fromCircumference(): the circumference slider path —');
 const c52 = fromCircumference(52);
 eq('circ 52 mm -> EU 52', c52.eu, 52);
 eq('circ 52 mm -> diameter 16.552 mm', c52.diameterMm, 16.552, 0.001);
-eq('circ 52 mm -> FR 12', c52.fr, 12);
+eq('circ 52 mm -> IT 12', c52.it, 12);
+/* The French answer for that same ring is the ISO number, 52 — not 12.
+   Verified against French jewellers: 16.5 mm diameter = taille 52 = US 6. */
+eq('circ 52 mm -> FR 52 (taille = circumference)', c52.fr, 52);
 /* Below the slider EVERY system refuses, US included: US 0 is 11.6332 mm, so
  * 11 mm is under the US scale too. Four em dashes is the honest answer for a
  * ring that small, and this pins it so nobody "fixes" the blank cells by
@@ -385,7 +391,7 @@ console.log('\n— sizer modes: every reachable slider position names a real siz
         if (shown < s4.min || shown > s4.max) continue;
         positions++;
         const r = fromDiameter(toDia(shown, m, u));
-        if ([r.us, r.uk, r.eu, r.jp, r.in, r.fr, r.br].some((x) => x === null)) blanks++;
+        if ([r.us, r.uk, r.eu, r.jp, r.in, r.it, r.br].some((x) => x === null)) blanks++;
       }
     }
   }
