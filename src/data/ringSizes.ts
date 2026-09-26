@@ -115,13 +115,33 @@ export const UK_MAX_STEP = 31;
  * Do NOT shift this formula to match a competitor's chart. Report the
  * standards-derived letter, say that charts vary, and show the circumference in
  * millimetres alongside — that figure is unambiguous. Same policy as India.
- */
+ *
+ * ✅ CHECKED AGAINST UK JEWELLERS, 26 Sep 2026 — and the scale holds. The
+ * comparison above was against online converters, not the shops a UK buyer
+ * uses. Read from their own pages: Goldsmiths, Mappin & Webb, Beaverbrooks and
+ * Warren James publish L = 51.2 mm and M = 52.5 mm inner circumference (ours:
+ * 51.25 and 52.50); Cooksongold's trade booklet lists every half size and sits
+ * 0.2-0.3 mm below. Only one group — H.Samuel and Ernest Jones — runs a scale
+ * half a letter higher (its M = 51.87 mm), and only from H to R.
+ *
+ * So "US 6 = M" on most charts is ROUNDING, not a different scale: US 6 is
+ * 51.87 mm, dead between L and M, and a chart with no half letters must round
+ * it — they round up. Beaverbrooks' half-size chart gives L½ = US 6, as we do.
+ * Goldsmiths even contradicts itself: it labels M as US 6, yet its own M
+ * (52.5 mm) is US 6¼.
+ *
+ * That makes the useful advice concrete: on a half letter with a whole-letter
+ * jeweller, go UP. Rounding down gives a ring smaller than the finger measured
+ * — 0.7 mm at Goldsmiths' scale (51.87 - 51.2), 1.3 mm at H.Samuel's (51.87 - 50.58) — while going up lands on
+ * M in every chart checked. Jewellers are deliberately not named in the note
+ * itself: their charts change without notice, and a named claim about a shop's
+ * chart is one more thing on this site that can quietly become false. */
 export const UK_NOTE =
-  'Published UK letter charts vary by up to half a size, because British scales ' +
-  'do not all include the same half letters. Ours follows the published British ' +
-  'rule of 1.25 mm per letter exactly. ' +
-  'If your jeweller uses a different chart, give them the circumference in ' +
-  'millimetres above instead.';
+  'UK charts vary by up to half a size, mostly because many list only whole ' +
+  'letters. Ours follows the published British rule of 1.25 mm per letter. ' +
+  'If you get a half size and your jeweller stocks only whole letters, go up ' +
+  'to the next letter \u2014 rounding down gives a ring smaller than your ' +
+  'finger. Or give them the circumference in millimetres.';
 
 export function ukFromCircumference(circMm: number): string | null {
   // Position on the letter scale, rounded to the nearest half size.
