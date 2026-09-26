@@ -35,6 +35,26 @@ const rangeLow = fromDiameter(DIA_MIN_MM);
 const rangeHigh = fromDiameter(DIA_MAX_MM);
 const cardPx96 = Math.round(CARD_SHORT_MM * 96 / MM_PER_INCH);
 
+/* ⚠️ THE TITLE LEADS WITH "Ring Sizer", NOT "Online Ring Sizer". Read before changing.
+ *
+ * RESEARCH.md (Aug 2026) chose `ring sizer` (KD 4, >10K) and `ring size tool`
+ * (KD 4 — also the domain) as the primary targets, and marked `online ring
+ * sizer` / `ring sizer online` as Hard, not a target. On 6 Sep (4930c3e,
+ * SEO-AUDIT §P6) the title was rewritten to lead with "Online Ring Sizer"
+ * because those were the queries the page had impressions for — after six
+ * days of data, at positions 61-94.
+ *
+ * Twenty days later (GSC export to 24 Sep): the "online" family still sat at
+ * 61-94 with zero new impressions in the last five days, and both KD-4
+ * primaries had zero impressions at all — the site did not appear for its own
+ * name. Impressions at position 80 are not a signal of what to target; they
+ * are a signal of what you are not competitive for.
+ *
+ * Changed back 26 Sep, title only, description untouched, so the 2-3 week read
+ * can attribute whatever moves to this one variable. "Ring Sizer" first,
+ * "ring size tool" carried by the brand, and it echoes the H1. */
+const TITLE = 'Ring Sizer — Free, Calibrated to Your Screen | Ring Size Tool';
+
 /* Structured data. Built from the same modules the page renders from, so the
    visible answer and the schema answer can never disagree. */
 const jsonLd = [
@@ -51,7 +71,7 @@ const jsonLd = [
 ];
 ---
 <Layout
-  title="Online Ring Sizer — Free Ring Size Finder | Ring Size Tool"
+  title={TITLE}
   description="Free online ring sizer. Calibrate your screen with a bank card, lay a ring on the circle, and read your size in US, UK, EU, Japan and India. No app, no printer."
   noindex={NOINDEX_SITE}
   jsonLd={jsonLd}
