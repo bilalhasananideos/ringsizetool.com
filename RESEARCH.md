@@ -18,6 +18,13 @@ Research date: August 2026.
 | `ring size` | 24 — Medium (~27 RDs) | high | ❌ Brilliant Earth, Tiffany, Quince, Wikipedia |
 | `online ring sizer` / `ring sizer online` | **Hard** | >1,000 | ❌ |
 
+> ⚠️ **This table is the first pass (Aug 2026), and parts of it were reversed later — do not cite a
+> row from it alone.** Read first: §"What this data changes — five corrections" below (#2 reverses
+> the `online ring sizer` row: *target it*), `SEO-AUDIT.md` §P1 and §9 (calibration is not a moat;
+> `actual ring size chart on screen` has an incumbent), and §"Corrections — 26 Sep 2026" at the end
+> of this file. On 26 Sep the homepage title was changed on the strength of this table and reverted
+> the same hour, because the corrections had not been read.
+
 Ahrefs returns **1,629 keyword ideas** and **173 questions** for `ring sizer`.
 
 ## The 7 checks
@@ -690,3 +697,67 @@ to prevent.
 only keyword in the set with a natural affiliate path. It is also downstream of what this tool
 does: the searcher already knows their ring does not fit. Worth checking against the revenue
 estimate above before anything is built for it.
+
+---
+
+## Corrections — 26 Sep 2026 (Semrush + live checks)
+
+Recorded additively: nothing above is edited, so the earlier readings stay visible. Source for the
+volumes: Semrush Keyword Magic Tool (free tier), pulled by the owner on 26 Sep 2026 — US database
+unless stated. Semrush and Ahrefs KD are different scales; per the standing rule above, the SERP
+decides, not either score.
+
+| Keyword | Database | Volume | KD | What changes |
+|---|---|---|---|---|
+| `ring size chart` | US | 110K (cluster 296K) | 44 | Confirms `/ring-size-chart` as the largest opportunity; no longer a ">100K" bucket |
+| `how to measure ring size at home` | US | **90.5K** (cluster 96K) | **46** | 🔴 The 28 Aug "KD 2" is wrong — see below |
+| `ring size chart uk` / `uk ring size chart` | **UK** | 9.9K / 4.4K (cluster ~32K) | 34 / 35 | The 28 Aug pass was US-only and missed a market this size |
+| `uk ring size to us` | US | 1.3K (cluster 9.2K) | **16** | UK→US is the US-side demand, not US→UK |
+| `actual ring size chart on screen` | US | 1.9K (+~1.3K UK variants) | 32 | Real, but contested — ringsize.app ranks with the phrase in its title |
+| `oura ring size chart` | US | 2.4K | 37 | Oura sizing is Oura's own; needs their official data before any page |
+| `pandora ring size chart` | US | 1.3K | 39 | Navigational — searchers want Pandora's own page |
+| `ring size adjuster` / `ring adjustment sizer` | US | 4.4K / 6.6K | 30 / 34 | Commercial intent; a product page without hands-on testing would be thin affiliate content |
+| `indian ring size chart` cluster | **India** | **~920 total** | ~15 | 🔴 Much smaller than implied — weakens `SEO-AUDIT.md`'s "CREATE India page (P1)" |
+
+### `how to measure ring size at home` — the page is sound; the SERP is a brand SERP
+
+`/how-to-measure-ring-size-at-home` had **6 impressions in three months** against a 90.5K keyword.
+Checked 26 Sep: exact-match title and H1, 2,202 words across 11 sections, 200 + `index, follow` +
+correct canonical, four in-body inbound links with descriptive anchors plus the nav. **Not
+cannibalisation** — the homepage "Two ways to measure" block is a ~47-word summary and a link.
+
+What ranks (WebSearch, indicative — not a Google SERP): Blue Nile, Brilliant Earth, Tiffany, Rare
+Carat, Gabriel NY, Greenwich Jewelers, and YouTube. That is consistent with Semrush's KD 46 and not
+with the free checker's 2. A DR-0 domain is not yet in the top 100 for it. **The fix is authority,
+not a rewrite** — and the wedding-blog prospects (proposal / secret-sizing readers) are the natural
+link source for this page specifically.
+
+### UK letters — checked against UK jewellers; the scale holds
+
+§"UK letters: our answer is half a letter below every published chart" compared us against online
+converters. On 26 Sep the charts UK high-street jewellers publish were fetched directly:
+
+- **Letter → mm agrees with this site.** Goldsmiths, Mappin & Webb, Beaverbrooks and Warren James
+  publish L = 51.2 mm and M = 52.5 mm inner circumference (ours: 51.25 / 52.50). Cooksongold's trade
+  booklet lists every half size and runs 0.2–0.3 mm lower.
+- **One group differs:** H.Samuel and Ernest Jones (both Signet) run a scale half a letter higher,
+  from H to R only (their M = 51.87 mm).
+- **"US 6 = M" is mostly rounding.** US 6 = 51.87 mm, dead between L and M. Charts with whole letters
+  only must round it, and they round up. Beaverbrooks' half-size PDF gives L½ = US 6, as we do.
+  Goldsmiths labels M as US 6 while its own M (52.5 mm) is US 6¼.
+- **Practical rule adopted in `UK_NOTE`:** on a half letter at a jeweller that stocks whole letters,
+  go *up* — that is M for US 6 on every chart checked; rounding down is 0.7–1.3 mm too tight.
+
+Also note: the UK section above cites BS EN 28653:1993. That citation was replaced on 21 Sep with an
+*attribution* to BS 6820:1987 (Wikipedia's footnote for the 1.25 mm rule). Both are catalogued as
+ISO 8653 adoptions and neither has been read, so no conformance to either text is claimed — see the
+UK note in `src/data/ringSizes.ts`.
+
+### Pages this pass does NOT justify
+
+UK pages per conversion pair, a page per mm value, and an India page on today's volumes. A single
+UK page stays conditional: it must be a complete destination rather than a funnel to the tool —
+Google's spam policy names *"pages targeted at specific regions or cities that funnel users to one
+page"* as doorway abuse — and the `ring size chart uk` SERP should be re-checked for a weak page in
+the top 5 before it is built.
+
