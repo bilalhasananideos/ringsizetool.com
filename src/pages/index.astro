@@ -72,7 +72,7 @@ const jsonLd = [
 <Layout
   title={TITLE}
   description="Free online ring sizer. Calibrate your screen with a bank card, lay a ring on the circle, and read your size in US, UK, EU, Japan and India. No app, no printer."
-  noindex={NOINDEX_SITE}
+  noindex={NOINDEX_SITE} hasTool
   jsonLd={jsonLd}
 >
   <div class="w-full">
@@ -231,7 +231,7 @@ const jsonLd = [
       </div>
 
       <div class="max-w-3xl mx-auto">
-        <RingSizer />
+        <RingSizer chartHref="#chart" chartLabel="Show Size Chart ↓" />
       </div>
     </section>
 

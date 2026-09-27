@@ -32,8 +32,24 @@ import {
 interface Props {
   measure?: Measure;
   unit?: Unit;
+  /**
+   * Where "Show Size Chart" goes. The homepage mounts a chart table lower down
+   * and passes "#chart" to scroll to it. Every other page that embeds the tool
+   * has no such section, so the link defaulted to pointing at a target that
+   * did not exist. It now defaults to the full chart page instead, which is a
+   * real URL everywhere and the better target for anyone who wants more rows.
+   * The label is passed with it, because the down arrow reads as "scroll here"
+   * and would misdescribe a page navigation.
+   */
+  chartHref?: string;
+  chartLabel?: string;
 }
-const { measure: initMeasure = 'dia', unit: initUnit = 'mm' } = Astro.props;
+const {
+  measure: initMeasure = 'dia',
+  unit: initUnit = 'mm',
+  chartHref = '/ring-size-chart',
+  chartLabel = 'Full Size Chart →',
+} = Astro.props;
 
 /** US 6 - the women's average, and the size the tool opens on. */
 const DEFAULT_DIA = diameterFromUs(6);
@@ -617,14 +633,14 @@ const imprecisionLabel = (mm: number) => {
         <!-- Action Row: Show Size Chart & Calibration -->
         <div class="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4 text-xs">
           <a
-            href="#chart"
+            href={chartHref}
             class="inline-flex items-center gap-1.5 font-semibold text-accent-text hover:opacity-80 transition-opacity underline underline-offset-2"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
               <path d="M3 3h18v18H3z"></path>
               <path d="M3 9h18M3 15h18M9 3v18M15 3v18"></path>
             </svg>
-            Show Size Chart ↓
+            {chartLabel}
           </a>
 
           <div class="flex items-center gap-3 text-text-faint">

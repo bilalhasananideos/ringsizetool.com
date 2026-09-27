@@ -10,6 +10,24 @@ import { SITE_NAME, NAV } from '../config';
  * marked where you are in production. Same normalisation Layout.astro applies
  * to the canonical URL, and for the same reason. */
 const path = Astro.url.pathname.replace(/index\.html$/, '').replace(/\.html$/, '') || '/';
+
+interface Props {
+  /**
+   * Whether this page mounts the RingSizer. The CTA below points at
+   * #tool-heading, and that id exists only where the tool is embedded —
+   * index and the how-to page. On every other page #tool-heading did not exist,
+   * so the button resolved to the top of the page rather than a tool.
+   *
+   * Those pages now point the same button at the homepage's tool instead, so it
+   * keeps its purpose — take me to the sizer — without shipping a dead anchor.
+   * False is the default so that a page forgetting to pass the prop costs one
+   * page load rather than shipping a broken link; both tool pages pass it.
+   */
+  hasTool?: boolean;
+}
+const { hasTool = false } = Astro.props;
+/** In-page scroll where the tool is mounted; otherwise the homepage's tool. */
+const toolHref = hasTool ? '#tool-heading' : '/#tool-heading';
 ---
 <header class="no-print sticky top-0 z-40 border-b border-border bg-bg/80 backdrop-blur-md backdrop-saturate-150">
   <!-- Tight on purpose: at 375px the wordmark plus two nav labels plus the
@@ -41,7 +59,7 @@ const path = Astro.url.pathname.replace(/index\.html$/, '').replace(/\.html$/, '
     <div class="flex items-center gap-3">
       <ThemeToggle />
       <a
-        href="#tool-heading"
+        href={toolHref}
         class="hidden sm:inline-flex h-9 items-center justify-center rounded-full bg-accent px-4 text-xs font-semibold text-on-accent no-underline transition-all hover:bg-accent-hover shadow-xs"
       >
         Get Started

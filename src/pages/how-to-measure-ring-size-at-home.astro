@@ -62,7 +62,7 @@ const SECTIONS = [
 <Layout
   title="How to Measure Ring Size at Home | Ring Size Tool"
   description="Measure your ring size at home in two minutes with a bank card and either a ring that fits or a strip of paper. Works in mm, cm or inches. No printer needed."
-  noindex={NOINDEX_SITE}
+  noindex={NOINDEX_SITE} hasTool
   jsonLd={jsonLd}
 >
   <div class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
@@ -102,8 +102,10 @@ const SECTIONS = [
     </header>
 
     <!-- The tool first. Somebody who searched "how to measure ring size at
-         home" wants to do it, not read about doing it. -->
-    <section class="mt-12" aria-labelledby="measure-now">
+         home" wants to do it, not read about doing it. The id matches the
+         homepage's so the header's "Get Started" CTA lands here, not on a page
+         that has no tool to scroll to. -->
+    <section id="tool-heading" class="mt-12 scroll-mt-20" aria-labelledby="measure-now">
       <h2 id="measure-now" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Measure it now</h2>
       <p class="mt-4 max-w-[62ch] text-text-muted">
         Calibrate once with any bank card, then use whichever method you have to hand. Nothing is
