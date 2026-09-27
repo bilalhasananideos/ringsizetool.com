@@ -1,15 +1,15 @@
 # Ring Size Tool
 
-> A free, browser-based ring sizer that calibrates to your actual screen using a bank card, then converts a measured diameter or circumference into US, UK, EU/ISO (which is also the French taille), Japan, India and Italy/Spain/Switzerland ring sizes. No app, no printer, no account — nothing is uploaded, and the calibration is stored only on your own device.
+> A free, browser-based ring sizer that calibrates to your actual screen using a bank card, a US quarter or a 1 euro coin, then converts a measured diameter or circumference into US, UK, EU/ISO (which is also the French taille), Japan, India and Italy/Spain/Switzerland ring sizes. No app, no printer, no account — nothing is uploaded, and the calibration is stored only on your own device.
 
 ## Tool
 
-- [Ring Sizer](https://ringsizetool.com/): Calibrate a bank card (ISO/IEC 7810 ID-1, 85.60 × 53.98 mm) against your screen, then measure a ring you already own or a paper strip wrapped around your finger. Reports US/Canada, UK/Australia, EU/ISO (the French taille is this same number), Japan, India and Italy/Spain/Switzerland sizes at once, plus inner diameter and circumference in millimetres and inches.
+- [Ring Sizer](https://ringsizetool.com/): Calibrate your screen against a bank card (ISO/IEC 7810 ID-1, 85.60 × 53.98 mm), a US quarter or a 1 euro coin, then measure a ring you already own, measure a paper strip wrapped around your finger, or type in a diameter or circumference you already have. Reports US/Canada, UK/Australia, EU/ISO (the French taille is this same number), Japan, India and Italy/Spain/Switzerland sizes at once, plus inner diameter and circumference in millimetres and inches. UK letters follow the 1987 British metric rule of 1.25 mm of circumference per letter; if a result is a half letter and the jeweller stocks only whole letters, go up to the next letter, because rounding down gives a ring smaller than the finger.
 
 ## Guides
 
 - [How to Measure Ring Size at Home](https://ringsizetool.com/how-to-measure-ring-size-at-home): Step-by-step instructions for both measuring methods, why string and thread read short, and how to measure in millimetres, centimetres or inches.
-- [Ring Size Chart](https://ringsizetool.com/ring-size-chart): Every quarter size from US 3 to US 14 across all seven sizing systems, with diameter and circumference in mm, cm and inches — computed from the published standards, not copied from another chart.
+- [Ring Size Chart](https://ringsizetool.com/ring-size-chart): Every quarter size from US 3 to US 14 across all seven sizing systems (US/Canada, UK/Australia, EU/ISO/France, Japan, India, Italy/Spain/Switzerland and Brazil), with diameter and circumference in mm, cm and inches — computed from the published standards, not copied from another chart.
 - [Printable Ring Sizer](https://ringsizetool.com/printable-ring-sizer): A paper ring-hole gauge and finger-strip ruler with a scale-check square, for measuring without a screen.
 - [Average Ring Size](https://ringsizetool.com/average-ring-size): What the commonly cited averages (US 6 for women, US 9 for men) actually mean, and why no standards body defines them.
 
