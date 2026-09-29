@@ -38,6 +38,13 @@ working tree. So there is no live indexing risk and no "decide today" pressure: 
 draft and merge it, or delete the branch. The audit's page count of ten URLs is nine in
 production.
 
+**✅ Resolved 29 Sep 2026: the branch was deleted, not merged.** A review against current `main`
+found a false claim about competitors, a reversed scale-error direction, invented FAQs and a
+second, older calibration UI. The live SERP also showed the query is served by on-screen sizer
+tools, which the homepage already is. The full reasons are in RESEARCH.md → "Two page ideas
+checked — 29 Sep 2026". The last commit was `c384f35` (parent `971a8d0`), recoverable from the
+local reflog only for as long as git keeps it; it never had a remote.
+
 **⚠️ This file was two commits stale between 1 and 6 Sep**, and both stale lines told the next
 session to do work that was already done — a Lighthouse run and the `favicon.ico` rebuild. Both are
 corrected in place below. If you commit code, update this file in the same commit.
