@@ -828,8 +828,30 @@ averaged per month; Jul–Sep 2026 vs Jul–Sep 2025):
 | `ring size` | −33 % | 16.3 → 19.3 (**+18 %**) | **not** confirmed |
 | `online ring sizer` | −45 % | 0–2, too small to read | unknown |
 
-`ring size chart` and `how to measure ring size` could not be read: Trends stopped rendering
-after two queries.
+Second pull (the owner ran it in their own browser, same settings):
+
+| Term | Google Trends, Jul–Sep 2025 → 2026 | Note |
+|---|---|---|
+| `ring size chart` | 26.5 → 19.5 (**−26 %**) | slow multi-year slide: ~30 in 2022, ~26 in 2024–25, ~19 now |
+| `how to measure ring size` | 14.9 → 30.5 (**+105 %**, median +87 %) | very spiky: 93 (8 Feb), 100 (21 Jun), 59 (13 Sep 2026) |
+| `ring sizer` | 13.8 → 13.5 (−2 %) | flat, matching the first pull |
+
+Caution on the how-to rise: in all three sub-region maps the darkest state is a small
+Mountain-West rectangle (it looks like Wyoming). A low-population state topping a common query
+often means automated searches, so part of the spikes may not be people. That is not confirmed.
+
+Rising related queries (5-year window): `oura ring size chart` +3,100 %, `oura ring sizer` and
+`colmi ring sizer` Breakout, `actual ring size chart on screen` +750 %,
+`how to know ring size without measuring` +950 % (the homepage FAQ already answers it),
+`how to check ring size at home` +500 %.
+
+**What it changes.** Demand is moving away from chart, calculator and printable look-ups and
+toward "how do I measure" and smart-ring sizing. `/ring-size-chart` is still the largest cluster
+but it is shrinking. `/how-to-measure-ring-size-at-home` is the one page whose demand is growing.
+Two pending page decisions now have fresh evidence behind them: the
+`draft/actual-size-chart-on-screen` page and a smart-ring page. The smart-ring page is only
+possible on Oura's and Colmi's own published sizing guidance (standing rule: no brand pages
+without the brand's data).
 
 Two things follow. **(1) Demand for ring sizing is steady, but fewer people phrase it as
 "calculator" or "printable".** The homepage's core terms are fine; `/printable-ring-sizer`'s main
