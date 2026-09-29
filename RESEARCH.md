@@ -815,13 +815,29 @@ and our five pages already cover all of them. What differs is age and authority 
 - `ring sizer app` (12.1K) is app intent; our FAQ already answers "no app needed". `cm ruler`
   (18.1K) is not ring intent. `/es` pages: rejected on 27 Aug.
 
-### ⚠️ Demand may be falling — check before trusting the revenue maths
+### ⚠️ Demand: two modifiers are shrinking, the head terms are not (Google Trends, 29 Sep)
 
-DataForSEO's year-on-year trend: `ring size calculator` **−70 %** (9,900 in Sep 2025 → 2,400 in
-Aug 2026), `printable ring sizer` −80 %, `online ring sizer` −45 %, the `ring size chart`
-cluster −33 %. This is one source (Google Ads volumes), and those volumes have changed method
-before. Check Google Trends for the same terms before believing it. If it holds, the
-revenue section's 27-Aug volumes are too high.
+DataForSEO's year-on-year trend was checked against Google Trends (US, past 5 years, weekly,
+averaged per month; Jul–Sep 2026 vs Jul–Sep 2025):
+
+| Term | DataForSEO YoY | Google Trends | Verdict |
+|---|---|---|---|
+| `ring size calculator` | −70 % | 5.9 → 2.2 (**−63 %**) | confirmed |
+| `printable ring sizer` | −80 % | 5.6 → 2.2 (**−60 %**) | confirmed |
+| `ring sizer` | −33 % | 46.7 → 46.1 (flat) | **not** confirmed |
+| `ring size` | −33 % | 16.3 → 19.3 (**+18 %**) | **not** confirmed |
+| `online ring sizer` | −45 % | 0–2, too small to read | unknown |
+
+`ring size chart` and `how to measure ring size` could not be read: Trends stopped rendering
+after two queries.
+
+Two things follow. **(1) Demand for ring sizing is steady, but fewer people phrase it as
+"calculator" or "printable".** The homepage's core terms are fine; `/printable-ring-sizer`'s main
+keyword is shrinking. **(2) Both terms spiked hard in Mar–May 2026** (`ring size calculator` hit
+77.8 in April against a baseline of ~6). Any 12-month-average volume (Ahrefs, Semrush,
+DataForSEO) therefore overstates the current rate. DataForSEO's own monthly figure for
+`ring size calculator` is 2,400 in Aug 2026 against the 6,600 average. Re-base the revenue
+section on current monthly figures, not averages, before relying on it.
 
 ### Backlinks: the #1 is mostly spam, and a DR-5 site holds #1 with none
 
