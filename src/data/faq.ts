@@ -38,7 +38,7 @@ export interface Faq {
 export const FAQS: Faq[] = [
   {
     q: 'How can I measure my ring size at home?',
-    a: `Two ways, both on this page. If you own a ring that fits, calibrate your screen against a bank card, then size the on-screen circle until its outer edge meets the inside of the band. If you do not, wrap a strip of paper around the base of your finger, mark the overlap, measure the flat strip against a ruler and type the length in. Both give you an inner diameter, which is the only measurement ring sizes are actually built from.`,
+    a: `Two ways, both on this page. If you own a ring that fits, calibrate your screen against a bank card, then size the on-screen circle until its outer edge meets the inside of the band. If you do not, wrap a strip of paper around the base of your finger, mark the overlap, lay the strip flat on the sizer's on-screen ruler — true to scale once you have calibrated — or on any ruler, and type the length in. Both give you an inner diameter, which is the only measurement ring sizes are actually built from.`,
   },
   {
     q: 'Can I measure my ring size on my phone?',
