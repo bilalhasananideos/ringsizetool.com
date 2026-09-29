@@ -761,3 +761,77 @@ Google's spam policy names *"pages targeted at specific regions or cities that f
 page"* as doorway abuse — and the `ring size chart uk` SERP should be re-checked for a weak page in
 the top 5 before it is built.
 
+
+---
+
+## Competitor keywords and backlinks — 29 Sep 2026 (OpenSEO / DataForSEO, US)
+
+Top 100 ranked keywords by estimated traffic for each of the two homepage-led competitors, plus
+their backlink profiles. Raw pulls cost ~290 of 500 free OpenSEO credits.
+
+**Read the volumes carefully.** DataForSEO gives a whole synonym cluster one shared volume (e.g.
+`ring sizes chart`, `ring sizing chart` and `ring measurement chart` all show 165,000). Never add
+rows together. Both competitors earn nearly all of this with their **homepage**, so "which page"
+below means which of OUR pages serves the query.
+
+### Every cluster maps to a page we already have
+
+| Our page | Cluster (volume, KD) | ringssizechart | measureringsize |
+|---|---|---|---|
+| `/` | ring size calculator (6.6K, 11) | **#1** | #11 |
+| `/` | online ring sizer (3.6K, 38) | #9 | **#1** |
+| `/` | ring size online (3.6K, 37) | **#1** | — |
+| `/` | ring sizer / sizing tool (18.1K, 1–46) | #23–26 | #7 |
+| `/` | ring size tool online / ring sizer tool online (1.3K, 37–44) | #2–8 | **#1** |
+| `/` | check ring size (6.6K, 14) | — | #5 |
+| `/` | ring finger sizer (3.6K, 18) · free ring sizer (2.9K, 16) · virtual ring sizer (1.6K, 46) | — | #4–10 |
+| `/` | mens ring sizer (8.1K, **4**) | — | #13 |
+| `/` | ring size ruler · mm ruler for ring size · ring ruler (~1.2K together, 8–23) | — | **#2** |
+| `/` + how-to | how to check ring size (74K cluster, **8**) | — | #9 (homepage) |
+| chart | ring size chart online / guide online (6.6K, 44) | **#1** | #6–10 |
+| chart | ring size chart in cm (5.4K, 21) | #4 | — |
+| chart | ring sizes chart (165K cluster, 24–38) | #63–69 | — |
+| how-to | how to measure ring size at home (14.8K, 7–15) | — | #40–48 |
+| how-to | how do i know my ring size (22.2K) · how to find out your ring size (18.1K) | #37–68 | #62–78 |
+| how-to | how are ring sizes measured (74K cluster, 46) | #19 (own page) | — |
+| printable | printable ring sizer (33.1K, **7**) | #23 | #43 |
+| printable | printable ring size chart (14.8K, 22) | #37–42 | — |
+| average | average ring size for women (9.9K, **0**) | #14–35 (own page) | — |
+
+**Conclusion: the keyword set is not the gap.** Both competitors win these queries with one page,
+and our five pages already cover all of them. What differs is age and authority (below).
+
+### Not built — each needs a decision, none is a quick win
+
+- `oura ring sizes` (18.1K, KD 1, **+83 % a year**) — ringssizechart #10–11. A brand page: build it
+  only on Oura's own published sizing data (the standing do-not list forbids brand pages without
+  it). SEO-AUDIT already filed this as P2.
+- `nose ring sizes` / `smallest gauge nose ring` (6.6K / 1K, KD 0) — ringssizechart #4–18. A
+  different product (piercing gauges). Not in any plan so far; it is the owner's decision.
+- `actual ring size chart on screen` (3.6K, KD 20) — measureringsize #11. The page already exists
+  on `draft/actual-size-chart-on-screen` and is still undecided.
+- UK variants (`online ring sizer uk chart` 170, +325 %) — the UK-page conditions in the 26 Sep
+  section above still apply.
+- `ring sizer app` (12.1K) is app intent; our FAQ already answers "no app needed". `cm ruler`
+  (18.1K) is not ring intent. `/es` pages: rejected on 27 Aug.
+
+### ⚠️ Demand may be falling — check before trusting the revenue maths
+
+DataForSEO's year-on-year trend: `ring size calculator` **−70 %** (9,900 in Sep 2025 → 2,400 in
+Aug 2026), `printable ring sizer` −80 %, `online ring sizer` −45 %, the `ring size chart`
+cluster −33 %. This is one source (Google Ads volumes), and those volumes have changed method
+before. Check Google Trends for the same terms before believing it. If it holds, the
+revenue section's 27-Aug volumes are too high.
+
+### Backlinks: the #1 is mostly spam, and a DR-5 site holds #1 with none
+
+- **ringssizechart.com:** 270 referring domains / 403 links. Links started Sep 2025, then +59
+  domains in Aug 2026. Mostly self-made: Wix blog-comment spam on unrelated sites with keyword
+  anchors (verified live, 29 Sep: a Pope Francis post on globalcatholiceducation.org carries a
+  17 Aug comment linking "oura ring sizing"), plus profile, forum and bookmark links. The same
+  username appears on two sites. Real links are rare, e.g. a jeweller's how-to page (nofollow).
+  **Do not copy** — Google's link-spam policy names exactly these link types.
+- **measureringsize.com** (#1 `online ring sizer`): once spam-scored domains are filtered, only
+  **8–9 real linking domains, all nofollow** — old comments on UK blogs dating back to 2022.
+  So a page with essentially no real links holds #1. Age plus a tight homepage match seems to be
+  doing the work. **The honest route is viable; it takes time.**
