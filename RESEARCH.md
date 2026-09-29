@@ -873,3 +873,58 @@ section on current monthly figures, not averages, before relying on it.
   **8–9 real linking domains, all nofollow** — old comments on UK blogs dating back to 2022.
   So a page with essentially no real links holds #1. Age plus a tight homepage match seems to be
   doing the work. **The honest route is viable; it takes time.**
+
+---
+
+## Two page ideas checked — 29 Sep 2026: actual-size draft and smart-ring sizing
+
+### `draft/actual-size-chart-on-screen` — builds, but not publishable as it stands
+
+Applied onto current `main` in a throwaway worktree: two additive conflicts (`calibration.ts`,
+`faq.ts`). Once resolved, `astro check` shows 0 errors, the build produces 12 pages, verify
+passes 264/264, and the page is `index, follow` and in the sitemap. What blocks it:
+
+1. **A false claim about competitors.** It says *"There is no calibration step anywhere on the
+   pages that rank for this."* The live SERP (29 Sep, US) contradicts it: ringsize.app (#5, coins
+   and card), grownbrilliance (#4, "determine your screen's dimensions"), ringsize.online
+   `/screen-sizer/` (#6) and measureringsize (#17, bank card) all calibrate. The frontmatter's
+   "the one keyword our calibration answers better than anybody" is wrong for the same reason.
+2. **A reversed direction.** It says an uncalibrated chart at ~62 % of life size makes a ring
+   read *"several sizes too small"*. The opposite is true. Circles drawn smaller than life mean a
+   ring only matches a circle labelled much larger: a 17.3 mm ring needs a 27.9 mm label at
+   3.78 vs 6.1 px/mm, so the reading comes out too **large**. Not on any live page (checked).
+3. "US 3 to US 14, which is the range jewellers actually stock" has no source.
+4. The CSS-spec sentence ("says outright that it does so because too much existing content
+   assumes it") must be checked against the CSS Values text before it ships.
+5. The six FAQs are hand-written. The draft's own header forbids shipping them until they are
+   replaced with real People-Also-Ask questions.
+6. **It carries a second, older calibration UI** (card only). The live tool now offers card,
+   US quarter and euro coin. Visitors would meet two different calibrations for one stored
+   value, and the duplicated logic is what the draft itself calls the wrong end state.
+
+**The bigger problem is intent.** On the live SERP for `actual ring size chart on screen`,
+positions 2–17 are on-screen sizer TOOLS, mostly homepages (moonmagic, grownbrilliance,
+ringsize.app, measureringsize) plus apps. That is what our homepage already is. The draft is a
+second on-screen sizer that is *less* precise than the homepage (whole sizes, no adjustment), so
+it would compete with `/` rather than add to it. `actual size ring size chart` is a different SERP:
+brand chart pages and printable PDFs under an AI Overview, i.e. `/printable-ring-sizer` and
+`/ring-size-chart` territory. **Recommendation: do not publish it as a separate page.** If the
+idea survives, the defensible form is a true-size circle row inside the homepage tool, reusing
+its calibration. That is a homepage change, so it waits until after the ~10 Oct GSC check.
+
+### Smart-ring (Oura / Colmi) page — not buildable on the brands' own data
+
+- **Oura** (support.ouraring.com, "How to Choose the Right Oura Ring Size", updated 10 Aug 2026,
+  fetched directly): *"Oura uses only whole sizes (no half sizes) and they differ slightly from
+  standard US ring sizes"*; *"Avoid sizing your Oura Ring based on other rings, as they likely
+  use different measurements."* Kits: Ring 5 sizes 6–13, Ring 4 sizes 4–15, and sizing differs
+  between generations. **The page publishes no mm or inch figure for any size.** So an honest
+  Oura size chart or converter cannot be computed, and Oura tells buyers not to use one. A page
+  would only restate Oura's help article.
+- **Colmi**: the published tables disagree with each other (manuals.plus copies: 7# = 17.9 mm in
+  the R10 manual vs 0.69 in ≈ 17.5 mm in an R02 manual; 9# = 19.2 vs 19.1 mm). Several domains
+  present themselves as Colmi's store (colmi.info, colmi.store, colmi.uk), and none was confirmed
+  as first-party. That fails the "brand's official data" rule.
+- **Verdict: no smart-ring page.** Rising demand (Trends +3,100 %) does not change what can be
+  said truthfully. At most, and only if a real PAA question asks it, add one FAQ answering "is my
+  ring size my Oura size?" with Oura's own words and a link.
