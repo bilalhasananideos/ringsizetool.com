@@ -9,6 +9,14 @@ file** (marked 🔴 there): the competitor does *not* run per-unit URLs, screen 
 longer a differentiator, and `actual ring size chart on screen` has an incumbent. Read it before
 starting any SEO work.
 
+**🧭 `SEO-STRATEGY.md` — new 30 Sep 2026.** The consolidated SEO strategy (30 sections, R0–R16),
+re-checked against live GSC/GA4, DataForSEO volumes + SERPs for US/UK/AU/IN, Lighthouse, a full
+crawl and Google's own pages fetched that day. Read its opening list before any SEO work. Top items:
+**R0** `/privacy` says there is no Cloudflare Web Analytics, but the edge-injected beacon is live on
+every page (owner: switch it off in the Pages dashboard, or disclose it). **R16** a comma decimal
+(`17,35`) becomes `1735` → US 15¾ (from `QA-AUDIT-2026-09-30.md`, re-verified). **R2** GA4 has no
+tool-usage events at all. FAQ rich results were retired by Google on 7 May 2026.
+
 **Shipped from that plan (6 Sep, `4bd3613` — deployed and verified live):** #1 the tool entry
 reframe · Day 2 both title/description rewrites · Day 7 the homepage prose de-duplication (whose
 premise was also wrong — `#methods` was already a summary + link; the real duplicate was
