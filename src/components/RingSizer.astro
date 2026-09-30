@@ -1328,6 +1328,31 @@ const imprecisionLabel = (mm: number) => {
     }
 
     /* ── calibration controls ── */
+
+    /* The scale the drawer would come back to on a reload: the saved value, or
+     * the starting guess when nothing is saved. "Close" used to hide the drawer
+     * with no word about a match the visitor had just made and not saved — it
+     * worked for the rest of the page view and was gone on the next visit
+     * (QA-AUDIT-2026-09-30.md §7.2). Saving on close instead would put
+     * "✓ Actual size" over a slider someone merely fiddled with, the Reset
+     * defect again. So the button says what it will do. */
+    const calClose = $<HTMLButtonElement>('[data-cal-close]');
+    let committedPpm = NaN;          // NaN until boot: nothing is "unsaved" yet
+    /* "Don't save", not "Close without saving": the longer label pushed the
+     * drawer heading to three lines at 320 px and wrapped itself. The \u2715 still
+     * says "close"; the accessible name spells it out and contains the visible
+     * words, as WCAG 2.5.3 (label in name) requires. */
+    function syncCloseLabel() {
+      const unsaved = Math.abs(pxPerMm - committedPpm) >= 0.005;
+      calClose.textContent = unsaved ? 'Don\u2019t\u00a0save\u00a0\u2715' : 'Close \u2715';   // nbsp: one line at 320 px
+      if (unsaved) calClose.setAttribute('aria-label', 'Don\u2019t save and close');
+      else calClose.removeAttribute('aria-label');
+    }
+    function commitPpm() {
+      committedPpm = pxPerMm;
+      syncCloseLabel();
+    }
+
     function setPxPerMm(v: number, syncNum = true) {
       pxPerMm = clampPpm(v);
       /* One variable, two shapes: the full card outline on wide screens and
@@ -1350,6 +1375,7 @@ const imprecisionLabel = (mm: number) => {
       if (syncNum && calNum.value !== s) calNum.value = s;
       if (calVal) calVal.textContent = s;
       $('[data-cal-status]').textContent = s;
+      syncCloseLabel();
       updateDisplay();
     }
 
@@ -1377,6 +1403,7 @@ const imprecisionLabel = (mm: number) => {
       store.setDpr();
       stepCal.hidden = true;
       setCalibrated(true);
+      commitPpm();
       /* Which object, not the px/mm it produced. */
       track('sizer_calibration_saved', { object: activeCalObject });
     });
@@ -1398,6 +1425,7 @@ const imprecisionLabel = (mm: number) => {
       setPxPerMm(startingPpm());
       store.clear();
       setCalibrated(false);
+      commitPpm();                   // the guess is what a reload would give
     });
 
     $('[data-recal]').addEventListener('click', () => {
@@ -1448,6 +1476,13 @@ const imprecisionLabel = (mm: number) => {
        * instruction that has stopped applying, the same defect the caption
        * rule above exists to avoid. */
       ruler.hidden = s !== 'finger';
+
+      /* The precision note is about PIXELS OF THE STAGE CIRCLE, so it belongs to
+       * the ring route only. It used to show under a typed caliper reading or a
+       * strip read off the ruler too, telling the visitor to distrust digits
+       * their own measurement had, for a reason that did not apply to it
+       * (QA-AUDIT-2026-09-30.md §7.8, P3). */
+      precisionNote.hidden = s !== 'ring';
 
       /* A ring is matched at its inner edge (a diameter); a paper strip is a
        * circumference. This is the factor of pi, not a preference. 'number'
@@ -1752,6 +1787,26 @@ const imprecisionLabel = (mm: number) => {
       markMeasureStarted();
       handleValueChange(v);
     });
+    /* Keyboard stepping on the slider. Native arrows move one `step`, the
+     * finest grid the slider has — 0.01 mm in diameter mode, so a keyboard user
+     * needed 81 presses to cross one US size (QA-AUDIT-2026-09-30.md §7.6).
+     * Arrows now move what one ± press moves, Shift+arrow keeps the fine step
+     * for the last adjustment, and PageUp/PageDown move ten ± presses — the
+     * ARIA slider pattern's small and large steps. Home/End stay native. */
+    const SLIDER_KEYS: Record<string, 1 | -1> = {
+      ArrowRight: 1, ArrowUp: 1, PageUp: 1, ArrowLeft: -1, ArrowDown: -1, PageDown: -1,
+    };
+    ringRange.addEventListener('keydown', (e: KeyboardEvent) => {
+      const dir = SLIDER_KEYS[e.key];
+      if (dir === undefined) return;
+      e.preventDefault();
+      const b = bounds();
+      const by = e.key.startsWith('Page') ? b.nudge * 10
+        : e.shiftKey ? Number(numStep(b.dp))
+        : b.nudge;
+      nudge(dir, by);
+    });
+
     /* Typing is not committing. The clamp used to run on every keystroke and
      * write its result straight back into the field, so in millimetres — where
      * the floor is 12.89 — reaching for 16.51 turned the "1" into "12.89"
@@ -1809,7 +1864,7 @@ const imprecisionLabel = (mm: number) => {
      * flipped the Japanese size from 12 to 11 without the visitor changing
      * anything. Both ends are clamped to the mode's own rounded-inward bounds. */
     function nudge(dir: 1 | -1, by = bounds().nudge) {
-      markMeasureStarted();   // only ever called from ± and the arrow keys
+      markMeasureStarted();   // only ever called from ±, the field's arrows and the slider's keys
       const current = toMode(currentDia, activeMeasure, activeUnit);
       const next = Math.min(
         parseFloat(ringRange.max),
@@ -1872,20 +1927,32 @@ const imprecisionLabel = (mm: number) => {
       const circPerPx = stageCircMmPerPx(pxPerMm);
       precisionNote.textContent =
         `On your screen one pixel of the circle is about ${usPerPx.toFixed(1)} of a US size `
-        + `and ${circPerPx.toFixed(1)} mm of circumference, so read the EU, Japan and India `
-        + `numbers as give or take one.`;
+        + `and ${circPerPx.toFixed(1)} mm of circumference, so read the EU, Japan, India and `
+        + `IT/ES/CH numbers as give or take one.`;
       set('[data-out-dia-mm]', `${r.diameterMm.toFixed(2)} mm`);
       set('[data-out-dia-in]', `${r.diameterIn.toFixed(3)} in`);
       set('[data-out-circ-mm]', `${r.circumferenceMm.toFixed(2)} mm`);
       set('[data-out-circ-in]', `${r.circumferenceIn.toFixed(3)} in`);
 
+      /* What the slider itself announces while it has focus. Without it a
+       * screen reader read the bare number, "16.51", with no unit and no size. */
+      const shown = `${mainVal.textContent} ${bd.unitLabel}`;
+      ringRange.setAttribute('aria-valuetext', `${shown}, US ${dash(r.us)}`);
+
       // aria-live was present in markup but never written to — a screen reader
       // user got zero feedback as the slider moved. Throttled so dragging
       // doesn't spam an announcement on every pixel of travel.
+      //
+      // It announced only the US size (QA-AUDIT-2026-09-30.md §7.7); it now
+      // gives the four headline systems, as the grid does. Skipped while the
+      // slider has focus, because aria-valuetext above already speaks there and
+      // the two would talk over each other.
       if (live) {
         window.clearTimeout(liveTimer);
         liveTimer = window.setTimeout(() => {
-          live.textContent = `US size ${dash(r.us)}, ${r.diameterMm.toFixed(2)} millimetres`;
+          if (document.activeElement === ringRange) return;
+          live.textContent =
+            `${shown}: US ${dash(r.us)}, UK ${dash(r.uk)}, EU ${dash(r.eu)}, Japan ${dash(r.jp)}`;
         }, 400);
       }
     }
@@ -1911,6 +1978,7 @@ const imprecisionLabel = (mm: number) => {
       stepCal.hidden = false;
       setCalibrated(false);
     }
+    commitPpm();
 
     /* setMode() is what fills the paired number input and derives the slider's
      * bounds and end labels. Boot used to call only updateDisplay(), so the

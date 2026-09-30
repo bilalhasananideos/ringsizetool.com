@@ -41,7 +41,12 @@ report's fix log).
   (≥ 1024) keeps the single row.
 - **UX §7.3, theme toggle — FIXED (1 Oct).** The icon now shows the state (half-disc / sun / moon), and
   the accessible name says it: the old fixed `aria-label` hid the state from screen readers too.
-- **Not done, and not defects:** the rest of the report's UX list (§7.2, 7.4–7.8) and potential issues
+- **UX §7.2, 7.6, 7.7, 7.8 — FIXED (1 Oct).** Close reads "Don't save ✕" while a calibration match is
+  unsaved; slider arrows move one ± step (Shift = fine, PageUp/Down = ×10); the slider has
+  `aria-valuetext` and the live region gives US/UK/EU/Japan; the pixel precision note shows on the
+  ring route only (also closes P3).
+- **Not done, and not defects:** UX §7.4 (share link without the value) and §7.5 (largely moot since
+  the field lost its spinner and went full-width on phones) and potential issues
   P1–P5. The hero badge ("Computed to ISO 8653 Standards") was left as chosen in
   `8e420e1`.
 
