@@ -7,9 +7,9 @@ indexable and verified in Google Search Console, Bing and Ahrefs.**
 defects, **none in the size maths** (every chart cell re-computed independently, 0 mismatches). Its
 fix-priority list is the work queue. Status of each item:
 
-**All 14 confirmed defects are fixed** (30 Sep, `fbf379d` + the commit after it — see the
-report's fix log for which commit carries which). Pushed; "deployed" is recorded in the fix log
-only once the live HTML has been re-checked.
+**All 14 confirmed defects are fixed, DEPLOYED and verified live** (30 Sep: `fbf379d` + `07bf0c0`,
+deploy run `36727214002` green; live HTML and the live tool re-checked afterwards — see the
+report's fix log).
 
 - **#2 / #3 / #11** — both fields `type="text" inputmode="decimal"` read by `parseMeasurement()`;
   off-scale and non-numeric entries get a visible `[data-range-note]`; typed values clamp to the
