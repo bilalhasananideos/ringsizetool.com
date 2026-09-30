@@ -39,7 +39,9 @@ report's fix log).
   hit areas with the 8 px track drawn by pseudo-elements; ± buttons 44 px below `lg`; both number
   fields 16 px below `lg` so iOS does not zoom (and break the calibrated scale) on focus. Desktop
   (≥ 1024) keeps the single row.
-- **Not done, and not defects:** the rest of the report's UX list (§7.2–7.8) and potential issues
+- **UX §7.3, theme toggle — FIXED (1 Oct).** The icon now shows the state (half-disc / sun / moon), and
+  the accessible name says it: the old fixed `aria-label` hid the state from screen readers too.
+- **Not done, and not defects:** the rest of the report's UX list (§7.2, 7.4–7.8) and potential issues
   P1–P5. The hero badge ("Computed to ISO 8653 Standards") was left as chosen in
   `8e420e1`.
 
