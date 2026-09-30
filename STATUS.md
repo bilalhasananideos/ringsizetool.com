@@ -1,7 +1,22 @@
 # ringsizetool.com — status
 
-Last updated: 6 Sep 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
+Last updated: 30 Sep 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
+
+**🐞 `QA-AUDIT-2026-09-30.md` — new 30 Sep 2026.** A reverse bug hunt of the live site: 14 confirmed
+defects, **none in the size maths** (every chart cell re-computed independently, 0 mismatches). Its
+fix-priority list is the work queue. Status of each item:
+
+- **#2 comma decimal · #3 silent clamp · #11 clamp outside the labels — FIXED, COMMITTED, NOT
+  DEPLOYED** (local `main`, not pushed). Both fields are `type="text" inputmode="decimal"` read by
+  `parseMeasurement()`; out-of-range and non-numeric entries now get a visible note
+  (`[data-range-note]`); typed values clamp to the printed labels via `clampToMode()`. 51 new
+  `verify` assertions (315 total). Driven in a browser: 540 chart round-trips with dot and comma,
+  375 px, both themes.
+- **#1 Cloudflare Web Analytics vs the privacy policy** — open, and it is a dashboard toggle, not
+  code. Owner action.
+- Everything else — open. #4 (the wrong-measure hint going stale) is deliberately untouched by the
+  #3 fix; the new note hides itself on a mode change, the old hint still does not.
 
 **📊 `SEO-AUDIT.md` — new 6 Sep 2026.** Full GSC + competitor audit against the first 16 Search
 Console impressions. It **corrects three conclusions in `RESEARCH.md` and one open question in this

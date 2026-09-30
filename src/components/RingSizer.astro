@@ -185,9 +185,10 @@ const imprecisionLabel = (mm: number) => {
               class="h-2 w-full cursor-pointer appearance-none rounded-full bg-border-strong/40 accent-[#D4AF37] focus:outline-none"
             />
             <label class="sr-only" for="cal-num">Pixels per millimetre, exact value</label>
+            {/* type="text", not "number" — same comma defect as the ring field below. */}
             <input
-              id="cal-num" data-cal-num type="number" inputmode="decimal"
-              min={PPM_MIN} max={PPM_MAX} step="0.01" value={DEFAULT_PPM}
+              id="cal-num" data-cal-num type="text" inputmode="decimal"
+              autocomplete="off" spellcheck="false" value={DEFAULT_PPM}
               class="h-9 w-20 shrink-0 rounded-lg border border-border bg-surface px-2 text-right text-sm text-text"
             />
           </div>
@@ -540,8 +541,15 @@ const imprecisionLabel = (mm: number) => {
             </div>
 
             <label class="sr-only" for="ring-num">Exact value, type a number you already measured</label>
+            {/* type="text" with inputmode="decimal", NOT type="number". A number
+                input in an English-language browser silently deletes a comma, so
+                "17,35" arrived as 1735 and reported US 15¾ for a US 7 finger.
+                parseMeasurement() in ringModes.ts reads either separator; the
+                script restores the arrow-key stepping the number input gave for
+                free. inputmode still brings up the numeric keypad on phones. */}
             <input
-              id="ring-num" data-ring-num type="number" inputmode="decimal"
+              id="ring-num" data-ring-num type="text" inputmode="decimal"
+              autocomplete="off" spellcheck="false"
               class="h-9 w-20 shrink-0 rounded-lg border border-border bg-surface px-2 text-right text-sm text-text"
             />
 
@@ -575,6 +583,19 @@ const imprecisionLabel = (mm: number) => {
                      text-accent-text underline underline-offset-2 hover:opacity-80"
             ></button>
           </p>
+
+          {/* The other half of the clamp story. The hint above covers a reading
+              typed into the wrong measure; this covers everything else that
+              lands off the scale — "25", "11.63", "0" — and anything that is
+              not a number at all. Both used to be silent: the value became the
+              rail and the grid printed a confident size for a measurement the
+              visitor never gave. Never shown at the same time as the hint. */}
+          <p
+            data-range-note
+            hidden
+            role="status"
+            class="mt-3 rounded-lg border border-accent/40 bg-accent-sunk/40 px-3 py-2 text-sm text-text-muted"
+          ></p>
         </div>
 
         <!-- 2x2 Country Size Grid Cards.
@@ -977,7 +998,7 @@ const imprecisionLabel = (mm: number) => {
   import { fromDiameter, diameterFromUs } from '../data/ringSizes';
   import {
     MEASURES, modeSpec, toMode, toDia, ceilTo, floorTo, modeFromParams,
-    sourceSpec, sourceFromMeasure,
+    sourceSpec, sourceFromMeasure, parseMeasurement, clampToMode,
     DIA_MIN_MM, DIA_MAX_MM,
     type Measure, type Unit, type Source,
   } from '../data/ringModes';
@@ -1015,6 +1036,7 @@ const imprecisionLabel = (mm: number) => {
     const unitHint = $<HTMLElement>('[data-unit-hint]');
     const unitHintText = $('[data-unit-hint-text]');
     const unitHintSwitch = $<HTMLButtonElement>('[data-unit-hint-switch]');
+    const rangeNote = $<HTMLElement>('[data-range-note]');
     const calObjButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-cal-obj-btn]')];
     const calHint = $('[data-cal-hint]');
     const calSource = $('[data-cal-source]');
@@ -1252,15 +1274,22 @@ const imprecisionLabel = (mm: number) => {
     }
 
     calRange.addEventListener('input', () => setPxPerMm(parseFloat(calRange.value)));
+    /* parseMeasurement, not parseFloat: this is a text field now, so a comma
+     * reaches us intact — and parseFloat("4,12") would read it as 4. */
     calNum.addEventListener('input', () => {
-      const v = parseFloat(calNum.value);
-      if (Number.isFinite(v)) setPxPerMm(v, false);
+      const v = parseMeasurement(calNum.value);
+      if (v !== null) setPxPerMm(v, false);
     });
     /* Commit (blur or Enter): the field can never be left showing a number the
      * tool is not actually using, including an empty or junk entry. */
     calNum.addEventListener('change', () => {
-      const v = parseFloat(calNum.value);
-      setPxPerMm(Number.isFinite(v) ? v : pxPerMm);
+      setPxPerMm(parseMeasurement(calNum.value) ?? pxPerMm);
+    });
+    /* The arrow-key stepping type="number" used to provide, at its old step. */
+    calNum.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      e.preventDefault();
+      setPxPerMm(pxPerMm + (e.key === 'ArrowUp' ? 0.01 : -0.01));
     });
 
     $('[data-cal-save]').addEventListener('click', () => {
@@ -1312,6 +1341,8 @@ const imprecisionLabel = (mm: number) => {
     function setSource(s: Source, syncMode = true) {
       activeSource = s;
       const spec = sourceSpec(s);
+      /* See setMode: the note describes a figure that is no longer on screen. */
+      rangeNote.hidden = true;
 
       sourceButtons.forEach((btn) => {
         const on = btn.dataset.sourceBtn === s;
@@ -1364,6 +1395,12 @@ const imprecisionLabel = (mm: number) => {
     function setMode(m: Measure, u: Unit, pushUrl = true) {
       activeMeasure = m;
       activeUnit = u;
+      /* The range note quotes the typed figure and its unit ("25 mm is above…").
+       * After a mode change the field shows the stored measurement converted, so
+       * a note left up would describe a number that is no longer there — the
+       * stale-message defect the wrong-measure hint still has (QA audit #4).
+       * That hint is deliberately left alone here: it is a separate fix. */
+      rangeNote.hidden = true;
 
       const paint = (btns: HTMLButtonElement[], attr: string, active: string) => {
         btns.forEach((btn) => {
@@ -1420,9 +1457,9 @@ const imprecisionLabel = (mm: number) => {
       const exact = toMode(currentDia, m, u).toFixed(b.dp);
       ringRange.value = exact;
 
-      ringNum.min = ringRange.min;
-      ringNum.max = ringRange.max;
-      ringNum.step = numStep(b.dp);
+      /* No min/max/step on the field any more: it is a text input, and those
+       * attributes only ever drove type="number"'s own stepping. The bounds are
+       * enforced by clampToMode and the step by the keydown handler below. */
       ringNum.value = exact;          // exact, NOT ringRange.value post-snap
 
       updateDisplay();
@@ -1466,8 +1503,13 @@ const imprecisionLabel = (mm: number) => {
       setMode(activeMeasure, btn.dataset.unitBtn as Unit));
 
     /* ── slider & step buttons handlers ── */
-    function handleValueChange(val: number, writeBack = true) {
-      currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, toDia(val, activeMeasure, activeUnit)));
+    /* `raw` is the text as typed, when there is one, so a note can quote the
+     * visitor's own "25,5" back to them rather than a reformatted 25.5. */
+    function handleValueChange(val: number, writeBack = true, raw?: string) {
+      /* Clamped to the rounded-inward bounds the end labels print — see
+       * clampToMode. The DIA clamp after it is a backstop and never binds. */
+      const c = clampToMode(val, activeMeasure, activeUnit);
+      currentDia = Math.min(DIA_MAX, Math.max(DIA_MIN, toDia(c.value, activeMeasure, activeUnit)));
 
       /* If the request was out of range we just clamped it, so the number field
        * and the slider are now showing something that is not what the tool is
@@ -1477,16 +1519,51 @@ const imprecisionLabel = (mm: number) => {
        * Only on a genuine clamp: rewriting mid-drag or mid-keystroke would
        * fight the user's cursor. */
       const b = bounds();
-      const clamped = toMode(currentDia, activeMeasure, activeUnit);
-      const didClamp = Math.abs(clamped - val) > 10 ** -(b.dp + 1);
-      if (writeBack && didClamp) {
-        const s = clamped.toFixed(b.dp);
+      if (writeBack && c.side !== null) {
+        const s = c.value.toFixed(b.dp);
         ringRange.value = s;
         ringNum.value = s;
       }
 
-      if (writeBack) showUnitHint(val, didClamp);
+      if (writeBack) showInputNote(val, c.side, raw);
       updateDisplay();
+    }
+
+    /* Quote what the visitor typed, but never let a pasted paragraph become the
+     * note. */
+    const quote = (raw: string) => (raw.length > 14 ? `${raw.slice(0, 14)}…` : raw);
+
+    /* A value in this mode's own unit and precision, e.g. "12.90 mm". */
+    const inUnit = (v: number) => `${v.toFixed(bounds().dp)} ${bounds().unitLabel}`;
+
+    /* Exactly one of three things follows a committed value: nothing (it was in
+     * range), the wrong-measure hint (it was off the scale here but ordinary in
+     * the other measure), or the range note (off the scale, full stop). */
+    function showInputNote(typed: number, side: 'low' | 'high' | null, raw?: string) {
+      showUnitHint(typed, side !== null);
+      if (side === null || !unitHint.hidden) {
+        rangeNote.hidden = true;
+        return;
+      }
+      const shown = `${quote(raw?.trim() || String(typed))} ${bounds().unitLabel}`;
+      const edge = inUnit(side === 'low' ? parseFloat(ringRange.min) : parseFloat(ringRange.max));
+      rangeNote.textContent = side === 'low'
+        ? `${shown} is below the smallest ring this tool can size, ${edge}. The sizes shown are for ${edge}, not for your measurement.`
+        : `${shown} is above the largest ring this tool can size, ${edge}. The sizes shown are for ${edge}, not for your measurement.`;
+      rangeNote.hidden = false;
+    }
+
+    /* Something that is not a number at all. The field is repaired from state
+     * by the caller; this says so, instead of the old silent revert. Both
+     * separators are offered in the example because either now works. */
+    function showNotANumber(raw: string) {
+      unitHint.hidden = true;
+      const kept = inUnit(toMode(currentDia, activeMeasure, activeUnit));
+      const example = toMode(diameterFromUs(6), activeMeasure, activeUnit).toFixed(bounds().dp);
+      rangeNote.textContent =
+        `“${quote(raw.trim())}” is not a number, so the tool kept ${kept}. `
+        + `Type digits only, such as ${example} or ${example.replace('.', ',')}.`;
+      rangeNote.hidden = false;
     }
 
     /* ── The wrong-measure detector ──────────────────────────────────────────
@@ -1551,22 +1628,41 @@ const imprecisionLabel = (mm: number) => {
      * back only on commit — and on commit, repair junk from state rather than
      * ignoring it. */
     ringNum.addEventListener('input', () => {
-      const v = parseFloat(ringNum.value);
-      if (!Number.isFinite(v)) return;
-      ringRange.value = ringNum.value;
+      const v = parseMeasurement(ringNum.value);
+      if (v === null) return;
+      /* String(v), not the field's text: a range input handed "17,35" treats it
+       * as invalid and jumps its thumb to the midpoint. */
+      ringRange.value = String(v);
       handleValueChange(v, false);
     });
     ringNum.addEventListener('change', () => {
-      const v = parseFloat(ringNum.value);
-      if (Number.isFinite(v)) {
-        handleValueChange(v);
+      const raw = ringNum.value;
+      const v = parseMeasurement(raw);
+      if (v !== null) {
+        handleValueChange(v, true, raw);
         return;
       }
       const b = bounds();
       const s = toMode(currentDia, activeMeasure, activeUnit).toFixed(b.dp);
       ringRange.value = s;
       ringNum.value = s;
+      /* An emptied field is not an error worth a sentence — it is put back
+       * quietly. Anything else typed is, because it used to vanish unexplained. */
+      if (raw.trim() === '') {
+        unitHint.hidden = true;
+        rangeNote.hidden = true;
+      } else {
+        showNotANumber(raw);
+      }
       updateDisplay();
+    });
+    /* Arrow-key stepping, which type="number" provided and a text field does
+     * not. The step is the field's own finest digit — what the number input's
+     * `step` attribute was set to — not the coarser ± button nudge. */
+    ringNum.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      e.preventDefault();
+      nudge(e.key === 'ArrowUp' ? 1 : -1, Number(numStep(bounds().dp)));
     });
 
     /* The value a ± click starts from is derived from `currentDia`, NOT read
@@ -1576,13 +1672,13 @@ const imprecisionLabel = (mm: number) => {
      * 0.434 + 0.005k, so one + followed by one − moved 16.51 mm to 16.48 and
      * flipped the Japanese size from 12 to 11 without the visitor changing
      * anything. Both ends are clamped to the mode's own rounded-inward bounds. */
-    function nudge(dir: 1 | -1) {
-      const b = bounds();
+    function nudge(dir: 1 | -1, by = bounds().nudge) {
       const current = toMode(currentDia, activeMeasure, activeUnit);
       const next = Math.min(
         parseFloat(ringRange.max),
-        Math.max(parseFloat(ringRange.min), current + dir * b.nudge),
+        Math.max(parseFloat(ringRange.min), current + dir * by),
       );
+      const b = bounds();
       const s = next.toFixed(b.dp);
       ringRange.value = s;
       ringNum.value = s;

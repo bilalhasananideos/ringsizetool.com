@@ -13,6 +13,7 @@ import {
 } from '../src/data/ringSizes.ts';
 import {
   toMode, toDia, modeSpec, modeFromParams, ceilTo, floorTo,
+  parseMeasurement, clampToMode,
   SOURCES, sourceSpec, sourceFromMeasure,
   DIA_MIN_MM, DIA_MAX_MM,
   type Source,
@@ -679,6 +680,58 @@ eq('the smallest supported circumference is on the scale',
    DIA_MIN_MM * Math.PI <= RULER_MAX_MM, true);
 eq('the largest supported circumference is on the scale',
    DIA_MAX_MM * Math.PI <= RULER_MAX_MM, true);
+
+console.log('\n— typed input: a comma is a decimal point —');
+/* QA-AUDIT-2026-09-30.md #2. The field was type="number", which in an
+ * English-language browser deletes a comma: "17,35" arrived as 1735 and the
+ * tool reported US 15¾ for a US 7 finger. Each case below is something a real
+ * visitor types; the first is the exact input from the audit. */
+eq('"17,35" reads as 17.35', parseMeasurement('17,35'), 17.35, 1e-12);
+eq('…and is US 7 in mm diameter, not US 15¾',
+   fromDiameter(toDia(parseMeasurement('17,35')!, 'dia', 'mm')).us, '7');
+eq('"17,35" and "17.35" name the same size',
+   fromDiameter(toDia(parseMeasurement('17,35')!, 'dia', 'mm')).uk,
+   fromDiameter(toDia(parseMeasurement('17.35')!, 'dia', 'mm')).uk);
+eq('"1,735" is a centimetre reading, not 1735', parseMeasurement('1,735'), 1.735, 1e-12);
+eq('"4,12" px/mm reads as 4.12, not 412', parseMeasurement('4,12'), 4.12, 1e-12);
+eq('surrounding spaces are ignored', parseMeasurement('  16.5 '), 16.5, 1e-12);
+eq('".5" is a number', parseMeasurement('.5'), 0.5, 1e-12);
+eq('"16." mid-typing is a number', parseMeasurement('16.'), 16, 1e-12);
+eq('"16," mid-typing is a number', parseMeasurement('16,'), 16, 1e-12);
+/* Refused outright, never half-read: parseFloat would give 16 or 16.5 for
+ * these, which is the class of silent guess that caused the defect. */
+for (const junk of ['', '   ', 'abc', '50abc', '16.5mm', '1e5', '1.2.3', '1,2,3', '1.735,5', '16 5']) {
+  eq(`"${junk}" is not a number`, parseMeasurement(junk), null);
+}
+
+console.log('\n— typed input: an out-of-range value is clamped AND flagged —');
+/* QA-AUDIT-2026-09-30.md #3. These used to become the rail silently and print
+ * a confident size. `side` is what the tool now uses to say so. 11.63 mm is
+ * US 0 — the site's own FAQ quotes it — and still off this tool's scale,
+ * because ISO 8653 is the binding constraint. */
+for (const [v, side] of [[11.63, 'low'], [12.5, 'low'], [0, 'low'], [-1, 'low'], [0.001, 'low'],
+                          [25, 'high'], [999999, 'high'], [16.51, null]] as const) {
+  eq(`${v} mm diameter is flagged ${side ?? 'in range'}`, clampToMode(v, 'dia', 'mm').side, side);
+}
+/* The clamped value must be the figure the end labels print. The field used
+ * to clamp to the exact bound and show 12.89 beside a label saying 12.90. */
+for (const m of ['dia', 'circ'] as const) {
+  for (const u of ['mm', 'cm', 'in'] as const) {
+    const s = modeSpec(m, u);
+    const lo = clampToMode(-1, m, u), hi = clampToMode(1e9, m, u);
+    eq(`${m}/${u}: a low clamp lands on the min label`, lo.value.toFixed(s.dp), ceilTo(s.min, s.dp));
+    eq(`${m}/${u}: a high clamp lands on the max label`, hi.value.toFixed(s.dp), floorTo(s.max, s.dp));
+    /* …and the rail itself still names a size in every system, or the note
+     * would be explaining a row of em dashes. */
+    const edges = [lo, hi].map((c) => fromDiameter(toDia(c.value, m, u)));
+    eq(`${m}/${u}: both rails answer in all seven systems`,
+       edges.every((r) => [r.us, r.uk, r.eu, r.jp, r.in, r.it, r.br].every((x) => x !== null)), true);
+    /* An in-range value passes through untouched — the clamp must not nudge a
+     * reading that was fine. */
+    const mid = toMode(diameterFromUs(8), m, u);
+    eq(`${m}/${u}: an in-range value is not moved`, clampToMode(mid, m, u).value, mid, 0);
+  }
+}
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

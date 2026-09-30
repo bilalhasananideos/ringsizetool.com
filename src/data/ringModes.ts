@@ -257,6 +257,57 @@ export function modeSpec(m: Measure, u: Unit): ModeSpec {
 export const ceilTo = (v: number, dp: number) => (Math.ceil(v * 10 ** dp) / 10 ** dp).toFixed(dp);
 export const floorTo = (v: number, dp: number) => (Math.floor(v * 10 ** dp) / 10 ** dp).toFixed(dp);
 
+/**
+ * Read a measurement the visitor typed, accepting a comma as the decimal point.
+ *
+ * The field used to be `type="number"`, and in a browser set to English that
+ * input does not reject a comma — it DELETES it. "17,35" arrived as 1735, was
+ * clamped to the top rail, and reported US 15¾ for a US 7 finger, with no
+ * warning. France, Italy, Spain, Switzerland and Brazil — all named in the
+ * results — write decimals with a comma, so this was a wrong answer for the
+ * exact visitors those columns exist for. QA-AUDIT-2026-09-30.md #2.
+ *
+ * A comma is always a decimal point here, never a thousands separator: no ring
+ * is measured in four figures in any unit this tool offers, and "1,735" is a
+ * perfectly ordinary centimetre diameter.
+ *
+ * Strict on purpose. Anything that is not one plain number returns null rather
+ * than being half-read — `parseFloat("16,5")` is 16 and `parseFloat("16.5mm")`
+ * is 16.5, and a parser that guesses is how the comma bug happened.
+ */
+export function parseMeasurement(raw: string): number | null {
+  const s = raw.trim().replace(',', '.');
+  if (!/^[+-]?(\d+\.?\d*|\.\d+)$/.test(s)) return null;
+  const v = Number(s);
+  return Number.isFinite(v) ? v : null;
+}
+
+/**
+ * Clamp a value to what the tool can size in this mode, and say which side it
+ * fell off.
+ *
+ * The bounds are the rounded-inward figures the slider's end labels print, not
+ * the exact DIA_MIN/DIA_MAX. The typed field used to clamp to the exact bound,
+ * so "12.8" came back as 12.89 beside a label reading 12.90 — a value outside
+ * the range the same screen advertised.
+ *
+ * `side` is what lets the tool SAY it clamped. It did not: "25" or "11.63" (a
+ * real US 0, by this site's own FAQ) quietly became the rail and was presented
+ * as a confident size. QA-AUDIT-2026-09-30.md #3.
+ */
+export function clampToMode(
+  value: number,
+  m: Measure,
+  u: Unit,
+): { value: number; side: 'low' | 'high' | null } {
+  const s = modeSpec(m, u);
+  const lo = parseFloat(ceilTo(s.min, s.dp));
+  const hi = parseFloat(floorTo(s.max, s.dp));
+  if (value < lo) return { value: lo, side: 'low' };
+  if (value > hi) return { value: hi, side: 'high' };
+  return { value, side: null };
+}
+
 const isMeasure = (v: unknown): v is Measure => v === 'dia' || v === 'circ';
 const isUnit = (v: unknown): v is Unit => v === 'mm' || v === 'cm' || v === 'in';
 
