@@ -45,12 +45,25 @@ eq('US 7  diameter mm', diameterFromUs(7),  17.32, 0.02);
 eq('US 10 diameter mm', diameterFromUs(10), 19.76, 0.02);
 eq('US 13 diameter mm', diameterFromUs(13), 22.20, 0.02);
 
-console.log('\n— Japan JIS S 4700:2022, vs published table —');
+console.log('\n— Japan 号 scale (JCS), vs published retailer tables —');
 eq('JP from 15.00 mm  (table says 7)',  jpFromDiameter(15.00), 7);
 eq('JP from 16.00 mm  (table says 10)', jpFromDiameter(16.00), 10);
 eq('JP from 17.00 mm  (table says 13)', jpFromDiameter(17.00), 13);
 eq('JP from 19.00 mm  (table says 19)', jpFromDiameter(19.00), 19);
 eq('JP from 24.33 mm  (table says 35)', jpFromDiameter(24.33), 35);
+/* Maverick Store's 号 table, in inner CIRCUMFERENCE (mm, 1 dp), read
+ * 30 Sep 2026. Asserted here because the scale used to be cited to JIS S 4700,
+ * which does not contain it — these retailer figures are the evidence the
+ * values rest on now. See the Japan note in ringSizes.ts. */
+for (const [go, circ] of [[1, 40.8], [9, 49.2], [13, 53.4], [20, 60.7]] as const) {
+  eq(`${go}号 is ${circ} mm around (Maverick table)`,
+     Number((Math.PI * (13 + (go - 1) / 3)).toFixed(1)), circ);
+  eq(`…and ${circ} mm around reads back as ${go}号`, fromCircumference(circ).jp, go);
+}
+/* JIS S 4700 itself numbers rings by circumference in mm, like ISO — so the
+ * "JIS" size of a US 7 is its EU number, not its 号. */
+eq('JIS S 4700 size of US 7 = its EU size (54), not its 号',
+   fromDiameter(diameterFromUs(7)).eu, 54);
 
 console.log('\n— UK: C = 40 mm, +1.25/letter (attributed to BS 6820:1987) —');
 eq('UK at 37.5 mm circ  -> A', ukFromCircumference(37.5), 'A');
@@ -165,7 +178,7 @@ console.log('\n— Upper bounds: no system may invent a size above its published
  * these stay as guards on the data module itself, which any page may call with
  * any number. Bounds confirmed against the standards on 28 Aug 2026:
  *   ISO 8653:2016    41 to 76
- *   JIS S 4700:2022  1 to 35   (13.00 mm to 24.33 mm inner diameter)
+ *   the 号 scale     1 to 35   (13.00 mm to 24.33 mm; Okuraya's JCS table)
  *   the British letter scale, A to Z+6
  */
 const top = fromDiameter(25);
@@ -179,7 +192,7 @@ eq('slider top (25 mm) -> BR refused', top.br, null);
 eq(`EU ${ISO_MAX} is the last ISO size`, euFromCircumference(ISO_MAX), ISO_MAX);
 eq(`EU ${ISO_MAX + 1} is past the standard`, euFromCircumference(ISO_MAX + 1), null);
 eq(`EU ${ISO_MIN} is the first ISO size`, euFromCircumference(ISO_MIN), ISO_MIN);
-eq(`JP ${JP_MAX} at 24.33 mm (JIS table's last row)`, jpFromDiameter(24.33), JP_MAX);
+eq(`JP ${JP_MAX} at 24.33 mm (the 号 table's last row)`, jpFromDiameter(24.33), JP_MAX);
 eq('JP refuses 24.7 mm, past the table', jpFromDiameter(24.7), null);
 // Z+6 is half-step 31: circumference = 37.5 + 31 x 1.25 = 76.25 mm.
 eq('UK Z+6 is the last British size', ukFromCircumference(37.5 + UK_MAX_STEP * 1.25), 'Z+6');
@@ -360,7 +373,13 @@ console.log('\n— sizer modes: what the tool PRINTS must round-trip —');
       const s3 = modeSpec(m, u);
       let wrong = 0;
       for (const row of CHART_ROWS) {
-        if (row.usNumeric === null || row.usNumeric > 13 || row.usNumeric === KNIFE_EDGE) continue;
+        /* Every row the chart prints. This used to stop at US 13, which is how
+         * the chart's 3 dp inch-circumference column (the tool needs 4) went
+         * unnoticed: the rows it skipped were not the ones that failed, but a
+         * loop that skips rows cannot claim to cover the chart (QA audit #7).
+         * The chart now takes its decimal places from modeSpec, the same
+         * table this loop formats with. */
+        if (row.usNumeric === null || row.usNumeric === KNIFE_EDGE) continue;
         const printed = toMode(row.diameterMm, m, u).toFixed(s3.dp);
         if (key(fromDiameter(toDia(parseFloat(printed), m, u))) !== key(row)) wrong++;
       }
@@ -381,6 +400,11 @@ eq('US 6¼ sits 0.0061 mm above the EU 52/53 boundary',
    Math.PI * diameterFromUs(6.25) - 52.5, 0.0061, 0.0001);
 eq('US 6¼ is EU 53 when computed', fromDiameter(diameterFromUs(6.25)).eu, 53);
 eq('US 6¼ is EU 52 when read back off a 2 dp print', fromDiameter(16.71).eu, 52);
+/* The chart's footnote tells a US 6¼ reader to use the circumference instead,
+ * so that route has to actually work (QA audit #8). */
+eq('US 6¼ is EU 53 when read back off its printed circumference',
+   fromCircumference(parseFloat((Math.PI * diameterFromUs(6.25)).toFixed(2))).eu, 53);
+eq('…and India 13', fromCircumference(parseFloat((Math.PI * diameterFromUs(6.25)).toFixed(2))).in, 13);
 
 console.log('\n— sizer modes: unit conversion must be exact on size boundaries —');
 /* toDia used to DIVIDE by a per-unit fraction: { cm: 0.1 }, and 1.65 / 0.1 is

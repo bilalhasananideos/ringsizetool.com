@@ -17,7 +17,8 @@
 import Layout from '../layouts/Layout.astro';
 import FaqSection from '../components/FaqSection.astro';
 import { NOINDEX_SITE, SITE_URL } from '../config';
-import { CHART_ROWS, AVERAGE_US_SIZE } from '../data/ringSizes';
+import { CHART_ROWS, AVERAGE_US_SIZE, fromDiameter } from '../data/ringSizes';
+import { modeSpec, toDia } from '../data/ringModes';
 import { breadcrumbSchema, CHART_FAQS, faqPageSchema } from '../data/faq';
 
 /* Every row is generated. Never type a size into this file. */
@@ -31,6 +32,33 @@ const mens = rows.filter((r) => r.usNumeric !== null && r.usNumeric >= 8 && r.us
 
 const first = rows[0];
 const last = rows[rows.length - 1];
+
+/* Decimal places per column, taken from the tool's own precision table rather
+   than typed here, so a value read off this chart and typed into the sizer
+   names the same size. The inch-circumference column was a hardcoded 3 dp
+   while the tool needs 4, and two rows came back a size off when typed in:
+   2.494 in gave JP 22 for a JP 23 row, 2.645 in gave X½ for a Y row (QA audit
+   #7). verify-sizes.ts walks every row at these same decimal places. */
+const dp = {
+  diaMm: modeSpec('dia', 'mm').dp,
+  diaCm: modeSpec('dia', 'cm').dp,
+  diaIn: modeSpec('dia', 'in').dp,
+  circMm: modeSpec('circ', 'mm').dp,
+  circIn: modeSpec('circ', 'in').dp,
+};
+
+/* Rows whose PRINTED diameter reads back as a different size, found rather
+   than listed. One is known — US 6¼, whose circumference sits 0.006 mm above
+   the EU 52/53 line, so its diameter rounded to 16.71 mm falls just below it —
+   but computing the set means the note can never go stale (QA audit #8). The
+   circumference column has no such row, which is why the note points there. */
+const SYSTEMS = [['us', 'US'], ['uk', 'UK'], ['eu', 'EU'], ['jp', 'Japan'], ['in', 'India']] as const;
+const knifeEdges = rows.flatMap((r) => {
+  const typed = parseFloat(r.diameterMm.toFixed(dp.diaMm));
+  const back = fromDiameter(toDia(typed, 'dia', 'mm'));
+  const differs = SYSTEMS.filter(([k]) => back[k] !== r[k]);
+  return differs.length ? [{ r, typed, back, differs }] : [];
+});
 
 const jsonLd = [
   faqPageSchema(CHART_FAQS),
@@ -63,7 +91,7 @@ const SECTIONS = [
 
     <header class="mt-6">
       <h1 class="max-w-[20ch] text-[clamp(2.25rem,5.5vw,3.5rem)]">
-        Ring size <span class="text-accent">chart</span>
+        Ring size <span class="text-accent-text">chart</span>
       </h1>
 
       <p class="mt-5 max-w-[60ch] text-lg text-text-muted">
@@ -145,14 +173,14 @@ const SECTIONS = [
                 <td class="px-3 py-2.5">{r.in ?? '—'}</td>
                 <td class="px-3 py-2.5">{r.it ?? '—'}</td>
                 <td class="px-3 py-2.5">{r.br ?? '—'}</td>
-                <td class="px-3 py-2.5">{r.diameterMm.toFixed(2)} mm</td>
+                <td class="px-3 py-2.5">{r.diameterMm.toFixed(dp.diaMm)} mm</td>
                 {/* 3 dp. Two would be 0.1 mm of resolution, and a UK half size
                     is 0.199 mm of diameter, so a 2 dp centimetre column cannot
                     distinguish the very sizes the row beside it names. */}
-                <td class="px-3 py-2.5">{(r.diameterMm / 10).toFixed(3)} cm</td>
-                <td class="px-3 py-2.5">{r.diameterIn.toFixed(3)}</td>
-                <td class="px-3 py-2.5">{r.circumferenceMm.toFixed(2)} mm</td>
-                <td class="px-3 py-2.5">{r.circumferenceIn.toFixed(3)}</td>
+                <td class="px-3 py-2.5">{(r.diameterMm / 10).toFixed(dp.diaCm)} cm</td>
+                <td class="px-3 py-2.5">{r.diameterIn.toFixed(dp.diaIn)}</td>
+                <td class="px-3 py-2.5">{r.circumferenceMm.toFixed(dp.circMm)} mm</td>
+                <td class="px-3 py-2.5">{r.circumferenceIn.toFixed(dp.circIn)}</td>
               </tr>
             ))}
           </tbody>
@@ -165,6 +193,12 @@ const SECTIONS = [
         scales drift against each other and never line up.{' '}
         <a href="/#disagree" class="text-accent-text underline underline-offset-2">Why charts disagree</a>
       </p>
+
+      {knifeEdges.map(({ r, typed, back, differs }) => (
+        <p class="mt-3 max-w-[62ch] text-sm text-text-faint">
+          {`US ${r.us} is the one row to read by circumference. Its exact size sits a hair over a boundary, so its diameter rounded to ${typed.toFixed(dp.diaMm)} mm, typed into the sizer, reads ${differs.map(([k, label]) => `${label} ${back[k]}`).join(' and ')} rather than ${differs.map(([k, label]) => `${label} ${r[k]}`).join(' and ')}. Both are right for the figure typed; give a jeweller the circumference, ${r.circumferenceMm.toFixed(dp.circMm)} mm, which reads back exactly.`}
+        </p>
+      ))}
     </section>
 
     <!-- ── Women's ─────────────────────────────────────────────────────────
@@ -322,7 +356,11 @@ const SECTIONS = [
             </tr>
             <tr class="border-t border-border">
               <th scope="row" class="px-3 py-3 font-medium">Japan</th>
-              <td class="px-3 py-3 text-text-muted">JIS S 4700:2022</td>
+              {/* Was "JIS S 4700:2022", and that standard does not define this
+                  scale: JIS S 4700 numbers rings by inner circumference in mm,
+                  41 to 76 — the ISO number. The 号 scale Japanese shops label
+                  rings with is the JCS trade convention (QA audit #6). */}
+              <td class="px-3 py-3 text-text-muted">JCS trade scale (号). JIS S 4700 itself uses the ISO number</td>
               <td class="px-3 py-3 text-text-muted">Size 1 = 13 mm diameter, +⅓ mm per size</td>
             </tr>
             <tr class="border-t border-border">

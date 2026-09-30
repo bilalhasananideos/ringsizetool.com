@@ -7,16 +7,35 @@ indexable and verified in Google Search Console, Bing and Ahrefs.**
 defects, **none in the size maths** (every chart cell re-computed independently, 0 mismatches). Its
 fix-priority list is the work queue. Status of each item:
 
-- **#2 comma decimal · #3 silent clamp · #11 clamp outside the labels — FIXED, COMMITTED, NOT
-  DEPLOYED** (local `main`, not pushed). Both fields are `type="text" inputmode="decimal"` read by
-  `parseMeasurement()`; out-of-range and non-numeric entries now get a visible note
-  (`[data-range-note]`); typed values clamp to the printed labels via `clampToMode()`. 51 new
-  `verify` assertions (315 total). Driven in a browser: 540 chart round-trips with dot and comma,
-  375 px, both themes.
-- **#1 Cloudflare Web Analytics vs the privacy policy** — open, and it is a dashboard toggle, not
-  code. Owner action.
-- Everything else — open. #4 (the wrong-measure hint going stale) is deliberately untouched by the
-  #3 fix; the new note hides itself on a mode change, the old hint still does not.
+**All 14 confirmed defects are fixed** (30 Sep, `fbf379d` + the commit after it — see the
+report's fix log for which commit carries which). Pushed; "deployed" is recorded in the fix log
+only once the live HTML has been re-checked.
+
+- **#2 / #3 / #11** — both fields `type="text" inputmode="decimal"` read by `parseMeasurement()`;
+  off-scale and non-numeric entries get a visible `[data-range-note]`; typed values clamp to the
+  printed labels via `clampToMode()`.
+- **#4 / #9** — the wrong-measure hint clears on any real mode change, remembers its unit, applies
+  the typed reading when the visitor takes its advice by the pill, and asks the right question in
+  both directions. **#5** — Reset clears the stored calibration and returns to "Not calibrated yet".
+- **#6** — Japan's scale is now cited as the 号 (JCS) trade convention everywhere; JIS S 4700 is
+  named as the circumference standard it is. `JP_MAX = 35` rests on Okuraya's JCS table; four
+  Maverick table points are asserted in `verify`. **No displayed number changed.**
+- **#7 / #8** — chart columns take their decimals from `modeSpec` (inch circumference is now 4 dp);
+  the `verify` round-trip covers every row; US 6¼'s knife edge is explained in a footnote computed
+  at build time.
+- **#10 / #14** — header CTA hidden between `md` and `lg`; mobile nav links `px-2`, no gap — all
+  four fit from 375 px.
+- **#12** — gold text uses `--accent-text`, not `--accent`; hero H1 gradient replaced by solid
+  `text-accent-text`; `--accent-text` → `#8B680A` and `--text-faint` → `#726C5D` (both were under
+  4.5:1 on `--surface-sunk`). Measured: 4,186 text elements, 10 pages, both themes, 0 failures.
+- **#1 / #13** — `/privacy` now **discloses** Cloudflare Web Analytics (facts read from the beacon
+  script: page address, referrer, load timings; no cookies or storage) and lists all four
+  localStorage keys. ⚠️ If the owner switches the beacon off in the Cloudflare dashboard instead,
+  that paragraph must go in the same change — the page describes the deployment, not an intention.
+- `verify` 326 passed · `astro check` 0 errors · build + sweep clean.
+- **Not done, and not defects:** the report's UX list (§7 — the mobile slider is the big one) and
+  potential issues P1–P5. The hero badge ("Computed to ISO 8653 Standards") was left as chosen in
+  `8e420e1`.
 
 **📊 `SEO-AUDIT.md` — new 6 Sep 2026.** Full GSC + competitor audit against the first 16 Search
 Console impressions. It **corrects three conclusions in `RESEARCH.md` and one open question in this

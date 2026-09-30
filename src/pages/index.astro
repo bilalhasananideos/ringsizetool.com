@@ -5,7 +5,7 @@ import HeroIllustration from '../components/HeroIllustration.astro';
 import { NOINDEX_SITE, SITE_NAME, SITE_URL } from '../config';
 import { CHART_ROWS, AVERAGE_US_SIZE, diameterFromUs, fromDiameter, INDIA_MAX,
          ISO_MIN, ISO_MAX, JP_MAX, MM_PER_INCH } from '../data/ringSizes';
-import { DIA_MIN_MM, DIA_MAX_MM } from '../data/ringModes';
+import { modeSpec, ceilTo, floorTo } from '../data/ringModes';
 import { CARD_SHORT_MM } from '../data/calibration';
 import { FAQS, faqPageSchema, webAppSchema } from '../data/faq';
 
@@ -31,8 +31,11 @@ const sixDiaCm = sixDiaMm / 10;
 const sixDiaIn = sixDiaMm / MM_PER_INCH;
 const quarterMm = diameterFromUs(6.25) - diameterFromUs(6);
 const fullSizeMm = diameterFromUs(7) - diameterFromUs(6);
-const rangeLow = fromDiameter(DIA_MIN_MM);
-const rangeHigh = fromDiameter(DIA_MAX_MM);
+/* The slider's own end labels, not the exact DIA_MIN/DIA_MAX: the prose used to
+   say 12.89-24.35 mm beside a slider labelled 12.90-24.34 mm. */
+const diaMm = modeSpec('dia', 'mm');
+const rangeLowMm = ceilTo(diaMm.min, diaMm.dp);
+const rangeHighMm = floorTo(diaMm.max, diaMm.dp);
 const cardPx96 = Math.round(CARD_SHORT_MM * 96 / MM_PER_INCH);
 
 /* ⚠️ READ RESEARCH.md IN FULL BEFORE CHANGING THIS TITLE — including
@@ -120,7 +123,7 @@ const jsonLd = [
         <div class="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14">
           <div>
             <!-- Creative Eyebrow Badge -->
-            <div class="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-surface-sunk/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-accent mb-6 shadow-xs backdrop-blur-sm">
+            <div class="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-surface-sunk/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-accent-text mb-6 shadow-xs backdrop-blur-sm">
               <span>Computed to ISO 8653 Standards</span>
             </div>
 
@@ -133,7 +136,13 @@ const jsonLd = [
             <h1 class="text-[clamp(2.35rem,5.4vw,3.85rem)] font-display font-bold tracking-tight text-text leading-[1.12]">
               Free online ring sizer, <br class="hidden sm:inline" />
               <span class="relative inline-block mt-1">
-                <span class="bg-gradient-to-r from-accent via-[#E9C349] to-accent bg-clip-text text-transparent">calibrated to your screen</span>
+                {/* Solid, not the old bg-clip-text gradient (from-accent via-[#E9C349]).
+                    In light mode that ran #D4AF37 -> #E9C349 on cream, 1.7-2.0:1 on the
+                    page's most prominent words where large text needs 3:1; in dark both
+                    stops were already #E9C349, so dark renders exactly as before. It also
+                    broke three house rules at once: decorative gradient, arbitrary value,
+                    hex in markup. QA audit #12. */}
+                <span class="text-accent-text">calibrated to your screen</span>
                 <svg class="absolute -bottom-1.5 left-0 w-full text-accent/50" height="6" viewBox="0 0 200 6" fill="none" preserveAspectRatio="none" aria-hidden="true">
                   <path d="M0 3 Q 50 6, 100 3 T 200 3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
                 </svg>
@@ -221,7 +230,7 @@ const jsonLd = [
       <div class="text-center max-w-2xl mx-auto mb-8">
         <p class="section-label">Online Measurement</p>
         <h2 class="text-3xl sm:text-4xl font-display font-semibold text-text">
-          What is my <span class="text-accent">ring size?</span>
+          What is my <span class="text-accent-text">ring size?</span>
         </h2>
         <p class="mt-3 text-sm sm:text-base leading-relaxed text-text-muted">
           Measure a ring on screen, or type a measurement you already have. The calculator converts
@@ -311,10 +320,13 @@ const jsonLd = [
         <h3 class="mt-8 text-lg font-semibold text-text">What the conversions are built from</h3>
 
         <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
-          Every size shown is computed from the published standard for that country, not copied from
-          another site's chart. EU sizes come from <strong class="text-text">ISO&nbsp;8653</strong>,
+          Every size shown is computed from the published rule for that country&rsquo;s scale, not
+          copied from another site's chart. EU sizes come from <strong class="text-text">ISO&nbsp;8653</strong>,
           where the size <em>is</em> the inner circumference in millimetres, defined from {ISO_MIN} to {ISO_MAX}.
-          Japan comes from <strong class="text-text">JIS&nbsp;S&nbsp;4700</strong>, which runs 1 to {JP_MAX}. UK letters follow the rule BSI set when it metricated the scale in 1987 (<strong class="text-text">BS&nbsp;6820</strong>), one letter per 1.25&nbsp;mm of
+          Japanese sizes are the <strong class="text-text">号 scale</strong> Japanese shops use, 1 to {JP_MAX}:
+          size 1 is 13&nbsp;mm across and each size adds a third of a millimetre. It is a trade
+          convention (JCS), not a standard — Japan&rsquo;s industrial standard, JIS&nbsp;S&nbsp;4700,
+          numbers rings by circumference like ISO, which is the EU size here. UK letters follow the rule BSI set when it metricated the scale in 1987 (<strong class="text-text">BS&nbsp;6820</strong>), one letter per 1.25&nbsp;mm of
           circumference. The US scale has no governing standard at all — it is a trade convention,
           and we say so rather than implying otherwise.
         </p>
@@ -328,10 +340,11 @@ const jsonLd = [
         </p>
 
         <p class="mt-3 max-w-[68ch] text-text-muted leading-relaxed">
-          The slider covers {rangeLow.diameterMm.toFixed(2)}&nbsp;mm to {rangeHigh.diameterMm.toFixed(2)}&nbsp;mm
+          The slider covers {rangeLowMm}&nbsp;mm to {rangeHighMm}&nbsp;mm
           of inner diameter, which is the exact band where
-          all seven systems answer. Beyond it, sizes stop being defined — and where a scale does not
-          define a size, this tool prints an em dash instead of inventing one.
+          all seven systems answer. Beyond it at least one of them stops defining sizes, so the tool
+          stops too: type a measurement outside that band and it says so, and labels the nearest
+          size it can show as not your measurement rather than passing it off as one.
         </p>
 
         <h3 class="mt-8 text-lg font-semibold text-text">How accurate is it, honestly</h3>
@@ -462,7 +475,7 @@ const jsonLd = [
               Your size in every system
             </h2>
             <p class="mt-2 text-sm text-text-muted">
-              Computed directly from ISO 8653, BS 6820, and JIS S 4700 standards.
+              Computed from ISO 8653, the BS 6820 letter rule and the Japanese 号 scale.
             </p>
           </div>
           <a
@@ -489,7 +502,7 @@ const jsonLd = [
                 <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">EU / ISO</th>
                 <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">Japan</th>
                 <th scope="col" class="px-4 py-3 font-semibold text-text text-xs uppercase tracking-wider">India</th>
-                <th scope="col" class="px-4 py-3 font-semibold text-accent text-xs uppercase tracking-wider">Dia (MM)</th>
+                <th scope="col" class="px-4 py-3 font-semibold text-accent-text text-xs uppercase tracking-wider">Dia (MM)</th>
                 <th scope="col" class="px-4 py-3 font-semibold text-text-muted text-xs uppercase tracking-wider">Dia (CM)</th>
                 <th scope="col" class="px-4 py-3 font-semibold text-text-muted text-xs uppercase tracking-wider">Dia (In)</th>
                 <th scope="col" class="px-4 py-3 font-semibold text-text-muted text-xs uppercase tracking-wider">Circ (MM)</th>
@@ -503,7 +516,7 @@ const jsonLd = [
                   <td class="px-4 py-3 text-text-muted">{r.eu ?? '—'}</td>
                   <td class="px-4 py-3 text-text-muted">{r.jp ?? '—'}</td>
                   <td class="px-4 py-3 text-text-muted">{r.in ?? '—'}</td>
-                  <td class="px-4 py-3 font-mono font-medium text-accent">{r.diameterMm.toFixed(2)} mm</td>
+                  <td class="px-4 py-3 font-mono font-medium text-accent-text">{r.diameterMm.toFixed(2)} mm</td>
                   {/* 3 dp, not 2. At 2 dp a centimetre column carries 0.1 mm of
                       resolution, and a UK half size is 0.199 mm of diameter -
                       so adjacent sizes printed the SAME figure, and typing one
@@ -521,7 +534,7 @@ const jsonLd = [
         <p class="mt-4 text-xs text-text-faint leading-relaxed">
           UK sizes run as long stretches of half sizes. That is correct, not a bug: a US step is
           2.55 mm of circumference and a UK step is 1.25 mm, so the two scales never line up.
-          * Computed strictly from ISO 8653:2016, BS 6820:1987, and JIS S 4700:2022 standards. 1 Inch = 25.40 mm.
+          * Computed from ISO 8653:2016, the BS 6820:1987 letter rule and the Japanese 号 (JCS) scale. 1 Inch = 25.40 mm.
         </p>
       </section>
 
@@ -724,7 +737,7 @@ const jsonLd = [
       <section id="faq-heading" class="scroll-mt-20" aria-labelledby="faq-title">
         <p class="section-label">FAQ</p>
         <h2 id="faq-title" class="text-2xl sm:text-3xl font-display font-semibold text-text">
-          Questions people <span class="text-accent">actually ask</span>
+          Questions people <span class="text-accent-text">actually ask</span>
         </h2>
         <p class="mt-3 text-sm text-text-muted">
           Taken word for word from Google&rsquo;s &ldquo;People also ask&rdquo;. Nothing here is
@@ -744,7 +757,7 @@ const jsonLd = [
             <details class="group">
               <summary
                 class="flex cursor-pointer items-start justify-between gap-4 py-4 font-medium text-text
-                       transition-colors duration-150 hover:text-accent select-none"
+                       transition-colors duration-150 hover:text-accent-text select-none"
               >
                 <span class="text-sm sm:text-base">{f.q}</span>
                 <svg

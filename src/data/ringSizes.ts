@@ -31,7 +31,8 @@
  *                      Austria, Belgium and the Nordics - see the France note
  *   BS 6820:1987       UK: C = 40 mm circumference, +1.25 mm per letter.
  *                      ATTRIBUTED, not verified - read the UK note first
- *   JIS S 4700:2022    Japan: size 1 = 13 mm diameter, +1/3 mm per size
+ *   JCS (trade)        Japan 号: size 1 = 13 mm diameter, +1/3 mm per size.
+ *                      NOT JIS S 4700 - read the Japan note first
  *   ABNT NBR 16058     Brazil: aligned to ISO 8653; size = circumference - 40
  *   Italy / Spain / Switzerland: circumference - 40
  *   US                 no governing standard; de facto 0.458" + 0.032" per size
@@ -224,10 +225,25 @@ export const brFromCircumference = circMinus40;
  *  so this is an alias rather than a fourth copy of the same arithmetic. */
 export const frFromCircumference = euFromCircumference;
 
-/* ── Japan - JIS S 4700:2022 ──────────────────────────────────────────────
+/* ── Japan - the 号 scale (JCS) ───────────────────────────────────────────
  * Size 1 = 13 mm inner diameter; each size adds exactly 1/3 mm.
  * Verified: size 7 -> 15.00, size 10 -> 16.00, size 19 -> 19.00,
  *           size 35 -> 24.33. All match the published table exactly.
+ *
+ * ⚠️ THIS IS NOT JIS S 4700, and until 30 Sep 2026 every page said it was.
+ * JIS S 4700 defines ring size as "指輪の内周を，ミリメートルで表した数値" -
+ * the inner circumference in mm - with gauges from 41 to 76, displayed as the
+ * ISO 8653 number (1998 text, read at kikakurui.com; Japanese retailers
+ * describe the 2022 edition as based on ISO 8653:2016). So JIS S 4700's size
+ * is our EU column. The 号 numbers Japanese shops actually label rings with
+ * are the JCS trade convention ("Japan Custom Size"), which is what this
+ * function computes - the VALUES were right all along, only the citation was
+ * not. Same failure as the France note: a source's contents asserted without
+ * reading it. QA-AUDIT-2026-09-30.md #6.
+ *
+ * Retailer tables checked 30 Sep 2026, and asserted in verify-sizes.ts:
+ * Maverick Store gives 1号 40.8, 9号 49.2, 13号 53.4, 20号 60.7 mm of inner
+ * circumference; Okuraya's JCS table runs 1号 (13.00 mm) to 35号 (24.33 mm).
  *
  * Note: Wikipedia describes the Japanese scale as non-linear. That is wrong -
  * it is linear in diameter. Japan's *relationship to US sizes* is non-linear,
@@ -235,12 +251,14 @@ export const frFromCircumference = euFromCircumference;
  */
 export const JP_BASE_MM = 13;
 export const JP_STEP_MM = 1 / 3;
-/** JIS S 4700:2022 runs 1 to 35 (13.00 mm to 24.33 mm inner diameter). */
+/** Where the published 号 tables stop: Okuraya's JCS table runs 1 to 35
+ *  (13.00 mm to 24.33 mm inner diameter). Evidence-based, like INDIA_MAX - no
+ *  standard defines this ceiling. */
 export const JP_MAX = 35;
 
 export function jpFromDiameter(mm: number): number | null {
   const n = Math.round((mm - JP_BASE_MM) / JP_STEP_MM) + 1;
-  if (n < 1) return null;                  // below 13 mm JIS defines nothing
+  if (n < 1) return null;                  // below 13 mm the 号 scale has nothing
   if (n > JP_MAX) return null;             // above 24.33 mm the table stops
   return n;
 }

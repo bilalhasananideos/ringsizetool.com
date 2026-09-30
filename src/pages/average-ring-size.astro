@@ -68,7 +68,7 @@ const jsonLd = [
 
     <header class="mt-6">
       <h1 class="max-w-[20ch] text-[clamp(2.25rem,5.5vw,3.5rem)]">
-        Average <span class="text-accent">ring size</span> </h1>
+        Average <span class="text-accent-text">ring size</span> </h1>
 
       <p class="mt-5 max-w-[60ch] text-lg text-text-muted">
         US&nbsp;{women.us} for women and US&nbsp;{men.us} for men. Those are the figures every
@@ -131,7 +131,7 @@ const jsonLd = [
               <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-text">&nbsp;</th>
               <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-text">Most common</th>
               <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-text">Typical range</th>
-              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-accent">Inner diameter</th>
+              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-accent-text">Inner diameter</th>
             </tr>
           </thead>
           <tbody class="tabular divide-y divide-border/60">
@@ -139,13 +139,13 @@ const jsonLd = [
               <th scope="row" class="px-4 py-3.5 font-semibold text-text">Women</th>
               <td class="px-4 py-3.5 font-medium text-text">US {women.us}</td>
               <td class="px-4 py-3.5 text-text-muted">US 4 – 8½</td>
-              <td class="px-4 py-3.5 font-mono text-accent">{`${womenLow.diameterMm.toFixed(1)} – ${womenHigh.diameterMm.toFixed(1)} mm`}</td>
+              <td class="px-4 py-3.5 font-mono text-accent-text">{`${womenLow.diameterMm.toFixed(1)} – ${womenHigh.diameterMm.toFixed(1)} mm`}</td>
             </tr>
             <tr>
               <th scope="row" class="px-4 py-3.5 font-semibold text-text">Men</th>
               <td class="px-4 py-3.5 font-medium text-text">US {men.us}</td>
               <td class="px-4 py-3.5 text-text-muted">US 8 – 13</td>
-              <td class="px-4 py-3.5 font-mono text-accent">{`${menLow.diameterMm.toFixed(1)} – ${menHigh.diameterMm.toFixed(1)} mm`}</td>
+              <td class="px-4 py-3.5 font-mono text-accent-text">{`${menLow.diameterMm.toFixed(1)} – ${menHigh.diameterMm.toFixed(1)} mm`}</td>
             </tr>
           </tbody>
         </table>
@@ -163,9 +163,9 @@ const jsonLd = [
       <h2 id="source" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Where these numbers come from</h2>
 
       <p class="mt-5 max-w-[62ch] text-text-muted">
-        Ring sizes themselves are standardised. ISO&nbsp;8653 defines the EU scale, JIS&nbsp;S&nbsp;4700
-        defines Japan&rsquo;s, the 1987 British metric rule defines the UK letters. Every size on this site is
-        computed from one of those. <strong class="text-text">The average is not.</strong>
+        Ring sizes themselves follow published rules. ISO&nbsp;8653 defines the EU scale, the 1987
+        British metric rule defines the UK letters, and Japan&rsquo;s 号 scale is a long-standing trade
+        convention. Every size on this site is computed from one of those. <strong class="text-text">The average is not.</strong>
       </p>
 
       <p class="mt-4 max-w-[62ch] text-text-muted">

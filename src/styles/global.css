@@ -63,25 +63,33 @@
 /* ---- Light (default) ----
    --text-faint is deliberately darker than it looks like it should be. It
    carries 14px hint text, which WCAG counts as normal size and so needs 4.5:1.
-   The previous #8A857A was 3.29:1 on --surface-sunk. Verified on all three
-   light surfaces: bg 5.17, surface 5.39, sunk 4.82. Do not lighten it.
+   The previous #8A857A was 3.29:1 on --surface-sunk. Do not lighten it.
 
    --accent-text is the same trap: it is every link and small-print accent
    color on the site (see index/chart/how-to pages, the calibration gauge
    label). The previous #B8860B was 3.25:1 on --surface, which Lighthouse
-   flagged. #8F6B0A is 4.89:1 on white and still reads as gold, not brown.
-   Dark mode's #E9C349 is unaffected — over 10:1 on its own backgrounds. */
+   flagged. Dark mode's #E9C349 is unaffected — over 10:1 on its own
+   backgrounds.
+
+   ⚠️ Both were then set a hair too light, and the figures this comment quoted
+   for them were wrong. Measured 30 Sep 2026 on --surface-sunk (#F5F3ED), the
+   darkest light surface text sits on: #766F60 was 4.49:1 and #8F6B0A 4.43:1 —
+   both under 4.5, on the chart page's aside, the homepage badge and several
+   captions (QA audit #12). Each is now ~3% darker:
+     --text-faint   #726C5D   sunk 4.71 · surface 5.23
+     --accent-text  #8B680A   sunk 4.64 · surface 5.14
+   Recompute against --surface-sunk, not white, before changing either. */
 :root {
   --bg:            #FBFBFA;
   --surface:       #FFFFFF;
   --surface-sunk:  #F5F3ED;
   --text:          #1A1C1C;
   --text-muted:    #524C3E;
-  --text-faint:    #766F60;
+  --text-faint:    #726C5D;
   --border:        #E8E4D9;
   --border-strong: #D9CEA9;
   --accent:        #D4AF37;
-  --accent-text:   #8F6B0A;
+  --accent-text:   #8B680A;
   --accent-bright: #D4AF37;
   --accent-hover:  #C59B27;
   --accent-sunk:   #FDF8EC;
@@ -99,11 +107,11 @@
   --surface-sunk:  #F5F3ED;
   --text:          #1A1C1C;
   --text-muted:    #524C3E;
-  --text-faint:    #766F60;
+  --text-faint:    #726C5D;
   --border:        #E8E4D9;
   --border-strong: #D9CEA9;
   --accent:        #D4AF37;
-  --accent-text:   #8F6B0A;
+  --accent-text:   #8B680A;
   --accent-bright: #D4AF37;
   --accent-hover:  #C59B27;
   --accent-sunk:   #FDF8EC;

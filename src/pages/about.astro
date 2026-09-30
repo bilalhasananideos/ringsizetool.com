@@ -39,9 +39,10 @@ const quarterMm = diameterFromUs(6.25) - diameterFromUs(6);
     </p>
     <p>
       None of that is malice. It is what happens when charts are copied from other charts for long
-      enough. So nothing here is copied. Every value is computed from the published standard —
-      ISO 8653 for EU sizes, defined from {ISO_MIN} to {ISO_MAX} mm of inner circumference;
-      JIS S 4700 for Japan, 1 to {JP_MAX}; the 1987 British metric rule for UK letters. Each of those calculations
+      enough. So nothing here is copied. Every value is computed from the published rule for its
+      scale — ISO 8653 for EU sizes, defined from {ISO_MIN} to {ISO_MAX} mm of inner circumference;
+      the Japanese 号 scale, 1 to {JP_MAX}, a trade convention (JCS) rather than a standard, since
+      Japan&rsquo;s own JIS S 4700 uses the ISO number; the 1987 British metric rule for UK letters. Each of those calculations
       has assertions in the repository that fail the build if a number drifts, and the site cannot
       deploy while they fail.
     </p>

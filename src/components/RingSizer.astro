@@ -476,7 +476,7 @@ const imprecisionLabel = (mm: number) => {
 
         <!-- Big Readout Underneath -->
         <div class="mt-4 text-center">
-          <div class="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-accent">
+          <div class="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-accent-text">
             <span data-readout data-main-val>{initValue}</span> <span data-main-unit class="text-2xl font-normal text-text-muted">{spec.unitLabel}</span>
           </div>
           <p data-main-label class="mt-1 text-xs uppercase tracking-wider text-text-faint font-medium">
@@ -1104,6 +1104,15 @@ const imprecisionLabel = (mm: number) => {
         dprAtCal = window.devicePixelRatio;
         try { localStorage.setItem(DPR_STORE_KEY, String(dprAtCal)); } catch { /* blocked */ }
       },
+      /* Back to a visitor who has never calibrated. The reference object is a
+       * preference, not a measurement, so it stays. */
+      clear() {
+        dprAtCal = null;
+        try {
+          localStorage.removeItem(PPM_STORE_KEY);
+          localStorage.removeItem(DPR_STORE_KEY);
+        } catch { /* blocked */ }
+      },
     };
 
     /* Where the slider starts for someone who has never calibrated. Decided in
@@ -1129,11 +1138,13 @@ const imprecisionLabel = (mm: number) => {
      * apart. Anywhere the drawer's state changes because of what the visitor
      * did about calibration, this goes with it.
      *
-     * Known edge: [data-cal-reset] writes the starting value to the store, so a
-     * visitor who resets is then counted as calibrated. That is deliberate —
-     * the marker must never contradict the drawer, and the drawer treats any
-     * stored value as settled. A screen genuinely at that value is a real screen,
-     * so the claim is unearned rather than false. */
+     * [data-cal-reset] used to WRITE the starting value to the store, which
+     * counted a visitor who reset as calibrated: "✓ Actual size on your screen"
+     * over a guess, and the drawer skipped on every later visit. It was kept as
+     * "unearned rather than false", but on a 4.12 px/mm laptop a US 6 ring then
+     * reads US 7¾ under that tick (QA audit #5). Reset now clears the store and
+     * returns to "Not calibrated yet" — marker and drawer still agree, because
+     * the drawer is open while Reset is pressed and stays open. */
     const scaleMarker = $('[data-scale-marker]');
     const scaleIcon = $('[data-scale-icon]');
     const scaleText = $('[data-scale-text]');
@@ -1313,11 +1324,9 @@ const imprecisionLabel = (mm: number) => {
        * label is server-rendered where the viewport is unknown. A label naming
        * one figure while the button applies another is the kind of small lie this
        * file exists to avoid; the value lands in the field beside it either way. */
-      const back = startingPpm();
-      setPxPerMm(back);
-      store.set(back);
-      store.setDpr();
-      setCalibrated(true);
+      setPxPerMm(startingPpm());
+      store.clear();
+      setCalibrated(false);
     });
 
     $('[data-recal]').addEventListener('click', () => {
@@ -1341,8 +1350,9 @@ const imprecisionLabel = (mm: number) => {
     function setSource(s: Source, syncMode = true) {
       activeSource = s;
       const spec = sourceSpec(s);
-      /* See setMode: the note describes a figure that is no longer on screen. */
-      rangeNote.hidden = true;
+      /* No note-clearing here. A source that changes the measure goes through
+         setMode, which clears (or applies) them; one that does not change it
+         leaves the field exactly as it was, so the notes still describe it. */
 
       sourceButtons.forEach((btn) => {
         const on = btn.dataset.sourceBtn === s;
@@ -1393,14 +1403,25 @@ const imprecisionLabel = (mm: number) => {
 
     /* ── Switch modes: (diameter | circumference) × (mm | cm | in) ── */
     function setMode(m: Measure, u: Unit, pushUrl = true) {
+      /* Both notes quote the typed figure and its unit ("25 mm is above…",
+       * "51.87 mm is outside…"). After a real mode change the field shows the
+       * stored measurement converted, so a note left up describes a number that
+       * is no longer there. The wrong-measure hint used to stay up anyway, and
+       * its button then replayed the number in the new unit: 51.87 mm became
+       * 51.87 in and the tool reported US 15¾ (QA audit #4).
+       *
+       * One exception, and it is the point of the hint: if this move IS the one
+       * the hint suggested — same unit, the other measure — the visitor took
+       * the advice by the pill instead of the button. Apply the typed reading,
+       * not the clamped one; otherwise 51.87 mm became 76.49 mm and US 15¾. */
+      const changed = m !== activeMeasure || u !== activeUnit;
+      const offered = changed ? hintedValue(m, u) : null;
+      if (changed) {
+        unitHint.hidden = true;
+        rangeNote.hidden = true;
+      }
       activeMeasure = m;
       activeUnit = u;
-      /* The range note quotes the typed figure and its unit ("25 mm is above…").
-       * After a mode change the field shows the stored measurement converted, so
-       * a note left up would describe a number that is no longer there — the
-       * stale-message defect the wrong-measure hint still has (QA audit #4).
-       * That hint is deliberately left alone here: it is a separate fix. */
-      rangeNote.hidden = true;
 
       const paint = (btns: HTMLButtonElement[], attr: string, active: string) => {
         btns.forEach((btn) => {
@@ -1461,6 +1482,15 @@ const imprecisionLabel = (mm: number) => {
        * attributes only ever drove type="number"'s own stepping. The bounds are
        * enforced by clampToMode and the step by the keydown handler below. */
       ringNum.value = exact;          // exact, NOT ringRange.value post-snap
+
+      if (offered !== null) {
+        ringNum.value = String(offered);
+        ringRange.value = String(offered);
+        /* writeBack false: the hint only offered this reading because it is in
+           range for (m, u), so there is nothing to clamp or to say. */
+        handleValueChange(offered, false);
+        return;
+      }
 
       updateDisplay();
     }
@@ -1589,24 +1619,39 @@ const imprecisionLabel = (mm: number) => {
          short one lives in MEASURES. */
       const shortOf = (m: Measure) => MEASURES.find((x) => x.key === m)!.short.toLowerCase();
       const unit = bounds().unitLabel;
+      /* The question has to match the direction. It was fixed text, so a
+         diameter typed into circumference mode was asked "Did you measure
+         around the finger?" — the opposite of what they did (QA audit #9). */
+      const question = other === 'circ'
+        ? 'Did you measure around the finger?'
+        : 'Did you measure across the inside of the ring?';
       unitHintText.textContent =
         `${typed} ${unit} is outside the ${shortOf(activeMeasure)} range, `
-        + `but it is a normal ${shortOf(other)}. Did you measure around the finger?`;
+        + `but it is a normal ${shortOf(other)}. ${question}`;
       unitHintSwitch.textContent = `Use it as ${shortOf(other)}`;
       unitHintSwitch.dataset.value = String(typed);
       unitHintSwitch.dataset.measure = other;
+      /* The unit belongs to the number. Without it the button replayed a bare
+         "51.87" in whatever unit was active by the time it was clicked. */
+      unitHintSwitch.dataset.unit = activeUnit;
       unitHint.hidden = false;
     }
 
-    unitHintSwitch.addEventListener('click', () => {
+    /* The reading the hint is offering, if the move to (m, u) is exactly the
+       move it suggests. Read by setMode before it clears the hint, so that
+       taking the advice by the pill does what taking it by the button does. */
+    function hintedValue(m: Measure, u: Unit): number | null {
+      if (unitHint.hidden) return null;
+      if (unitHintSwitch.dataset.measure !== m || unitHintSwitch.dataset.unit !== u) return null;
       const v = parseFloat(unitHintSwitch.dataset.value ?? '');
+      return Number.isFinite(v) ? v : null;
+    }
+
+    unitHintSwitch.addEventListener('click', () => {
       const m = unitHintSwitch.dataset.measure as Measure | undefined;
-      if (!Number.isFinite(v) || !m) return;
-      setMode(m, activeUnit);
-      ringNum.value = String(v);
-      ringRange.value = String(v);
-      handleValueChange(v, false);
-      unitHint.hidden = true;
+      const u = unitHintSwitch.dataset.unit as Unit | undefined;
+      if (!m || !u) return;
+      setMode(m, u);        // applies the offered value — see hintedValue
       ringNum.focus();
     });
 

@@ -20,15 +20,28 @@
  * described an intention rather than the deployment. Every fact below was read
  * off the live site (cookie names and the 400-day expiry from `cookieStore`,
  * the tag from the rendered `<head>`), not inferred from this repo.
+ *
+ * ⚠️ And a third time, from outside the repo. From 30 Sep 2026 at the latest,
+ * Cloudflare injected its own Web Analytics beacon into every page at the edge
+ * (`static.cloudflareinsights.com/beacon.min.js`, posting to `/cdn-cgi/rum`)
+ * while this page said "there is no Cloudflare Web Analytics". Nothing in
+ * `src/` or `dist/` contains it — it is switched on in the Cloudflare
+ * dashboard — so no code review could have caught it; only reading the SERVED
+ * HTML does. What is said about it below was read from the beacon script
+ * itself (it reads the page address, the referrer and page-load timings, and
+ * references neither cookies nor localStorage) and from Cloudflare's own
+ * statement that it does not fingerprint visitors. If the beacon is switched
+ * off in the dashboard, that paragraph goes in the same change.
+ * QA-AUDIT-2026-09-30.md #1, #13.
  */
 import Layout from '../layouts/Layout.astro';
 import Prose from '../components/Prose.astro';
 import { SITE_NAME, EMAIL, NOINDEX_SITE, GA_MEASUREMENT_ID } from '../config';
-import { PPM_STORE_KEY } from '../data/calibration';
+import { PPM_STORE_KEY, DPR_STORE_KEY, CAL_OBJECT_STORE_KEY } from '../data/calibration';
 
 /* Dated from the commit that made it true, not auto-generated: a policy whose
    date moves on every build tells the reader nothing about when it changed. */
-const LAST_UPDATED = '21 September 2026';
+const LAST_UPDATED = '30 September 2026';
 
 /* Read from the live cookies rather than from Google's documentation, which
    describes defaults this property may not be using. Both GA4 cookies came
@@ -37,7 +50,7 @@ const GA_COOKIE_DAYS = 400;
 ---
 <Layout
   title={`Privacy Policy — ${SITE_NAME}`}
-  description={`What ${SITE_NAME} collects: Google Analytics page views and two analytics cookies. What it does not: your measurements, which never leave your browser. No account, no ads.`}
+  description={`What ${SITE_NAME} collects: page views, through Google Analytics and Cloudflare, and two analytics cookies. What it does not: your measurements, which never leave your browser.`}
   noindex={NOINDEX_SITE}
 >
   <Prose title="Privacy Policy">
@@ -51,12 +64,13 @@ const GA_COOKIE_DAYS = 400;
     </p>
     <p>
       What we do collect is ordinary web analytics. Since 20 September 2026 this site has run Google
-      Analytics 4, which records that a page was visited and sets two cookies to do it. That is the
-      whole of it, and it is described in full below.
+      Analytics 4, which records that a page was visited and sets two cookies to do it. Cloudflare,
+      which hosts the site, also counts page views and how fast pages load, without cookies. That is
+      the whole of it, and both are described in full below.
     </p>
 
     <h2>What is stored on your device</h2>
-    <p>Two small values, both in your browser&rsquo;s local storage, neither of which leaves it:</p>
+    <p>Up to four small values, all in your browser&rsquo;s local storage, none of which leaves it:</p>
     <ul>
       <li>
         <strong>Your theme preference</strong> — light, dark or system, so the page does not flash
@@ -67,14 +81,25 @@ const GA_COOKIE_DAYS = 400;
         how many pixels your display puts in a millimetre, so you do not have to hold a bank card
         against the screen every time.
       </li>
+      {/* wrap-anywhere on the key below: at 320 px it is wider than the line
+          and pushed the page sideways. */}
+      <li>
+        <strong>Your browser&rsquo;s zoom level when you calibrated</strong>
+        (<code class="wrap-anywhere">{DPR_STORE_KEY}</code>) — so the sizer can warn you if the zoom has changed since, which
+        would make the calibration wrong.
+      </li>
+      <li>
+        <strong>What you calibrated against</strong> (<code>{CAL_OBJECT_STORE_KEY}</code>) — a card, a
+        US quarter or a 1 euro coin, so the same one is offered next time. Stored only if you pick one.
+      </li>
     </ul>
-    <p>Clearing this site&rsquo;s data in your browser removes both.</p>
+    <p>Clearing this site&rsquo;s data in your browser removes all of them.</p>
 
     <h2>Analytics</h2>
     <p>
-      This site runs <strong>Google Analytics 4</strong> (measurement ID <code>{GA_MEASUREMENT_ID}</code>).
-      It is the only measurement script here — there is no Cloudflare Web Analytics and no other
-      tracker.
+      This site runs two measurement scripts, and no others: <strong>Google Analytics 4</strong>
+      (measurement ID <code>{GA_MEASUREMENT_ID}</code>), described first, and Cloudflare Web
+      Analytics, described after it.
     </p>
     <p>It records the ordinary things an analytics tool records:</p>
     <ul>
@@ -104,6 +129,16 @@ const GA_COOKIE_DAYS = 400;
       exactly the same either way, because it never needed the network in the first place.
     </p>
 
+    <h3>Cloudflare Web Analytics</h3>
+    <p>
+      Cloudflare, which hosts the site, adds its own analytics script to every page. Read from the
+      script itself, it reports the address of the page you opened, the page that sent you here, and
+      how long the page took to load and respond. It sets no cookies and stores nothing on your
+      device, and Cloudflare states that it does not fingerprint visitors by IP address or browser.
+      It does not see anything you type into the ring sizer either. We see only totals — page views,
+      referrers, countries, device types and load times — never an individual visit. Content blockers stop it too.
+    </p>
+
     <h2>Advertising</h2>
     <p>
       <strong>None.</strong> There are no ads and no advertising cookies today. This site is
@@ -123,7 +158,7 @@ const GA_COOKIE_DAYS = 400;
     <h2>Your choices</h2>
     <p>
       Clear this site&rsquo;s data in your browser to remove the theme and calibration values, and
-      the two analytics cookies with them. To stay out of the analytics altogether, see the opt-out
+      the two Google Analytics cookies with them. Cloudflare&rsquo;s analytics stores nothing to clear. To stay out of the analytics altogether, see the opt-out
       options above.
     </p>
     <p>

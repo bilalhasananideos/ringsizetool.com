@@ -19,7 +19,7 @@
  * Numbers come from the conversion engine, never typed, so an answer can never
  * drift from what the tool says.
  */
-import { fromDiameter, diameterFromUs, US_STEP_MM, AVERAGE_US_SIZE, MM_PER_INCH } from './ringSizes';
+import { fromDiameter, diameterFromUs, US_STEP_MM, AVERAGE_US_SIZE, MM_PER_INCH, JP_MAX } from './ringSizes';
 import { CHECK_MM, HOLE_STROKE_MM } from './print';
 
 const six = fromDiameter(diameterFromUs(6));
@@ -193,7 +193,7 @@ export const CHART_FAQS: Faq[] = [
   },
   {
     q: 'What is US size 7 in Japan?',
-    a: `Japanese size ${seven.jp}. Japan uses JIS S 4700, which runs from 1 to 35 and steps by a third of a millimetre of diameter — so Japanese sizes are roughly three times as fine-grained as US sizes, and land closer to your true measurement.`,
+    a: `Japanese size ${seven.jp}. That is the 号 (gō) scale Japanese shops use, which runs from 1 to ${JP_MAX} and steps by a third of a millimetre of diameter — so Japanese sizes are roughly three times as fine-grained as US sizes, and land closer to your true measurement. It is a trade convention rather than a standard: Japan's industrial standard, JIS S 4700, numbers rings by inner circumference in millimetres instead, which puts a US ${seven.us} at ${seven.eu} — the same number as its EU size.`,
   },
   {
     q: 'What is ring size 7 in India?',
