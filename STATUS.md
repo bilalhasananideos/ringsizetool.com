@@ -56,8 +56,13 @@ re-checked against live GSC/GA4, DataForSEO volumes + SERPs for US/UK/AU/IN, Lig
 crawl and Google's own pages fetched that day. Read its opening list before any SEO work. FAQ rich
 results were retired by Google on 7 May 2026.
 - **R0 / R16 — closed by the QA work above** (Cloudflare beacon disclosed; comma decimal fixed).
-- **R1 / R2 / R3 — COMMITTED 1 Oct, NOT DEPLOYED** (awaiting the owner's go-ahead to push):
-  GA4 loads only on `ringsizetool.com` and exposes `window.gtag`; five usage events carry
+- **R1 / R2 / R3 — DEPLOYED 1 Oct** in commit `e7e7a50`. It went live before the owner had
+  approved it: the QA session's push of `92e964b` (ThemeToggle) carried it, in deploy run
+  `36772277294`. That run was cancelled after its deploy step had already succeeded. The owner
+  then chose to keep it live (relayed by the QA session). Verified on the live site: the
+  hostname guard is served, `window.gtag` is a function, and `/g/collect` received `page_view`,
+  `scroll` and `sizer_measure_started`. What it does: GA4 loads only on `ringsizetool.com` and
+  exposes `window.gtag`; five usage events carry
   choices, never values (`sizer_source_selected`, `sizer_mode_changed`,
   `sizer_measure_started` once per page view, `sizer_calibration_saved`, `printable_print`), and
   `/privacy` lists them; one `--anchor-offset` rule (9rem below `md`, 6rem from `md`) replaces the
