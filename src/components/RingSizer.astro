@@ -182,14 +182,14 @@ const imprecisionLabel = (mm: number) => {
             <input
               id="cal-range" data-cal-range type="range"
               min={PPM_MIN} max={PPM_MAX} step="0.01" value={DEFAULT_PPM}
-              class="h-2 w-full cursor-pointer appearance-none rounded-full bg-border-strong/40 accent-[#D4AF37] focus:outline-none"
+              class="block w-full cursor-pointer appearance-none bg-transparent"
             />
             <label class="sr-only" for="cal-num">Pixels per millimetre, exact value</label>
             {/* type="text", not "number" — same comma defect as the ring field below. */}
             <input
               id="cal-num" data-cal-num type="text" inputmode="decimal"
               autocomplete="off" spellcheck="false" value={DEFAULT_PPM}
-              class="h-9 w-20 shrink-0 rounded-lg border border-border bg-surface px-2 text-right text-sm text-text"
+              class="h-9 w-20 shrink-0 rounded-lg border border-border bg-surface px-2 text-right text-base text-text lg:text-sm"
             />
           </div>
         </div>
@@ -516,17 +516,29 @@ const imprecisionLabel = (mm: number) => {
             <span data-max-label>{`${initMax} ${spec.unitLabel}`}</span>
           </div>
 
-          <div class="flex items-center gap-3">
+          {/* Below lg the slider takes a row of its own and the − / field / +
+              controls sit under it. On one row it was left whatever the other
+              three did not use: 52 px at 320, 73 px at 375, 106 px at 768 —
+              for ~700 steps, so a phone could not be dragged to a quarter size
+              at all (0.23 mm of diameter per pixel of thumb travel at 375, more
+              than a US quarter). Stacked it is the full column. Desktop, where
+              the pointer is a mouse, keeps the single row.
+
+              DOM order is unchanged — −, slider, field, + — so keyboard and
+              screen-reader order still match the desktop layout; order-first
+              only lifts the slider under its own min/max labels on narrow
+              screens. QA-AUDIT-2026-09-30.md §7.1. */}
+          <div class="flex flex-wrap items-center gap-3 lg:flex-nowrap">
             <button
               type="button"
               data-step-btn="minus"
-              class="flex h-11 w-11 sm:h-9 sm:w-9 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface-sunk text-text-muted hover:border-accent hover:text-text active:scale-95 transition-all text-base font-bold select-none"
+              class="flex h-11 w-11 shrink-0 lg:h-9 lg:w-9 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface-sunk text-text-muted hover:border-accent hover:text-text active:scale-95 transition-all text-base font-bold select-none"
               title="Decrease size"
             >
               −
             </button>
 
-            <div class="relative flex-1">
+            <div class="relative order-first basis-full lg:order-none lg:basis-auto lg:flex-1">
               <label class="sr-only" for="ring-range">Ring size slider</label>
               <input
                 id="ring-range"
@@ -536,7 +548,7 @@ const imprecisionLabel = (mm: number) => {
                 max={initMax}
                 step={spec.step}
                 value={initValue}
-                class="h-2 w-full cursor-pointer appearance-none rounded-full bg-border-strong/40 accent-[#D4AF37] focus:outline-none"
+                class="block w-full cursor-pointer appearance-none bg-transparent"
               />
             </div>
 
@@ -546,17 +558,22 @@ const imprecisionLabel = (mm: number) => {
                 "17,35" arrived as 1735 and reported US 15¾ for a US 7 finger.
                 parseMeasurement() in ringModes.ts reads either separator; the
                 script restores the arrow-key stepping the number input gave for
-                free. inputmode still brings up the numeric keypad on phones. */}
+                free. inputmode still brings up the numeric keypad on phones.
+
+                text-base (16 px) below lg, not text-sm: iOS Safari zooms the page
+                into any focused input under 16 px, and a pinch-zoomed page is not
+                at the calibrated scale — the marker would flip to "Zoom has
+                changed" the moment someone tapped the field. */}
             <input
               id="ring-num" data-ring-num type="text" inputmode="decimal"
               autocomplete="off" spellcheck="false"
-              class="h-9 w-20 shrink-0 rounded-lg border border-border bg-surface px-2 text-right text-sm text-text"
+              class="h-11 min-w-0 flex-1 rounded-lg border border-border bg-surface px-2 text-center text-base text-text lg:h-9 lg:w-20 lg:flex-none lg:text-right lg:text-sm"
             />
 
             <button
               type="button"
               data-step-btn="plus"
-              class="flex h-11 w-11 sm:h-9 sm:w-9 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface-sunk text-text-muted hover:border-accent hover:text-text active:scale-95 transition-all text-base font-bold select-none"
+              class="flex h-11 w-11 shrink-0 lg:h-9 lg:w-9 cursor-pointer items-center justify-center rounded-lg border border-border bg-surface-sunk text-text-muted hover:border-accent hover:text-text active:scale-95 transition-all text-base font-bold select-none"
               title="Increase size"
             >
               +
@@ -964,11 +981,34 @@ const imprecisionLabel = (mm: number) => {
     border-width: 1px;
   }
 
+  /* The input's own box is the touch target, so it is 44 px tall (CLAUDE.md's
+   * minimum) and transparent; the 8 px track the eye sees is drawn by the
+   * pseudo-elements below. It used to be the input itself, `h-2` with a
+   * background, which made the grabbable area 8 px tall on a phone — a thumb
+   * had to land on the 22 px knob or miss the control entirely. */
+  input[type="range"] {
+    height: 2.75rem;
+    background: transparent;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--border-strong) 40%, transparent);
+  }
+  input[type="range"]::-moz-range-track {
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--border-strong) 40%, transparent);
+  }
+
   /* Custom stylish slider thumb */
   input[type="range"]::-webkit-slider-thumb {
     appearance: none;
     height: 22px;
     width: 22px;
+    /* WebKit pins the thumb to the TOP of a styled track; (8 - 22) / 2 puts
+     * its centre back on the track's. Firefox centres it by itself. */
+    margin-top: -7px;
     border-radius: 50%;
     background: #D4AF37;
     cursor: grab;

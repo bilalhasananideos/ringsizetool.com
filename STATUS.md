@@ -33,8 +33,14 @@ report's fix log).
   localStorage keys. ⚠️ If the owner switches the beacon off in the Cloudflare dashboard instead,
   that paragraph must go in the same change — the page describes the deployment, not an intention.
 - `verify` 326 passed · `astro check` 0 errors · build + sweep clean.
-- **Not done, and not defects:** the report's UX list (§7 — the mobile slider is the big one) and
-  potential issues P1–P5. The hero badge ("Computed to ISO 8653 Standards") was left as chosen in
+- **UX §7.1, the mobile slider — FIXED (1 Oct).** Below `lg` the slider has its own row and
+  −/field/+ sit under it: 52 → 256 px at 320, 73 → 262 px at 375, 106 → 279 px at 768 (0.048 mm
+  per pixel of travel at 375, was 0.225 — more than a US quarter). Both range inputs are 44 px tall
+  hit areas with the 8 px track drawn by pseudo-elements; ± buttons 44 px below `lg`; both number
+  fields 16 px below `lg` so iOS does not zoom (and break the calibrated scale) on focus. Desktop
+  (≥ 1024) keeps the single row.
+- **Not done, and not defects:** the rest of the report's UX list (§7.2–7.8) and potential issues
+  P1–P5. The hero badge ("Computed to ISO 8653 Standards") was left as chosen in
   `8e420e1`.
 
 **📊 `SEO-AUDIT.md` — new 6 Sep 2026.** Full GSC + competitor audit against the first 16 Search
