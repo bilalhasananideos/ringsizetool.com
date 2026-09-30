@@ -195,8 +195,24 @@ h1, h2 {
   text-wrap: balance;
 }
 
-/* Anchored headings must not land under the sticky header. */
-h1, h2, h3, h4 { scroll-margin-top: 5rem; }
+/* Anchor targets must not land under the sticky header.
+ *
+ * The header is two rows below md (wordmark row + nav row: ~122 px at 375,
+ * ~130 px from sm, where the logo grows) and one row from md (~85 px). The
+ * flat 5rem this replaced was short at every width. Measured on the live site
+ * at 375 px on 30 Sep 2026: "Start Measuring ↓" left the tool's H2 at y = 93,
+ * underneath a 122 px header. The sections also carried scroll-mt-20, which
+ * set the same 80 px again.
+ *
+ * `[id]` rather than a list of sections: every fragment target is covered by
+ * one rule, including ids added later, and a control that takes keyboard
+ * focus is not scrolled in under the header either. This is unlayered CSS, so
+ * it beats Tailwind's scroll-mt-* utilities. Set offsets here, not per element. */
+:root { --anchor-offset: 9rem; }
+@media (min-width: 48rem) {
+  :root { --anchor-offset: 6rem; }
+}
+h1, h2, h3, h4, [id] { scroll-margin-top: var(--anchor-offset); }
 
 h3, h4 {
   font-weight: 600;

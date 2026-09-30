@@ -41,7 +41,7 @@ import { PPM_STORE_KEY, DPR_STORE_KEY, CAL_OBJECT_STORE_KEY } from '../data/cali
 
 /* Dated from the commit that made it true, not auto-generated: a policy whose
    date moves on every build tells the reader nothing about when it changed. */
-const LAST_UPDATED = '30 September 2026';
+const LAST_UPDATED = '1 October 2026';
 
 /* Read from the live cookies rather than from Google's documentation, which
    describes defaults this property may not be using. Both GA4 cookies came
@@ -50,7 +50,7 @@ const GA_COOKIE_DAYS = 400;
 ---
 <Layout
   title={`Privacy Policy — ${SITE_NAME}`}
-  description={`What ${SITE_NAME} collects: page views, through Google Analytics and Cloudflare, and two analytics cookies. What it does not: your measurements, which never leave your browser.`}
+  description={`What ${SITE_NAME} collects: page views, which ring sizer steps were used and two analytics cookies. Never your measurements — they stay in your browser.`}
   noindex={NOINDEX_SITE}
 >
   <Prose title="Privacy Policy">
@@ -64,7 +64,8 @@ const GA_COOKIE_DAYS = 400;
     </p>
     <p>
       What we do collect is ordinary web analytics. Since 20 September 2026 this site has run Google
-      Analytics 4, which records that a page was visited and sets two cookies to do it. Cloudflare,
+      Analytics 4, which records that a page was visited and which steps of the ring sizer were used,
+      and sets two cookies to do it. Cloudflare,
       which hosts the site, also counts page views and how fast pages load, without cookies. That is
       the whole of it, and both are described in full below.
     </p>
@@ -109,6 +110,15 @@ const GA_COOKIE_DAYS = 400;
       <li>
         engagement on the page: how far you scrolled, outbound link clicks and file downloads.
         Google calls this &ldquo;enhanced measurement&rdquo; and it is switched on.
+      </li>
+      <li>
+        which steps of the ring sizer you took: that you saved a calibration
+        and against what (a card, a US quarter or a 1 euro coin); which starting point you chose
+        (a ring, your finger, or a measurement you already had); that you first changed the
+        measurement, and whether the screen was calibrated at that moment; which measure and unit
+        you switched to; and, on the printable sheet, that the print dialog opened and whether from
+        the button or the browser&rsquo;s own Print. Each one says a step happened, not what it
+        produced.
       </li>
     </ul>
     <p>

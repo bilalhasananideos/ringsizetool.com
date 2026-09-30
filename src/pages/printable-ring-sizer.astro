@@ -639,6 +639,23 @@ const jsonLd = [
 </style>
 
 <script>
+  /* Usage event (SEO-STRATEGY.md R2): the print dialog opened, and whether
+   * from the button or the browser's own Print / Ctrl+P. `beforeprint`
+   * catches both. The button only sets the flag, so a print is never counted
+   * twice. No-op off the production host: window.gtag exists only there
+   * (Layout.astro). /privacy describes this; change them together. */
+  type Gtag = (command: 'event', name: string, params?: Record<string, string>) => void;
+  let viaButton = false;
+
   document.querySelector<HTMLButtonElement>('[data-print]')
-    ?.addEventListener('click', () => window.print());
+    ?.addEventListener('click', () => {
+      viaButton = true;
+      window.print();
+    });
+
+  window.addEventListener('beforeprint', () => {
+    const gtag = (window as Window & { gtag?: Gtag }).gtag;
+    if (typeof gtag === 'function') gtag('event', 'printable_print', { via: viaButton ? 'button' : 'browser' });
+    viaButton = false;
+  });
 </script>

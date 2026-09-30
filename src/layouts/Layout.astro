@@ -192,18 +192,33 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
       })();
     </script>
 
+    {/* GA4 runs on the production host only. NOINDEX_SITE used to be what kept
+        dev and preview builds out of the numbers, but it is false in every
+        build now, so `npm run preview` and the *.pages.dev alias were counted
+        as real traffic — GA4's page report for 21–29 Sep holds 23 page views
+        from hostName "localhost" and 4 from "ringsizetool.pages.dev". The
+        loader is injected from here, rather than being a static
+        <script src>, so that nothing fetches it on any other host.
+
+        `gtag` is put on window on purpose: define:vars wraps this script in a
+        function, so a plain `function gtag()` is invisible to the tool's
+        script, which sends its usage events through `window.gtag` and does
+        nothing when it is absent — as it is here on every other host. */}
     {!NOINDEX_SITE && (
-      <>
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}></script>
-        <script is:inline define:vars={{ GA_MEASUREMENT_ID }}>
+      <script is:inline define:vars={{ GA_MEASUREMENT_ID, GA_HOST: new URL(SITE_URL).hostname }}>
+        if (location.hostname === GA_HOST) {
           window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', GA_MEASUREMENT_ID);
-        </script>
-      </>
+          window.gtag = function () {
+            window.dataLayer.push(arguments);
+          };
+          window.gtag('js', new Date());
+          window.gtag('config', GA_MEASUREMENT_ID);
+          var tag = document.createElement('script');
+          tag.async = true;
+          tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
+          document.head.appendChild(tag);
+        }
+      </script>
     )}
 
     <slot name="head" />

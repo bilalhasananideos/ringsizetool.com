@@ -514,11 +514,14 @@ a tool that sometimes gives confidently wrong answers. The two can ship in the s
 | Event | Fires when | Parameters | Why |
 |---|---|---|---|
 | `sizer_calibration_saved` | "Save Scale" pressed | `object`: card / quarter / euro | calibration completion rate |
-| `sizer_source_selected` | a "What do you have?" card is chosen | `source`: ring / finger / measurement | which route people take |
+| `sizer_source_selected` | a "What do you have?" card is chosen (not on boot, not on a re-click) | `source`: ring / finger / number | which route people take |
 | `sizer_measure_started` | first slider, ± or number-input change per page view | `calibrated`: yes / no | tool starts; share measuring uncalibrated |
-| `sizer_mode_changed` | measure or unit radio changes | `measure`, `unit` | whether the unit switches are used |
-| `printable_print_clicked` | the print button on `/printable-ring-sizer` | — | printable conversions |
+| `sizer_mode_changed` | measure or unit radio changes by the visitor (pill or hint button) | `measure`: dia / circ, `unit`: mm / cm / in | whether the unit switches are used |
+| `printable_print` | the print dialog opens on `/printable-ring-sizer` (`beforeprint`) | `via`: button / browser | printable conversions |
 
+**Implemented 1 Oct 2026 (committed, not yet deployed)**, with R1 and R3, and driven in a browser
+with a stubbed `window.gtag`. Re-clicks, boot and the source↔measure sync fire nothing. Two ±
+clicks give one `sizer_measure_started`. Nothing fires, and nothing errors, when gtag is absent.
 The owner then marks `sizer_measure_started` and `sizer_calibration_saved` as key events in GA4
 Admin. **No measured values are sent** (no diameter, no size). A size is not personal data, but the
 site has no reason to collect it. If it ever wants to publish "the median size our visitors

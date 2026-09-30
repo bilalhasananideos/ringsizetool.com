@@ -51,11 +51,17 @@ starting any SEO work.
 
 **🧭 `SEO-STRATEGY.md` — new 30 Sep 2026.** The consolidated SEO strategy (30 sections, R0–R16),
 re-checked against live GSC/GA4, DataForSEO volumes + SERPs for US/UK/AU/IN, Lighthouse, a full
-crawl and Google's own pages fetched that day. Read its opening list before any SEO work. Top items:
-**R0** `/privacy` says there is no Cloudflare Web Analytics, but the edge-injected beacon is live on
-every page (owner: switch it off in the Pages dashboard, or disclose it). **R16** a comma decimal
-(`17,35`) becomes `1735` → US 15¾ (from `QA-AUDIT-2026-09-30.md`, re-verified). **R2** GA4 has no
-tool-usage events at all. FAQ rich results were retired by Google on 7 May 2026.
+crawl and Google's own pages fetched that day. Read its opening list before any SEO work. FAQ rich
+results were retired by Google on 7 May 2026.
+- **R0 / R16 — closed by the QA work above** (Cloudflare beacon disclosed; comma decimal fixed).
+- **R1 / R2 / R3 — COMMITTED 1 Oct, NOT DEPLOYED** (awaiting the owner's go-ahead to push):
+  GA4 loads only on `ringsizetool.com` and exposes `window.gtag`; five usage events carry
+  choices, never values (`sizer_source_selected`, `sizer_mode_changed`,
+  `sizer_measure_started` once per page view, `sizer_calibration_saved`, `printable_print`), and
+  `/privacy` lists them; one `--anchor-offset` rule (9rem below `md`, 6rem from `md`) replaces the
+  5rem heading margin and every `scroll-mt-20`, so anchors clear the 122–130 px mobile header.
+  After deploy, the owner marks `sizer_measure_started` and `sizer_calibration_saved` as key
+  events in GA4 Admin.
 
 **Shipped from that plan (6 Sep, `4bd3613` — deployed and verified live):** #1 the tool entry
 reframe · Day 2 both title/description rewrites · Day 7 the homepage prose de-duplication (whose

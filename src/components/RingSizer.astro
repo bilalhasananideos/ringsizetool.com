@@ -1050,6 +1050,20 @@ const imprecisionLabel = (mm: number) => {
   } from '../data/calibration';
   import { PILL_ON, PILL_OFF, SOURCE_ON, SOURCE_OFF } from './pillClasses';
 
+  /* ── usage events (SEO-STRATEGY.md R2) ──────────────────────────────────
+   * Until these existed, GA4 could say a page was opened and nothing about
+   * whether anyone used the tool on it. Each event records a choice or a step
+   * — never a measurement, a px/mm value or a size. /privacy says exactly
+   * this; change it in the same commit as anything here.
+   *
+   * window.gtag exists only on the production host (Layout.astro), so on
+   * localhost, *.pages.dev or behind a blocker every call is a no-op. */
+  type Gtag = (command: 'event', name: string, params?: Record<string, string>) => void;
+  const track = (name: string, params?: Record<string, string>) => {
+    const gtag = (window as Window & { gtag?: Gtag }).gtag;
+    if (typeof gtag === 'function') gtag('event', name, params);
+  };
+
   const root = document.querySelector<HTMLElement>('.ring-sizer');
   if (root) {
     const $ = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
@@ -1208,6 +1222,18 @@ const imprecisionLabel = (mm: number) => {
     let calibrated = false;
     let dprAtCal: number | null = null;
 
+    /* Once per page view, on the visitor's first change to the ring value —
+     * slider, field, ± or arrow keys. Boot and mode changes set the value too,
+     * so they must not count. `calibrated` is what the scale marker shows at
+     * that moment: how many people measure on an uncalibrated screen is the
+     * question a "skip calibration" path would need answering first. */
+    let measureStarted = false;
+    const markMeasureStarted = () => {
+      if (measureStarted) return;
+      measureStarted = true;
+      track('sizer_measure_started', { calibrated: calibrated ? 'yes' : 'no' });
+    };
+
     function zoomLooksChanged(): boolean {
       const vv = window.visualViewport;
       /* Pinch-zoom. The tolerance is for sub-pixel noise, not for real zoom:
@@ -1266,8 +1292,11 @@ const imprecisionLabel = (mm: number) => {
      * it against is different, and they re-match it. Writing a new px/mm here
      * would silently recalibrate someone who merely wanted to read the
      * options, which is the opposite of what a picker should do. */
+    let activeCalObject: string = DEFAULT_CAL_OBJECT;
+
     function setCalObject(key: string, persist = true) {
       const obj = calObject(key);
+      activeCalObject = obj.key;
 
       calObjButtons.forEach((btn) => {
         const on = btn.dataset.calObjBtn === obj.key;
@@ -1348,6 +1377,8 @@ const imprecisionLabel = (mm: number) => {
       store.setDpr();
       stepCal.hidden = true;
       setCalibrated(true);
+      /* Which object, not the px/mm it produced. */
+      track('sizer_calibration_saved', { object: activeCalObject });
     });
 
     $('[data-cal-close]').addEventListener('click', () => {
@@ -1563,14 +1594,31 @@ const imprecisionLabel = (mm: number) => {
       });
     }
 
+    /* Events fire here, in the visitor's own clicks and arrow keys, and not
+     * inside setSource/setMode: boot and the source↔measure sync call those
+     * too, and would report choices nobody made. A re-click on the option
+     * already checked is not a choice either. */
+    const modeChanged = (m: Measure, u: Unit) => {
+      if (m !== activeMeasure || u !== activeUnit) track('sizer_mode_changed', { measure: m, unit: u });
+    };
+
     wireRadioGroup(calObjButtons, (btn) =>
       setCalObject(btn.dataset.calObjBtn ?? DEFAULT_CAL_OBJECT));
-    wireRadioGroup(sourceButtons, (btn) =>
-      setSource(btn.dataset.sourceBtn as Source));
-    wireRadioGroup(measureButtons, (btn) =>
-      setMode(btn.dataset.measureBtn as Measure, activeUnit));
-    wireRadioGroup(unitButtons, (btn) =>
-      setMode(activeMeasure, btn.dataset.unitBtn as Unit));
+    wireRadioGroup(sourceButtons, (btn) => {
+      const s = btn.dataset.sourceBtn as Source;
+      if (s !== activeSource) track('sizer_source_selected', { source: s });
+      setSource(s);
+    });
+    wireRadioGroup(measureButtons, (btn) => {
+      const m = btn.dataset.measureBtn as Measure;
+      modeChanged(m, activeUnit);
+      setMode(m, activeUnit);
+    });
+    wireRadioGroup(unitButtons, (btn) => {
+      const u = btn.dataset.unitBtn as Unit;
+      modeChanged(activeMeasure, u);
+      setMode(activeMeasure, u);
+    });
 
     /* ── slider & step buttons handlers ── */
     /* `raw` is the text as typed, when there is one, so a note can quote the
@@ -1691,6 +1739,7 @@ const imprecisionLabel = (mm: number) => {
       const m = unitHintSwitch.dataset.measure as Measure | undefined;
       const u = unitHintSwitch.dataset.unit as Unit | undefined;
       if (!m || !u) return;
+      modeChanged(m, u);
       setMode(m, u);        // applies the offered value — see hintedValue
       ringNum.focus();
     });
@@ -1700,6 +1749,7 @@ const imprecisionLabel = (mm: number) => {
       // readout beside it says "22.20".
       const v = parseFloat(ringRange.value);
       ringNum.value = Number.isFinite(v) ? v.toFixed(bounds().dp) : ringRange.value;
+      markMeasureStarted();
       handleValueChange(v);
     });
     /* Typing is not committing. The clamp used to run on every keystroke and
@@ -1715,6 +1765,7 @@ const imprecisionLabel = (mm: number) => {
     ringNum.addEventListener('input', () => {
       const v = parseMeasurement(ringNum.value);
       if (v === null) return;
+      markMeasureStarted();
       /* String(v), not the field's text: a range input handed "17,35" treats it
        * as invalid and jumps its thumb to the midpoint. */
       ringRange.value = String(v);
@@ -1758,6 +1809,7 @@ const imprecisionLabel = (mm: number) => {
      * flipped the Japanese size from 12 to 11 without the visitor changing
      * anything. Both ends are clamped to the mode's own rounded-inward bounds. */
     function nudge(dir: 1 | -1, by = bounds().nudge) {
+      markMeasureStarted();   // only ever called from ± and the arrow keys
       const current = toMode(currentDia, activeMeasure, activeUnit);
       const next = Math.min(
         parseFloat(ringRange.max),
