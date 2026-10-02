@@ -1,7 +1,24 @@
 # ringsizetool.com — status
 
-Last updated: 30 Sep 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
+Last updated: 2 Oct 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
+
+**📄 R6 `/uk-ring-size-chart` — APPROVED by the owner 2 Oct 2026, drafted, NOT deployed.** The draft
+is commit `820c31f` on branch `draft/uk-ring-size-chart`, checked out as a separate worktree at
+`sites/.worktrees/ringsizetool-uk` (node_modules symlinked to this checkout's), so this checkout
+stays on `main`. Preview: launch config `ringsizetool-uk-draft`, port 4331. **Do not merge or push
+it until (1) the owner has read the page and (2) the ~10 Oct Search Console check is done**, so the
+chart↔homepage swap is not confounded (SEO-STRATEGY.md §12). R5 (the chart's `#uk` section) is
+still not built; the page links to `/ring-size-chart` and `/#disagree` instead.
+- New facts it rests on, read 2 Oct: three Australian jewellers publish M at 51.87 / 52.81 / 53.2 mm
+  (a 1.33 mm spread, more than a whole letter); New Zealand (Michael Hill NZ, Crawford Hill) and
+  Ireland (Bannon, Fields, Kenny's) use the same letters. Sources and URLs: `src/data/letterCharts.ts`
+  on the branch. No shop is named on the page (same policy as `UK_NOTE`).
+- No FAQ yet: no People-also-ask has been collected for the UK/AU queries. The owner can run
+  QuestionFinder for `uk ring size chart`; only verbatim PAA goes in, and none may repeat a question
+  already in `faq.ts`.
+- On the branch: `verify` 348/348, `astro check` 0 errors, build + sweep clean, 375 px light/dark
+  and keyboard focus checked.
 
 **🐞 `QA-AUDIT-2026-09-30.md` — new 30 Sep 2026.** A reverse bug hunt of the live site: 14 confirmed
 defects, **none in the size maths** (every chart cell re-computed independently, 0 mismatches). Its

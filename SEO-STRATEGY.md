@@ -381,6 +381,9 @@ waiting for condition 3. A new page also takes crawl attention and owner review 
 recommendation is to **build it in the 31–60-day window if the owner agrees**. The 10 Oct GSC check
 comes first, so the chart↔homepage swap is not confounded.
 
+**2 Oct 2026: the owner said yes.** Drafted on branch `draft/uk-ring-size-chart` (`820c31f`), held
+until the owner has read it and the 10 Oct check is done. See STATUS.md.
+
 **hreflang: no.** Google uses hreflang for *"multiple versions of a page for different languages or
 regions"* [G]. This site has one English version of each page, so there is nothing to annotate. The
 Search Console International Targeting report is deprecated [G]. Google also *"ignores locational
