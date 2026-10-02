@@ -14,9 +14,9 @@ still not built; the page links to `/ring-size-chart` and `/#disagree` instead.
   (a 1.33 mm spread, more than a whole letter); New Zealand (Michael Hill NZ, Crawford Hill) and
   Ireland (Bannon, Fields, Kenny's) use the same letters. Sources and URLs: `src/data/letterCharts.ts`
   on the branch. No shop is named on the page (same policy as `UK_NOTE`).
-- No FAQ yet: no People-also-ask has been collected for the UK/AU queries. The owner can run
-  QuestionFinder for `uk ring size chart`; only verbatim PAA goes in, and none may repeat a question
-  already in `faq.ts`.
+- FAQ: 3 questions (`UK_FAQS`), from the owner's QuestionFinder pull for `uk ring size chart`
+  (US locale, 2 Oct, branch commit `9464447`). 9 of its 16 questions were reviewed; **the other 7 are
+  still to check.** No question repeats one already in `faq.ts` (checked across the built site).
 - On the branch: `verify` 348/348, `astro check` 0 errors, build + sweep clean, 375 px light/dark
   and keyboard focus checked.
 
