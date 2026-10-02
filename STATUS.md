@@ -3,6 +3,28 @@
 Last updated: 2 Oct 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
 
+**🍪 R9 consent banner — owner said "laga do" 2 Oct 2026; built and tested, NOT deployed.** Commit
+`285749c` on branch `feature/consent-banner`, worktree `sites/.worktrees/ringsizetool-consent`. It
+merges cleanly with `draft/uk-ring-size-chart`. It does not touch Search Console data, so it does
+NOT have to wait for the 10 Oct check: ship it once the owner has looked at it.
+- Why (sources in `src/data/consent.ts`): Google's EU User Consent Policy requires consent "where
+  legally required"; for EEA visitors the CNIL says Google Analytics is outside the analytics
+  exemption whatever its configuration; the UK ICO exception was not settled for GA4. A static
+  site cannot geolocate, so everyone is asked.
+- Behaviour, verified on a scratch copy with a dummy ID (`G-TESTTEST00`, host rewritten to
+  localhost, so no real property was touched): before consent no Google request and no `_ga`
+  cookie, and old ones are deleted; on Accept the hit carries `gcs=G101` and `npa=1`; Reject from
+  "Cookie settings" deletes the cookies and reloads; expired, old-version, future-dated and garbage
+  answers all re-ask. CLS 0; the banner takes 26% of a 375 px screen; light and dark checked; skip
+  link first, then the banner in tab order.
+- ⚠️ **GA4 numbers will drop from the deploy day**, because only visitors who accept are counted.
+  Any GA4 comparison across that date is broken; Search Console is unaffected.
+- ⚠️ **Open, owner's call:** Cloudflare's Web Analytics beacon is edge-injected, so the banner cannot
+  gate it. /privacy now says that. Turning it off in the Cloudflare dashboard removes the last
+  unconsented script, and its /privacy section must go in the same deploy (verify the live HTML).
+- ⚠️ Not a TCF-certified CMP. Replace it before any ad code (AdSense help 13554116).
+- `LAST_UPDATED` on /privacy says 2 October 2026: re-date it if the deploy is later.
+
 **📄 R6 `/uk-ring-size-chart` — APPROVED by the owner 2 Oct 2026, drafted, NOT deployed.** The draft
 is commit `820c31f` on branch `draft/uk-ring-size-chart`, checked out as a separate worktree at
 `sites/.worktrees/ringsizetool-uk` (node_modules symlinked to this checkout's), so this checkout
