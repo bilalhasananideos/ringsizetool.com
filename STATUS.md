@@ -19,6 +19,8 @@ still not built; the page links to `/ring-size-chart` and `/#disagree` instead.
   still to check.** No question repeats one already in `faq.ts` (checked across the built site).
 - On the branch: `verify` 348/348, `astro check` 0 errors, build + sweep clean, 375 px light/dark
   and keyboard focus checked.
+- Demand re-based 2 Oct (Ahrefs, UK database): exact `ring size chart uk` is 1K–10K a month, not the
+  27.1K cluster figure. See SEO-STRATEGY.md §12.
 
 **🐞 `QA-AUDIT-2026-09-30.md` — new 30 Sep 2026.** A reverse bug hunt of the live site: 14 confirmed
 defects, **none in the size maths** (every chart cell re-computed independently, 0 mismatches). Its

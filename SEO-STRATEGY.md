@@ -384,6 +384,16 @@ comes first, so the chart↔homepage swap is not confounded.
 **2 Oct 2026: the owner said yes.** Drafted on branch `draft/uk-ring-size-chart` (`820c31f`), held
 until the owner has read it and the 10 Oct check is done. See STATUS.md.
 
+**2 Oct 2026, Ahrefs free Keyword Generator (owner's screenshots), exact term `ring size chart uk`:**
+UK database **>1000** (Ahrefs' free buckets run <100 / >100 / >1000 / >10K, so this is 1K–10K);
+US database <100. UK phrase match: 99 keywords, of which >100 each: `actual size ring size chart
+uk`, `ring size chart uk to us`, `mens ring size chart uk`, `pandora ring size chart uk`. Questions
+tab: 2 terms, both <100. **Read:** the 27.1K (DataForSEO) and ~32K (Semrush) above are CLUSTER
+figures, i.e. Google Ads close variants pooled. The exact head term is in the low thousands. The page
+is still justified (real UK demand on a weak SERP), but expectations should be based on a few
+thousand searches a month, not 27K. And the US-locale QuestionFinder "0" was the wrong market,
+not missing demand.
+
 **hreflang: no.** Google uses hreflang for *"multiple versions of a page for different languages or
 regions"* [G]. This site has one English version of each page, so there is nothing to annotate. The
 Search Console International Targeting report is deprecated [G]. Google also *"ignores locational
