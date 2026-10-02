@@ -853,6 +853,23 @@ off.
 with GA4 Consent Mode; (b) keep GA4 as is until AdSense, then add the CMP; (c) drop GA4 cookies
 for EEA/UK users. Claude cannot settle the legal question. P2, [G] + [UNV].
 
+**R9, checked 2 Oct 2026 (read, not assumed):**
+- Google's EU User Consent Policy covers end users in the EEA, the UK and Switzerland, and requires
+  consent for *"the use of cookies or other local storage where legally required"*
+  (google.com/about/company/user-consent-policy/). So Google's own rule turns on the local law.
+- UK law: the ICO's storage-and-access guidance, finalised 29 Apr 2026 after the Data (Use and
+  Access) Act 2025, has a **"statistical purposes" exception**. No consent is needed when the *sole*
+  purpose is aggregate statistics about how the site is used, in order to improve it, AND the user
+  gets clear information plus a *"simple and free means to object"*. It does not cover advertising
+  or cross-site tracking, and a multi-purpose cookie loses it (ico.org.uk, "What are the
+  exceptions?" and "How do we manage consent in practice?").
+- Not settled: whether GA4 as configured here meets "sole purpose". That depends on GA4 Admin
+  settings (Google signals, ads personalisation, data sharing with Google) which have not been
+  checked, and on whether /privacy's opt-out counts as "simple and free". EEA law was not checked
+  at all; the UK exception does not carry over to it.
+- R6 targets UK and AU searchers, so it raises the weight of this decision. Settle it before R6
+  ships.
+
 **R10 — authority** — see §21. P2, [M]/[BP].
 
 **R11 — AdSense gate (this document's thresholds, not Google's).** Apply when all of these hold:
