@@ -10,7 +10,9 @@ import {
   inFromCircumference, sizeContext, CHART_ROWS,
   ISO_MIN, ISO_MAX, JP_MAX, UK_MAX_STEP, INDIA_MAX, CIRC_MINUS_40_MAX,
   AVERAGE_US_SIZE,
+  UK_LETTER_ROWS, UK_STEP_MM, ukWholeLetterUp, ukCircumferenceAtStep,
 } from '../src/data/ringSizes.ts';
+import { AU_CHARTS, AU_RULE_QUOTER, UK_HIGH_STREET, UK_HIGHER_GROUP } from '../src/data/letterCharts.ts';
 import {
   toMode, toDia, modeSpec, modeFromParams, ceilTo, floorTo,
   parseMeasurement, clampToMode,
@@ -756,6 +758,65 @@ for (const m of ['dia', 'circ'] as const) {
     eq(`${m}/${u}: an in-range value is not moved`, clampToMode(mid, m, u).value, mid, 0);
   }
 }
+
+console.log('\n— /uk-ring-size-chart: the letter-ordered chart —');
+/* The page lists the scale BY LETTER, so these check the scale as a list:
+ * complete, in order, nothing skipped or repeated. A skipped half letter is
+ * exactly the defect that shifts published charts (RESEARCH.md, I½). */
+eq('letter chart starts at A', UK_LETTER_ROWS[0].uk, 'A');
+eq('letter chart ends at Z+6', UK_LETTER_ROWS[UK_LETTER_ROWS.length - 1].uk, 'Z+6');
+eq('letter chart has every half letter, A to Z+6 (63)', UK_LETTER_ROWS.length, 63);
+eq('no letter appears twice', new Set(UK_LETTER_ROWS.map((r) => r.uk)).size, UK_LETTER_ROWS.length);
+eq('rows are exactly half a letter apart',
+   UK_LETTER_ROWS.every((r, i) => i === 0
+     || Math.abs(r.circumferenceMm - UK_LETTER_ROWS[i - 1].circumferenceMm - UK_STEP_MM / 2) < 1e-9), true);
+eq('Z+6 is 76.25 mm around', UK_LETTER_ROWS[UK_LETTER_ROWS.length - 1].circumferenceMm, 76.25, 1e-9);
+eq('worked example on the page: 57 mm -> P½', ukFromCircumference(57), 'P½');
+
+/* Read-back at the precision the page prints, the same test the main chart
+ * gets: a figure copied off a row must name that row's letter and US size.
+ * (The sizer itself starts at 40.5 mm, so A to C are checked as arithmetic
+ * only — nobody can type them in.) */
+const letterDp = { dia: modeSpec('dia', 'mm').dp, circ: modeSpec('circ', 'mm').dp };
+const letterMisreads = UK_LETTER_ROWS.filter((r) => {
+  const c = fromCircumference(parseFloat(r.circumferenceMm.toFixed(letterDp.circ)));
+  const d = fromDiameter(parseFloat(r.diameterMm.toFixed(letterDp.dia)));
+  return c.uk !== r.uk || d.uk !== r.uk || c.us !== r.us;
+}).map((r) => r.uk);
+eq('every letter row reads back as itself', letterMisreads.join(' ') || 'none', 'none');
+
+console.log('\n— /uk-ring-size-chart: "whole letters only? buy" column —');
+const letterIndex = (l: string | null) => UK_LETTER_ROWS.findIndex((r) => r.uk === l);
+eq('US 6 is L½ — whole letters only, buy M',
+   ukWholeLetterUp(fromDiameter(diameterFromUs(6)).circumferenceMm), 'M');
+eq('an exact whole letter is left alone (M -> M)', ukWholeLetterUp(ukCircumferenceAtStep(12)), 'M');
+eq('Z½ goes up to Z+1', ukWholeLetterUp(ukCircumferenceAtStep(25.5)), 'Z+1');
+eq('Z+5½ goes up to Z+6, still on the scale', ukWholeLetterUp(ukCircumferenceAtStep(30.5)), 'Z+6');
+eq('past Z+6 nothing is offered', ukWholeLetterUp(ukCircumferenceAtStep(32)), null);
+/* For every US row the page prints: the letter to buy is a WHOLE letter, and
+ * it is the exact letter or the one half-step above — never below. */
+const buyWrong = Array.from({ length: 21 }, (_, i) => 3 + i / 2).filter((us) => {
+  const circ = fromDiameter(diameterFromUs(us)).circumferenceMm;
+  const exact = letterIndex(ukFromCircumference(circ));
+  const buy = letterIndex(ukWholeLetterUp(circ));
+  return buy % 2 !== 0 || (buy - exact !== 0 && buy - exact !== 1);
+});
+eq('US 3–13: buy column is whole, and never rounds down', buyWrong.join(' ') || 'none', 'none');
+
+console.log('\n— /uk-ring-size-chart: jewellers\' published letters (letterCharts.ts) —');
+/* Readings, not standards — these pin the sentences the page builds from them. */
+eq('UK high street L is within 0.05 mm of ours',
+   Math.abs(UK_HIGH_STREET.l - ukCircumferenceAtStep(11)), 0.05, 1e-9);
+eq('UK high street M equals ours', Math.abs(UK_HIGH_STREET.m - ukCircumferenceAtStep(12)), 0, 1e-9);
+eq('the higher UK group\'s M (51.87 mm) is L½ here', ukFromCircumference(UK_HIGHER_GROUP.m), 'L½');
+eq('AU chart 2: L from 16.41 mm across', AU_CHARTS[1].l, 51.55, 0.005);
+eq('AU chart 2: M from 16.81 mm across', AU_CHARTS[1].m, 52.81, 0.005);
+const auMs = AU_CHARTS.map((c) => c.m);
+const auSpread = Math.max(...auMs) - Math.min(...auMs);
+eq('Australian M spread is 1.33 mm', auSpread, 1.33, 1e-9);
+eq('…which is more than one whole letter', auSpread > UK_STEP_MM, true);
+eq('the chart quoting the 1.25 mm rule sits ~0.3 mm above it',
+   (AU_RULE_QUOTER.l - ukCircumferenceAtStep(11) + AU_RULE_QUOTER.m - ukCircumferenceAtStep(12)) / 2, 0.3, 0.05);
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
