@@ -140,8 +140,10 @@ export const FAQS: Faq[] = [
      * The storage list is also exhaustive on purpose. A first draft said "the
      * only thing stored is your screen calibration"; the site actually writes
      * FOUR keys — rst.pxPerMm, rst.dprAtCalibration, rst.calObject and theme.
-     * "Only" is a claim, and it was false. */
-    a: `Yes — the whole tool, the chart and the printable sheet, with no account, no email address and no trial. Nothing you measure is uploaded: the sizing runs entirely in your browser. Three things are remembered on your own device and sent nowhere — your screen calibration, which reference object you calibrated with, and whether you chose the light or dark theme. There are no ads and no advertising cookies today; the site is intended to carry advertising eventually, and the privacy policy will name the network, and ask EEA and UK visitors for consent, before any advertising cookie is set.`,
+     * "Only" is a claim, and it was false. The consent banner (2 Oct 2026)
+     * added a fifth, rst.consent, so the answer now names four things: the
+     * two calibration keys are one thing to a reader. */
+    a: `Yes — the whole tool, the chart and the printable sheet, with no account, no email address and no trial. Nothing you measure is uploaded: the sizing runs entirely in your browser. Four things are remembered on your own device and sent nowhere — your screen calibration, which reference object you calibrated with, whether you chose the light or dark theme, and your answer to the analytics cookie question. There are no ads and no advertising cookies today; the site is intended to carry advertising eventually, and the privacy policy will name the network, and ask EEA and UK visitors for consent, before any advertising cookie is set.`,
   },
   {
     q: 'Can I find my ring size online without a ring sizer?',

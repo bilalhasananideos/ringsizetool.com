@@ -38,10 +38,13 @@ import Layout from '../layouts/Layout.astro';
 import Prose from '../components/Prose.astro';
 import { SITE_NAME, EMAIL, NOINDEX_SITE, GA_MEASUREMENT_ID } from '../config';
 import { PPM_STORE_KEY, DPR_STORE_KEY, CAL_OBJECT_STORE_KEY } from '../data/calibration';
+import { CONSENT_STORE_KEY, CONSENT_MAX_AGE_DAYS } from '../data/consent';
 
 /* Dated from the commit that made it true, not auto-generated: a policy whose
    date moves on every build tells the reader nothing about when it changed. */
-const LAST_UPDATED = '1 October 2026';
+/* ⚠️ The consent banner (feature/consent-banner) makes this page true only
+   once it is DEPLOYED. If it ships later than this date, re-date it then. */
+const LAST_UPDATED = '2 October 2026';
 
 /* Read from the live cookies rather than from Google's documentation, which
    describes defaults this property may not be using. Both GA4 cookies came
@@ -50,7 +53,7 @@ const GA_COOKIE_DAYS = 400;
 ---
 <Layout
   title={`Privacy Policy — ${SITE_NAME}`}
-  description={`What ${SITE_NAME} collects: page views, which ring sizer steps were used and two analytics cookies. Never your measurements — they stay in your browser.`}
+  description={`What ${SITE_NAME} collects: page views and which ring sizer steps were used, with two analytics cookies only if you accept. Never your measurements.`}
   noindex={NOINDEX_SITE}
 >
   <Prose title="Privacy Policy">
@@ -63,15 +66,16 @@ const GA_COOKIE_DAYS = 400;
       sent anywhere — there is no server here to send them to.
     </p>
     <p>
-      What we do collect is ordinary web analytics. Since 20 September 2026 this site has run Google
-      Analytics 4, which records that a page was visited and which steps of the ring sizer were used,
-      and sets two cookies to do it. Cloudflare,
-      which hosts the site, also counts page views and how fast pages load, without cookies. That is
-      the whole of it, and both are described in full below.
+      What we do collect is ordinary web analytics, and the main part of it only if you say yes.
+      Google Analytics 4 records that a page was visited and which steps of the ring sizer were
+      used, and sets two cookies to do it — but only after you accept it in the cookie banner. If
+      you reject it, or never answer, it does not load at all. Cloudflare, which hosts the site,
+      also counts page views and how fast pages load, without cookies, and that part does not
+      depend on the banner. That is the whole of it, and both are described in full below.
     </p>
 
     <h2>What is stored on your device</h2>
-    <p>Up to four small values, all in your browser&rsquo;s local storage, none of which leaves it:</p>
+    <p>Up to five small values, all in your browser&rsquo;s local storage, none of which leaves it:</p>
     <ul>
       <li>
         <strong>Your theme preference</strong> — light, dark or system, so the page does not flash
@@ -85,7 +89,7 @@ const GA_COOKIE_DAYS = 400;
       {/* wrap-anywhere on the key below: at 320 px it is wider than the line
           and pushed the page sideways. */}
       <li>
-        <strong>Your browser&rsquo;s zoom level when you calibrated</strong>
+        <strong>Your browser&rsquo;s zoom level when you calibrated</strong>{' '}
         (<code class="wrap-anywhere">{DPR_STORE_KEY}</code>) — so the sizer can warn you if the zoom has changed since, which
         would make the calibration wrong.
       </li>
@@ -93,14 +97,19 @@ const GA_COOKIE_DAYS = 400;
         <strong>What you calibrated against</strong> (<code>{CAL_OBJECT_STORE_KEY}</code>) — a card, a
         US quarter or a 1 euro coin, so the same one is offered next time. Stored only if you pick one.
       </li>
+      <li>
+        <strong>Your answer to the cookie banner</strong> (<code>{CONSENT_STORE_KEY}</code>) — accepted
+        or rejected, and when, so you are not asked on every page. It is kept for{' '}
+        {CONSENT_MAX_AGE_DAYS} days, about six months; after that the banner asks again.
+      </li>
     </ul>
     <p>Clearing this site&rsquo;s data in your browser removes all of them.</p>
 
-    <h2>Analytics</h2>
+    <h2 id="analytics">Analytics</h2>
     <p>
-      This site runs two measurement scripts, and no others: <strong>Google Analytics 4</strong>
-      (measurement ID <code>{GA_MEASUREMENT_ID}</code>), described first, and Cloudflare Web
-      Analytics, described after it.
+      This site runs two measurement scripts, and no others: <strong>Google Analytics 4</strong>{' '}
+      (measurement ID <code>{GA_MEASUREMENT_ID}</code>), which runs only if you accept it and is
+      described first, and Cloudflare Web Analytics, described after it.
     </p>
     <p>It records the ordinary things an analytics tool records:</p>
     <ul>
@@ -125,18 +134,28 @@ const GA_COOKIE_DAYS = 400;
       It does <strong>not</strong> receive anything you type into the ring sizer. The measurement,
       the calibration and the resulting size stay in your browser; no event carries them.
     </p>
-    <p>Two cookies make this work, both first-party and both expiring after {GA_COOKIE_DAYS} days:</p>
+    <p>
+      Two cookies make this work, both first-party, both set only after you accept, and both
+      expiring after {GA_COOKIE_DAYS} days:
+    </p>
     <ul>
       <li><code>_ga</code> — distinguishes one browser from another.</li>
       <li><code>_ga_{GA_MEASUREMENT_ID.replace('G-', '')}</code> — holds the session state for this property.</li>
     </ul>
     <p>
-      Being straight about the consequence: these are set when the page loads, before anyone is
-      asked. There is no consent banner on this site yet. If you would rather not be counted, block
-      cookies for this domain, use Google&rsquo;s <a
+      <strong>Nothing from Google loads until you accept.</strong> Before you answer, and after you
+      reject, the Google Analytics script is not fetched at all and neither cookie is set; any left
+      over from an earlier visit are deleted. When you accept, the script loads with Google&rsquo;s
+      advertising features switched off — Google signals and ad personalisation — and with
+      permission for analytics storage only, never advertising storage.
+    </p>
+    <p>
+      To change your mind, use &ldquo;Cookie settings&rdquo; at the foot of any page. Rejecting there
+      deletes both cookies and reloads the page so the script stops. Your answer is asked for again
+      after about six months. Google&rsquo;s <a
         href="https://tools.google.com/dlpage/gaoptout"
-        rel="nofollow noopener">opt-out add-on</a>, or any content blocker — the ring sizer works
-      exactly the same either way, because it never needed the network in the first place.
+        rel="nofollow noopener">opt-out add-on</a> and content blockers also still work, and the ring
+      sizer works exactly the same whichever you choose, because it never needed the network.
     </p>
 
     <h3>Cloudflare Web Analytics</h3>
@@ -147,6 +166,8 @@ const GA_COOKIE_DAYS = 400;
       device, and Cloudflare states that it does not fingerprint visitors by IP address or browser.
       It does not see anything you type into the ring sizer either. We see only totals — page views,
       referrers, countries, device types and load times — never an individual visit. Content blockers stop it too.
+      It is not controlled by the cookie banner: Cloudflare adds it at its network edge, outside
+      this site&rsquo;s own code, so it runs whatever you choose there.
     </p>
 
     <h2>Advertising</h2>
@@ -168,8 +189,9 @@ const GA_COOKIE_DAYS = 400;
     <h2>Your choices</h2>
     <p>
       Clear this site&rsquo;s data in your browser to remove the theme and calibration values, and
-      the two Google Analytics cookies with them. Cloudflare&rsquo;s analytics stores nothing to clear. To stay out of the analytics altogether, see the opt-out
-      options above.
+      the two Google Analytics cookies with them. Cloudflare&rsquo;s analytics stores nothing to clear.
+      To stay out of Google Analytics, reject it in the cookie banner or under &ldquo;Cookie
+      settings&rdquo;.
     </p>
     <p>
       What we hold is the aggregate Google Analytics reports — visit counts by page, country, device

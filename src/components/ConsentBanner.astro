@@ -1,0 +1,84 @@
+---
+/**
+ * The analytics consent banner. Rules and sources: src/data/consent.ts.
+ *
+ * Shown by CSS, not by script: Layout.astro's <head> script writes
+ * <html data-consent="unset|granted|denied"> before the body paints, and
+ * global.css displays `.consent` only for "unset" or while
+ * data-consent-open is set. So it never flashes on a returning visitor, and
+ * because it is position: fixed it cannot shift the page (no CLS).
+ *
+ * Both buttons share one class string. "As easy to refuse as to accept" is
+ * the ICO's rule, and two strings are how one of them drifts into a fainter
+ * style later.
+ *
+ * Small on purpose. Google exempts legally required banners from its
+ * intrusive-interstitial guidance, and still recommends "banners that take up
+ * only a small fraction of the screen" — so this one never covers the tool.
+ */
+const BUTTON =
+  'inline-flex min-h-11 flex-1 cursor-pointer items-center justify-center rounded-full border-2 border-border-strong bg-surface px-4 text-sm font-semibold text-text transition-colors duration-150 hover:border-accent';
+---
+<section class="consent no-print" aria-label="Analytics cookies">
+  <div class="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-xl rounded-xl border border-border bg-surface p-3 shadow-md sm:inset-x-4 sm:bottom-4 sm:p-5">
+    <p class="text-sm leading-snug text-text sm:leading-relaxed">
+      <strong>Can we count your visit?</strong> If you accept, Google Analytics sets two cookies to
+      see which pages and sizer steps get used — never your measurements, and with Google’s ad
+      features off.{' '}
+      <a href="/privacy#analytics" class="text-accent-text underline underline-offset-2">Details</a>
+    </p>
+    <p class="mt-1 text-xs text-text-muted">
+      Change it any time under “Cookie settings” at the foot of the page.{' '}
+      <span data-consent-current></span>
+    </p>
+    <div class="mt-2.5 flex gap-3 sm:mt-3">
+      <button type="button" class={BUTTON} data-consent-choice="granted">Accept</button>
+      <button type="button" class={BUTTON} data-consent-choice="denied">Reject</button>
+    </div>
+  </div>
+</section>
+
+<script>
+  type ConsentApi = { choose: (answer: string) => void };
+  const api = (window as unknown as { rstConsent?: ConsentApi }).rstConsent;
+  const root = document.documentElement;
+  const current = document.querySelector<HTMLElement>('[data-consent-current]');
+  const first = document.querySelector<HTMLButtonElement>('[data-consent-choice]');
+  let opener: HTMLElement | null = null;
+
+  const close = () => {
+    root.removeAttribute('data-consent-open');
+    opener?.focus();
+    opener = null;
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('[data-consent-choice]').forEach((button) => {
+    button.addEventListener('click', () => {
+      api?.choose(button.dataset.consentChoice ?? '');
+      opener?.focus();
+      opener = null;
+    });
+  });
+
+  /* "Cookie settings" in the footer: reopen, say what the current answer is,
+     and put focus on the choice so withdrawing takes the same two steps as
+     agreeing did. */
+  document.querySelectorAll<HTMLButtonElement>('[data-consent-open]').forEach((button) => {
+    button.addEventListener('click', () => {
+      opener = button;
+      const state = root.getAttribute('data-consent');
+      if (current) {
+        current.textContent =
+          state === 'granted' ? 'You have accepted.' : state === 'denied' ? 'You have rejected.' : '';
+      }
+      root.setAttribute('data-consent-open', '');
+      first?.focus();
+    });
+  });
+
+  /* Escape closes a REOPENED banner and changes nothing. A first-visit banner
+     stays until answered — closing it is not an answer, and no is the default. */
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && root.hasAttribute('data-consent-open')) close();
+  });
+</script>

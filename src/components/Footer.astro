@@ -1,6 +1,6 @@
 ---
 import Logo from './Logo.astro';
-import { SITE_NAME, FOOTER_LINKS } from '../config';
+import { SITE_NAME, FOOTER_LINKS, NOINDEX_SITE } from '../config';
 const year = new Date().getFullYear();
 ---
 <footer class="no-print mt-24 border-t border-border">
@@ -19,6 +19,16 @@ const year = new Date().getFullYear();
             {l.label}
           </a>
         ))}
+        {/* Reopens the consent banner (ConsentBanner.astro). A button, not a
+            link: it changes a setting rather than going anywhere. Hidden by
+            global.css when the consent script has not run. */}
+        {!NOINDEX_SITE && (
+          <button
+            type="button"
+            data-consent-open
+            class="cursor-pointer text-sm text-text-muted transition-colors duration-150 hover:text-text"
+          >Cookie settings</button>
+        )}
       </nav>
     </div>
     <p class="mt-8 text-xs text-text-faint border-t border-border pt-6">© {year} {SITE_NAME}</p>

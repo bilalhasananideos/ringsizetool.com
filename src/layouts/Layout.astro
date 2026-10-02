@@ -3,6 +3,8 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_NAME, SITE_URL, EMAIL, GA_MEASUREMENT_ID, NOINDEX_SITE } from '../config';
+import { CONSENT_STORE_KEY, CONSENT_VERSION, CONSENT_MAX_AGE_MS } from '../data/consent';
+import ConsentBanner from '../components/ConsentBanner.astro';
 
 interface Props {
   title: string;
@@ -192,32 +194,126 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
       })();
     </script>
 
-    {/* GA4 runs on the production host only. NOINDEX_SITE used to be what kept
-        dev and preview builds out of the numbers, but it is false in every
-        build now, so `npm run preview` and the *.pages.dev alias were counted
-        as real traffic — GA4's page report for 21–29 Sep holds 23 page views
-        from hostName "localhost" and 4 from "ringsizetool.pages.dev". The
-        loader is injected from here, rather than being a static
-        <script src>, so that nothing fetches it on any other host.
+    {/* GA4 runs on the production host only, and only after the visitor says
+        yes. Host gate: NOINDEX_SITE used to keep dev and preview builds out of
+        the numbers, but it is false in every build now, so `npm run preview`
+        and the *.pages.dev alias were counted as real traffic — GA4's page
+        report for 21–29 Sep holds 23 page views from hostName "localhost" and
+        4 from "ringsizetool.pages.dev".
 
-        `gtag` is put on window on purpose: define:vars wraps this script in a
-        function, so a plain `function gtag()` is invisible to the tool's
-        script, which sends its usage events through `window.gtag` and does
-        nothing when it is absent — as it is here on every other host. */}
+        Consent gate (src/data/consent.ts has the sources): this is Google's
+        "basic" consent mode. Until the visitor accepts, gtag.js is never
+        fetched, `window.gtag` does not exist, and no GA cookie is set. The
+        tool's usage events already test `typeof gtag === 'function'` at the
+        moment they fire, so before consent they do nothing, and after it they
+        work without a reload. Any `_ga` cookie from before this banner existed
+        is deleted on every page view that lacks a yes.
+
+        This runs in <head>, before the body paints, and only writes
+        data-consent on <html>; global.css shows the banner from that
+        attribute, so there is no flash and no layout shift. The banner's
+        buttons call window.rstConsent.choose(). */}
     {!NOINDEX_SITE && (
-      <script is:inline define:vars={{ GA_MEASUREMENT_ID, GA_HOST: new URL(SITE_URL).hostname }}>
-        if (location.hostname === GA_HOST) {
-          window.dataLayer = window.dataLayer || [];
-          window.gtag = function () {
-            window.dataLayer.push(arguments);
+      <script
+        is:inline
+        define:vars={{
+          GA_MEASUREMENT_ID,
+          GA_HOST: new URL(SITE_URL).hostname,
+          CONSENT_KEY: CONSENT_STORE_KEY,
+          CONSENT_VERSION,
+          CONSENT_MAX_AGE_MS,
+        }}
+      >
+        (function () {
+          var root = document.documentElement;
+          var gaLoaded = false;
+
+          function read() {
+            try {
+              var v = JSON.parse(localStorage.getItem(CONSENT_KEY) || 'null');
+              if (!v || v.v !== CONSENT_VERSION) return null;
+              if (v.a !== 'granted' && v.a !== 'denied') return null;
+              var age = Date.now() - v.t;
+              if (typeof v.t !== 'number' || age < 0 || age > CONSENT_MAX_AGE_MS) return null;
+              return v.a;
+            } catch (e) {
+              return null; /* blocked storage: treat as unanswered, load nothing */
+            }
+          }
+
+          function save(answer) {
+            try {
+              localStorage.setItem(CONSENT_KEY, JSON.stringify({ v: CONSENT_VERSION, a: answer, t: Date.now() }));
+            } catch (e) {
+              /* the choice still applies to this page; it cannot be remembered */
+            }
+          }
+
+          /* gtag's default cookie_domain is "auto", the highest domain that
+             accepts a cookie, so try every level of the host as well as
+             host-only — whichever one set it is the one that clears it. */
+          function clearGaCookies() {
+            var parts = location.hostname.split('.');
+            var domains = [''];
+            for (var i = 0; i < parts.length - 1; i++) domains.push('; domain=.' + parts.slice(i).join('.'));
+            document.cookie.split(';').forEach(function (c) {
+              var name = c.split('=')[0].trim();
+              if (name !== '_ga' && name.indexOf('_ga_') !== 0) return;
+              domains.forEach(function (d) {
+                document.cookie = name + '=; Max-Age=0; path=/' + d;
+              });
+            });
+          }
+
+          function loadGa() {
+            if (gaLoaded || location.hostname !== GA_HOST) return;
+            gaLoaded = true;
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function () {
+              window.dataLayer.push(arguments);
+            };
+            /* Order per Google's basic-mode guide: defaults first, then the
+               update the visitor's yes allows. Only analytics is granted. */
+            window.gtag('consent', 'default', {
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              analytics_storage: 'denied',
+            });
+            window.gtag('consent', 'update', { analytics_storage: 'granted' });
+            window.gtag('set', { allow_ad_personalization_signals: false });
+            window.gtag('js', new Date());
+            window.gtag('config', GA_MEASUREMENT_ID, { allow_google_signals: false });
+            var tag = document.createElement('script');
+            tag.async = true;
+            tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
+            document.head.appendChild(tag);
+          }
+
+          var answer = read();
+          root.setAttribute('data-consent', answer || 'unset');
+          if (answer === 'granted') loadGa();
+          else clearGaCookies();
+
+          window.rstConsent = {
+            choose: function (next) {
+              if (next !== 'granted' && next !== 'denied') return;
+              save(next);
+              root.setAttribute('data-consent', next);
+              root.removeAttribute('data-consent-open');
+              if (next === 'granted') {
+                loadGa();
+                return;
+              }
+              window['ga-disable-' + GA_MEASUREMENT_ID] = true;
+              clearGaCookies();
+              /* gtag.js cannot be unloaded from a running page, and it keeps
+                 timers (engagement pings on page hide). A reload is the one
+                 certain way to stop it after a yes is withdrawn. */
+              if (gaLoaded) location.reload();
+            },
           };
-          window.gtag('js', new Date());
-          window.gtag('config', GA_MEASUREMENT_ID);
-          var tag = document.createElement('script');
-          tag.async = true;
-          tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
-          document.head.appendChild(tag);
-        }
+        })();
       </script>
     )}
 
@@ -226,6 +322,10 @@ const ogImageUrl = new URL(ogImage, Astro.site).href;
 
   <body class="min-h-dvh flex flex-col">
     <a href="#main" class="skip-link">Skip to content</a>
+    {/* First after the skip link, so keyboard users reach the choice before
+        the navigation. Hidden by CSS unless <html data-consent="unset"> or
+        data-consent-open is set — see the head script above. */}
+    {!NOINDEX_SITE && <ConsentBanner />}
     <Header hasTool={hasTool} />
     <main id="main" class="flex-1 w-full">
       <slot />

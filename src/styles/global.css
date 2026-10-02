@@ -346,6 +346,15 @@ details[open] summary ~ * {
   }
 }
 
+/* Analytics consent banner (ConsentBanner.astro). Layout.astro's <head> script
+   sets <html data-consent> before the body paints, so this decides visibility
+   with no flash. No attribute at all means the script never ran: then GA4
+   cannot load either, so there is nothing to ask about or reopen. */
+.consent { display: none; }
+html[data-consent='unset'] .consent,
+html[data-consent-open] .consent { display: block; }
+html:not([data-consent]) [data-consent-open] { display: none; }
+
 /* Screen chrome has no business on paper. `.no-print` hides it; `.print-only`
    is the inverse, for the one thing a printed sheet needs that a screen does
    not — a line saying where it came from, once the sheet has left the browser. */
