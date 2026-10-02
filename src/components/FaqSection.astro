@@ -23,6 +23,12 @@ interface Props {
    * pick it up silently; pass it explicitly per page.
    */
   showAnswerReadyNote?: boolean;
+  /**
+   * Where the questions came from, said precisely. Defaults to the PAA line,
+   * which is only true when every question on the page is verbatim PAA — a
+   * page whose questions came another way must say so instead.
+   */
+  sourceNote?: string;
 }
 
 const {
@@ -30,15 +36,13 @@ const {
   heading = 'Questions people actually ask',
   id = 'faq',
   showAnswerReadyNote = false,
+  sourceNote = 'Taken word for word from Google\u2019s \u201cPeople also ask\u201d. Nothing here is invented to pad the page.',
 } = Astro.props;
 ---
 <section id={id} class="mt-16" aria-labelledby={`${id}-title`}>
   <h2 id={`${id}-title`} class="text-[clamp(1.75rem,3.5vw,2.25rem)]">{heading}</h2>
 
-  <p class="mt-3 max-w-[62ch] text-sm text-text-muted">
-    Taken word for word from Google&rsquo;s &ldquo;People also ask&rdquo;. Nothing here is invented
-    to pad the page.
-  </p>
+  <p class="mt-3 max-w-[62ch] text-sm text-text-muted">{sourceNote}</p>
   {showAnswerReadyNote && (
     <p class="mt-3 max-w-[68ch] text-sm text-text-muted leading-relaxed">
       Every answer below is written straight into the page &mdash; open or closed, it is already

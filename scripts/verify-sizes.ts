@@ -818,5 +818,18 @@ eq('…which is more than one whole letter', auSpread > UK_STEP_MM, true);
 eq('the chart quoting the 1.25 mm rule sits ~0.3 mm above it',
    (AU_RULE_QUOTER.l - ukCircumferenceAtStep(11) + AU_RULE_QUOTER.m - ukCircumferenceAtStep(12)) / 2, 0.3, 0.05);
 
+console.log('\n— /uk-ring-size-chart FAQ (UK_FAQS in faq.ts) —');
+/* faq.ts cannot be imported here (extensionless imports), so the figures its
+ * answers print are pinned at the source instead. */
+eq('21 mm across is US 11½', fromDiameter(21).us, '11½');
+eq('21 mm across is UK X', fromDiameter(21).uk, 'X');
+eq('21 mm around is below A, so no letter', ukFromCircumference(21), null);
+eq('US 7 is N½ and US 8 is P½',
+   `${fromDiameter(diameterFromUs(7)).uk} ${fromDiameter(diameterFromUs(8)).uk}`, 'N½ P½');
+eq('US 7 to US 8 is two whole letters',
+   Math.round((fromDiameter(diameterFromUs(8)).circumferenceMm - fromDiameter(diameterFromUs(7)).circumferenceMm) / UK_STEP_MM), 2);
+eq('counting A as 0: step 11 is L, 11.5 is L½',
+   `${ukFromCircumference(ukCircumferenceAtStep(11))} ${ukFromCircumference(ukCircumferenceAtStep(11.5))}`, 'L L½');
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

@@ -27,7 +27,8 @@ import {
   ukFromCircumference, ukWholeLetterUp, fromDiameter, diameterFromUs,
 } from '../data/ringSizes';
 import { modeSpec } from '../data/ringModes';
-import { breadcrumbSchema } from '../data/faq';
+import FaqSection from '../components/FaqSection.astro';
+import { breadcrumbSchema, faqPageSchema, UK_FAQS } from '../data/faq';
 import {
   AU_CHARTS, AU_RULE_QUOTER, UK_HIGH_STREET, UK_HIGHER_GROUP,
   UK_CHAINS_CHECKED, UK_CHAINS_AGREEING,
@@ -87,6 +88,7 @@ const mm = (n: number, places = 2) => `${n.toFixed(places)} mm`;
 const pub = (n: number) => `${Number(n.toFixed(2))} mm`;
 
 const jsonLd = [
+  faqPageSchema(UK_FAQS),
   breadcrumbSchema([
     { name: 'Ring Sizer', url: SITE_URL },
     { name: 'Ring Size Chart', url: `${SITE_URL}/ring-size-chart` },
@@ -420,6 +422,13 @@ const SECTIONS = [
         figure that means the same thing in every shop.
       </p>
     </aside>
+
+    <FaqSection
+      faqs={UK_FAQS}
+      heading="UK ring size questions"
+      id="faq"
+      sourceNote="Word for word, the questions Google shows US searchers for “uk ring size chart”. Nothing here is invented to pad the page."
+    />
 
   </div>
 </Layout>
