@@ -3,7 +3,7 @@
 Last updated: 5 Oct 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
 
-**📏 Chart range raised from US 14 to US 15½ — 5 Oct 2026, branch `draft/us-15-half`, NOT deployed.**
+**📏 Chart range raised from US 14 to US 15½ — DEPLOYED 5 Oct 2026 (`0498040..7ef283d`, run 37314849956 green; live chart has 51 rows, verified).**
 Owner asked for US 16; shown that at US 15¾ and 16 the UK (past Z+6), ISO (past 76), Japanese (past
 35) and minus-40 (past 36) columns are empty and the tool stops there, the owner chose 15½.
 `CHART_MAX_US` is computed (the last quarter where all seven systems answer), not typed.
