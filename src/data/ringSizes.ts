@@ -406,10 +406,34 @@ export function fromDiameter(diameterMm: number): RingSize {
 
 export const fromCircumference = (circMm: number) => fromDiameter(circMm / Math.PI);
 
-/** US 3 to 14 in quarter steps - the range actually sold. */
+/* ── The chart's range ────────────────────────────────────────────────────
+ * From US 3, the smallest size jewellers stock, up to the last quarter size
+ * every one of the seven systems can still name. Above it the British scale
+ * (Z+6), ISO 8653 (76), the Japanese 号 table (35) and the minus-40 scales (36)
+ * run out, and a row would be mostly em dashes. That ceiling is US 15½. It is
+ * found here rather than typed, so it moves if one of those constants does.
+ *
+ * Until 5 Oct 2026 the chart stopped at US 14, "the range actually sold". It
+ * was raised on the owner's call because the sizes above 14 are searched —
+ * "3 inch ring size", "76.2 mm ring size", "size 15 ring in mm", "7.5 cm ring
+ * size" (DataForSEO, US, 5 Oct 2026) — and every system still answers them.
+ * The owner chose 15½ over 16: at US 15¾ and 16 the UK, EU, Japanese, Italian
+ * and Brazilian columns would be empty, and the tool stops there too. */
+export const CHART_MIN_US = 3;
+
+const answersEverywhere = (r: RingSize) =>
+  [r.us, r.uk, r.eu, r.jp, r.in, r.it, r.br].every((x) => x !== null);
+
+export const CHART_MAX_US = (() => {
+  let q = CHART_MIN_US;
+  while (answersEverywhere(fromDiameter(diameterFromUs(q + 0.25)))) q += 0.25;
+  return q;
+})();
+
+/** US 3 to 15½ in quarter steps — see the range note above. */
 export const CHART_ROWS: RingSize[] = Array.from(
-  { length: (14 - 3) * 4 + 1 },
-  (_, i) => fromDiameter(diameterFromUs(3 + i * 0.25)),
+  { length: (CHART_MAX_US - CHART_MIN_US) * 4 + 1 },
+  (_, i) => fromDiameter(diameterFromUs(CHART_MIN_US + i * 0.25)),
 );
 
 /** Every position the British scale names, A to Z+6 in half letters, for the
@@ -432,7 +456,7 @@ export const UK_LETTER_ROWS: RingSize[] = Array.from(
  *
  * Every row goes through fromDiameter() or fromCircumference(), the same path
  * as the tool, and is kept only while its US size is inside CHART_ROWS (US 3
- * to 14, the range actually sold). That is the rule the how-to page's strip
+ * to 15½, see the range note above). That is the rule the how-to page's strip
  * table already follows: a size the chart does not list is printed nowhere.
  * The bounds are read from CHART_ROWS, so widening the chart widens these.
  */

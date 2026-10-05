@@ -12,7 +12,7 @@ import {
   AVERAGE_US_SIZE,
   UK_LETTER_ROWS, UK_STEP_MM, ukWholeLetterUp, ukCircumferenceAtStep,
   DIAMETER_LOOKUP_ROWS, CIRCUMFERENCE_LOOKUP_ROWS, INCH_LOOKUP_ROWS, JP_LOOKUP_ROWS,
-  US_STEP_MM, MM_PER_INCH, inchFraction,
+  US_STEP_MM, MM_PER_INCH, inchFraction, CHART_MAX_US,
 } from '../src/data/ringSizes.ts';
 import { AU_CHARTS, AU_RULE_QUOTER, UK_HIGH_STREET, UK_HIGHER_GROUP } from '../src/data/letterCharts.ts';
 import {
@@ -839,17 +839,54 @@ eq('counting A as 0: step 11 is L, 11.5 is L½',
  * published rules — US 11.6332 + 0.8128n, UK A = 37.5 mm + 1.25 per letter,
  * ISO = circumference, JCS 13 mm + 1/3 per size — not read back from the
  * functions under test. */
-console.log('\n— Lookup tables: ranges stay inside the chart (US 3 to 14) —');
+console.log('\n— Chart range: US 3 to the last size every system names —');
+/* Raised from US 14 on 5 Oct 2026. The ceiling is computed; these pin it and
+ * prove the reason for it: one quarter higher, the standards run out. */
+eq('chart top is US 15½', CHART_MAX_US, 15.5);
+eq('chart has 51 rows (US 3 to 15½ in quarters)', CHART_ROWS.length, 51);
+eq('every chart row answers in all seven systems',
+   CHART_ROWS.every((r) => [r.us, r.uk, r.eu, r.jp, r.in, r.it, r.br].every((x) => x !== null)), true);
+// US 15¾ = 11.6332 + 15.75 × 0.8128 = 24.43 mm, 76.76 mm round: past ISO 76 and past Z+6 (76.25 mm)
+const us1575 = fromDiameter(diameterFromUs(15.75));
+eq('US 15¾ has no ISO size (76.76 mm > 76.5)', us1575.eu, null);
+eq('US 15¾ has no UK letter (past Z+6)', us1575.uk, null);
+eq('US 15¾ has no IT/ES/CH/BR size (past 36)', us1575.it, null);
+// US 15 = 11.6332 + 15 × 0.8128 = 23.83 mm across, 74.85 mm round: (37.35/1.25) = 29.88 -> 30 steps = Z+5 · EU 75 · JCS (10.83×3) = 32.5 -> 33
+const us15 = fromDiameter(diameterFromUs(15));
+eq('US 15 is 23.83 mm across', Number(us15.diameterMm.toFixed(2)), 23.83);
+for (const [k, want] of [['uk', 'Z+5'], ['eu', 75], ['jp', 33]] as const) {
+  eq(`US 15 -> ${k} ${want}`, us15[k], want);
+}
+// US 15½ = 24.23 mm, 76.13 mm round: 30.9 steps -> 31 = Z+6 · EU 76 · JCS (11.23×3) = 33.7 -> 34 + 1 = 35 · minus-40 36
+const us155 = fromDiameter(diameterFromUs(15.5));
+for (const [k, want] of [['uk', 'Z+6'], ['eu', 76], ['jp', 35], ['it', 36]] as const) {
+  eq(`US 15½ -> ${k} ${want}`, us155[k], want);
+}
+
+/* The how-to strip table's new 7.5 cm row. 75 mm round / π = 23.87 mm across;
+ * (23.87 - 11.63)/0.8128 = 15.06 -> US 15 · (37.5/1.25) = 30 steps = Z+5 · EU 75. */
+const cm75 = fromCircumference(75);
+for (const [k, want] of [['us', '15'], ['uk', 'Z+5'], ['eu', 75]] as const) {
+  eq(`7.5 cm round -> ${k} ${want}`, cm75[k], want);
+}
+
+console.log('\n— Lookup tables: ranges stay inside the chart (US 3 to 15½) —');
 const lastOf = <T>(a: T[]) => a[a.length - 1];
-eq('diameter rows: count (14 to 23 mm, half mm)', DIAMETER_LOOKUP_ROWS.length, 19);
+eq('diameter rows: count (14 to 24 mm, half mm)', DIAMETER_LOOKUP_ROWS.length, 21);
 eq('diameter rows: first is 14 mm', DIAMETER_LOOKUP_ROWS[0].diameterMm, 14, 1e-9);
-eq('diameter rows: last is 23 mm', lastOf(DIAMETER_LOOKUP_ROWS).diameterMm, 23, 1e-9);
-eq('circumference rows: count (44 to 72 mm)', CIRCUMFERENCE_LOOKUP_ROWS.length, 29);
+// 24.5 mm -> (24.5 - 11.63)/0.8128 = 15.83 -> 15¾, past the top, so 24 mm (15¼) is the last row
+eq('diameter rows: last is 24 mm', lastOf(DIAMETER_LOOKUP_ROWS).diameterMm, 24, 1e-9);
+eq('circumference rows: count (44 to 76 mm)', CIRCUMFERENCE_LOOKUP_ROWS.length, 33);
 eq('circumference rows: first is 44 mm', CIRCUMFERENCE_LOOKUP_ROWS[0].circumferenceMm, 44, 1e-9);
-eq('circumference rows: last is 72 mm', lastOf(CIRCUMFERENCE_LOOKUP_ROWS).circumferenceMm, 72, 1e-9);
-eq('inch rows: count (1¾ to 2.8 in, eighths and tenths)', INCH_LOOKUP_ROWS.length, 18);
+// 76 mm is ISO's last size and US 15½ (24.19 mm across -> 15.45), so the table now reaches ISO's end
+eq('circumference rows: last is 76 mm', lastOf(CIRCUMFERENCE_LOOKUP_ROWS).circumferenceMm, 76, 1e-9);
+eq('inch rows: count (1¾ to 3 in, eighths and tenths)', INCH_LOOKUP_ROWS.length, 21);
 eq('inch rows: first is 1¾ in', INCH_LOOKUP_ROWS[0].inch, 1.75);
-eq('inch rows: last is 2.8 in', lastOf(INCH_LOOKUP_ROWS).inch, 2.8);
+// 3 in = 76.2 mm round -> 24.26 mm across -> 15.53 -> 15½; 3.1 in -> 16½, past the top
+eq('inch rows: last is 3 in', lastOf(INCH_LOOKUP_ROWS).inch, 3);
+for (const [k, want] of [['us', '15½'], ['uk', 'Z+6'], ['eu', 76], ['jp', 35]] as const) {
+  eq(`3 in round -> ${k} ${want}`, lastOf(INCH_LOOKUP_ROWS)[k], want);
+}
 eq('inch rows: 2.3 in is printed exactly', INCH_LOOKUP_ROWS.some((r) => String(r.inch) === '2.3'), true);
 /* The tape-measure eighths the searches are written in ("2 1/4", "2 1/2",
  * "2 5/8", "2 3/4 inches ring size" — DataForSEO, US, 5 Oct 2026). */
@@ -860,14 +897,15 @@ eq('inch rows: sorted, no repeats', INCH_LOOKUP_ROWS.every((r, i, a) => i === 0 
 for (const [v, want] of [[2.25, '2¼'], [2.5, '2½'], [1.875, '1⅞'], [2.375, '2⅜'], [2, '2'], [2.3, null]] as const) {
   eq(`inchFraction(${v}) is ${want}`, inchFraction(v), want);
 }
-eq('Japan rows: count (4 to 31)', JP_LOOKUP_ROWS.length, 28);
+eq('Japan rows: count (4 to 34)', JP_LOOKUP_ROWS.length, 31);
 eq('Japan rows: first is 4', JP_LOOKUP_ROWS[0].jp, 4);
-eq('Japan rows: last is 31', lastOf(JP_LOOKUP_ROWS).jp, 31);
+// 号35 = 13 + 34/3 = 24.33 mm -> (24.33 - 11.63)/0.8128 = 15.63 -> 15¾, past the top
+eq('Japan rows: last is 34', lastOf(JP_LOOKUP_ROWS).jp, 34);
 /* The how-to page stops its strip table where CHART_ROWS stops, so a size the
  * chart does not list is printed nowhere. These tables must obey the same. */
 const allLookup = [...DIAMETER_LOOKUP_ROWS, ...CIRCUMFERENCE_LOOKUP_ROWS, ...INCH_LOOKUP_ROWS, ...JP_LOOKUP_ROWS];
-eq('every lookup row is US 3 to 14',
-   allLookup.every((r) => r.usNumeric !== null && r.usNumeric >= 3 && r.usNumeric <= 14), true);
+eq('every lookup row is US 3 to 15½',
+   allLookup.every((r) => r.usNumeric !== null && r.usNumeric >= 3 && r.usNumeric <= 15.5), true);
 eq('every lookup row answers in all seven systems',
    allLookup.every((r) => [r.us, r.uk, r.eu, r.jp, r.in, r.it, r.br].every((x) => x !== null)), true);
 /* India and IT/ES/CH/BR share a scale; the page prints them side by side and

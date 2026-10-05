@@ -149,7 +149,9 @@ const GAUGE = Array.from({ length: 12 }, (_, i) => fromDiameter(diameterFromUs(3
    at zero and runs past the largest size it covers. */
 const STRIP = CHART_ROWS.filter((r) => r.usNumeric !== null && Number.isInteger(r.usNumeric));
 const STRIP_MAX = Math.ceil(STRIP[STRIP.length - 1].circumferenceMm) + 4;
-/* Where real fingers land, for the "you should end up around here" note. */
+/* The span the strip's sizes cover, for the note under it. It said "most adult
+   fingers land between" until 5 Oct 2026, which was never what these figures
+   are: they are the chart's whole sizes, US 3 up to its top (now US 15). */
 const STRIP_LOW = Math.floor(STRIP[0].circumferenceMm);
 const STRIP_HIGH = Math.ceil(STRIP[STRIP.length - 1].circumferenceMm);
 
@@ -312,7 +314,7 @@ const jsonLd = [
             <span class="ps-strip-start" aria-hidden="true">Start wrapping from this end</span>
           </div>
           <p class="ps-check-label">
-            {`Ring size ruler: circumference in millimetres, measured from the left end · cut along the outline · most adult fingers land between ${STRIP_LOW} and ${STRIP_HIGH} mm`}
+            {`Ring size ruler: circumference in millimetres, measured from the left end · cut along the outline · US ${STRIP[0].us} to ${STRIP[STRIP.length - 1].us} run from ${STRIP_LOW} to ${STRIP_HIGH} mm`}
           </p>
         </div>
 

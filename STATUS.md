@@ -3,6 +3,20 @@
 Last updated: 5 Oct 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
 
+**📏 Chart range raised from US 14 to US 15½ — 5 Oct 2026, branch `draft/us-15-half`, NOT deployed.**
+Owner asked for US 16; shown that at US 15¾ and 16 the UK (past Z+6), ISO (past 76), Japanese (past
+35) and minus-40 (past 36) columns are empty and the tool stops there, the owner chose 15½.
+`CHART_MAX_US` is computed (the last quarter where all seven systems answer), not typed.
+- Grows with it: the chart (45 → 51 rows), every lookup table (diameter to 24 mm, circumference to
+  76 mm = all of ISO, inches to 3 in, Japan to 34), the printable strip table (adds US 15), and the
+  how-to strip table (adds 7.5 cm = US 15). Newly answered: `3 inch ring size`, `76.2 mm`, `76 mm`,
+  `size 15 ring in mm`, `7.5 cm ring size`.
+- Kept at 14 on purpose: the men's table ("what jewellers sell" caveat) and /average-ring-size's
+  "a size 3 and a size 14 are both entirely ordinary" — claims about stock, not about standards.
+- The printable strip note said "most adult fingers land between 44 and 73 mm", which those figures
+  never were; it now says "US 3 to 15 run from 44 to 75 mm".
+- `verify` 454/454, check 0 errors, build + sweep clean, print still 3 pages, 375 px no page scroll.
+
 **✅ DEPLOYED 5 Oct 2026 on the owner's "haan push kar do": `1d25265..0498040`, run 37311610061 green.**
 Verified on the live site: all 10 sitemap URLs 200 (incl. `/uk-ring-size-chart`, index/follow,
 self-canonical, 1 h1), `/sitemap.xml` 301 → `/sitemap-index.xml`, chart `#measurement` `#systems`
