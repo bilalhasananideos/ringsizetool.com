@@ -21,9 +21,10 @@ indexable and verified in Google Search Console, Bing and Ahrefs.**
 - Also on the branch: how-to `#when` loses "and how tight is right" from its heading and links to the
   new page; footer link; llms.txt entry. Sitemap 11 URLs, 13 pages built, check 0 errors, sweep clean,
   375 px no page scroll, light + dark, focus ring checked. No shop names in the served HTML.
-- **Pre-existing inconsistency, not fixed here:** homepage "Fingers change size" says measure "in the
-  middle of the day"; how-to `#when` says "at the end of the day". The GIA only says the two differ.
-  Pick one wording before or with this deploy.
+- **Time-of-day wording made consistent (owner's choice, 5 Oct): end of the day.** The homepage
+  "Fingers change size" case said "in the middle of the day", contradicting the homepage's own
+  calibration section and /about ("in the evening") and how-to `#when` ("at the end of the day"). It
+  now says "at the end of the day". The new page gives no time, only that the time of day matters.
 - Hold the deploy until the owner has read the page and the ~10 Oct GSC check is done.
 
 **🧩 Two homepage edge cases — DEPLOYED 5 Oct 2026 (`7ef283d..78b5e00`, run 37322120440 green; live text verified, no shop named in the served HTML).** The two
