@@ -390,6 +390,53 @@ export const CHART_ROWS: RingSize[] = Array.from(
   (_, i) => fromDiameter(diameterFromUs(3 + i * 0.25)),
 );
 
+/* ── Lookup rows: start from the number you have, not from a US size ──────
+ * CHART_ROWS is ordered by US quarter size, so its millimetre figures run to
+ * two decimals (17.32, 17.53) and a ruler never produces them. Search Console
+ * shows what that costs: "16.31 mm ring size", a string the chart contains,
+ * ranked first, while "17mm ring size", "18mm ring size", "7.5 cm ring size"
+ * and "2.3 inches ring size" — the round figures people actually measure —
+ * sat on pages 4 to 9 (GSC, 25 Aug to 4 Oct 2026). These rows start from round
+ * figures and from foreign size labels instead.
+ *
+ * Every row goes through fromDiameter() or fromCircumference(), the same path
+ * as the tool, and is kept only while its US size is inside CHART_ROWS (US 3
+ * to 14, the range actually sold). That is the rule the how-to page's strip
+ * table already follows: a size the chart does not list is printed nowhere.
+ * The bounds are read from CHART_ROWS, so widening the chart widens these.
+ */
+const US_LO = CHART_ROWS[0].usNumeric!;
+const US_HI = CHART_ROWS[CHART_ROWS.length - 1].usNumeric!;
+
+const inChartRange = (r: RingSize) =>
+  r.usNumeric !== null && r.usNumeric >= US_LO && r.usNumeric <= US_HI;
+
+/** from, from + step, … to. Rounded so 0.1 steps print as 2.3, not 2.3000000000000003. */
+const steps = (from: number, to: number, step: number) =>
+  Array.from({ length: Math.round((to - from) / step) + 1 }, (_, i) => Number((from + i * step).toFixed(4)));
+
+/** A ring measured across with a ruler: inner diameter in half millimetres. */
+export const DIAMETER_LOOKUP_ROWS: RingSize[] =
+  steps(10, 30, 0.5).map(fromDiameter).filter(inChartRange);
+
+/** A paper strip read in whole millimetres. ISO 8653 sizes ARE these figures,
+ *  so this is also the EU/ISO/French chart, in EU order. */
+export const CIRCUMFERENCE_LOOKUP_ROWS: RingSize[] =
+  steps(ISO_MIN, ISO_MAX, 1).map(fromCircumference).filter(inChartRange);
+
+/** A tape measure read in tenths of an inch, round the finger. `inch` keeps
+ *  the figure as typed, so the first column never prints a float artefact. */
+export const INCH_LOOKUP_ROWS: (RingSize & { inch: number })[] =
+  steps(1, 4, 0.1)
+    .map((inch) => ({ inch, ...fromCircumference(inch * MM_PER_INCH) }))
+    .filter(inChartRange);
+
+/** Every Japanese 号 size inside the chart's range, in 号 order. */
+export const JP_LOOKUP_ROWS: RingSize[] = Array.from(
+  { length: JP_MAX },
+  (_, i) => fromDiameter(JP_BASE_MM + i * JP_STEP_MM),
+).filter(inChartRange);
+
 /* ── Context for the result ───────────────────────────────────────────────
  * Google's People Also Ask carries three separate versions of this question:
  * "is size 7 a large ring", "is a size 7 ring big for a girl",

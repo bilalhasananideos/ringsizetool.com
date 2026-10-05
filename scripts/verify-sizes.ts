@@ -10,6 +10,8 @@ import {
   inFromCircumference, sizeContext, CHART_ROWS,
   ISO_MIN, ISO_MAX, JP_MAX, UK_MAX_STEP, INDIA_MAX, CIRC_MINUS_40_MAX,
   AVERAGE_US_SIZE,
+  DIAMETER_LOOKUP_ROWS, CIRCUMFERENCE_LOOKUP_ROWS, INCH_LOOKUP_ROWS, JP_LOOKUP_ROWS,
+  US_STEP_MM, MM_PER_INCH,
 } from '../src/data/ringSizes.ts';
 import {
   toMode, toDia, modeSpec, modeFromParams, ceilTo, floorTo,
@@ -756,6 +758,90 @@ for (const m of ['dia', 'circ'] as const) {
     eq(`${m}/${u}: an in-range value is not moved`, clampToMode(mid, m, u).value, mid, 0);
   }
 }
+
+
+/* ── Lookup tables on /ring-size-chart (#measurement, #japan) ─────────────
+ * Added 5 Oct 2026. These tables start from a round reading or a Japanese
+ * size instead of a US size. Expected values are worked by hand from the
+ * published rules — US 11.6332 + 0.8128n, UK A = 37.5 mm + 1.25 per letter,
+ * ISO = circumference, JCS 13 mm + 1/3 per size — not read back from the
+ * functions under test. */
+console.log('\n— Lookup tables: ranges stay inside the chart (US 3 to 14) —');
+const lastOf = <T>(a: T[]) => a[a.length - 1];
+eq('diameter rows: count (14 to 23 mm, half mm)', DIAMETER_LOOKUP_ROWS.length, 19);
+eq('diameter rows: first is 14 mm', DIAMETER_LOOKUP_ROWS[0].diameterMm, 14, 1e-9);
+eq('diameter rows: last is 23 mm', lastOf(DIAMETER_LOOKUP_ROWS).diameterMm, 23, 1e-9);
+eq('circumference rows: count (44 to 72 mm)', CIRCUMFERENCE_LOOKUP_ROWS.length, 29);
+eq('circumference rows: first is 44 mm', CIRCUMFERENCE_LOOKUP_ROWS[0].circumferenceMm, 44, 1e-9);
+eq('circumference rows: last is 72 mm', lastOf(CIRCUMFERENCE_LOOKUP_ROWS).circumferenceMm, 72, 1e-9);
+eq('inch rows: count (1.8 to 2.8 in)', INCH_LOOKUP_ROWS.length, 11);
+eq('inch rows: first is 1.8 in', INCH_LOOKUP_ROWS[0].inch, 1.8);
+eq('inch rows: last is 2.8 in', lastOf(INCH_LOOKUP_ROWS).inch, 2.8);
+eq('inch rows: 2.3 in is printed exactly', INCH_LOOKUP_ROWS.some((r) => String(r.inch) === '2.3'), true);
+eq('Japan rows: count (4 to 31)', JP_LOOKUP_ROWS.length, 28);
+eq('Japan rows: first is 4', JP_LOOKUP_ROWS[0].jp, 4);
+eq('Japan rows: last is 31', lastOf(JP_LOOKUP_ROWS).jp, 31);
+/* The how-to page stops its strip table where CHART_ROWS stops, so a size the
+ * chart does not list is printed nowhere. These tables must obey the same. */
+const allLookup = [...DIAMETER_LOOKUP_ROWS, ...CIRCUMFERENCE_LOOKUP_ROWS, ...INCH_LOOKUP_ROWS, ...JP_LOOKUP_ROWS];
+eq('every lookup row is US 3 to 14',
+   allLookup.every((r) => r.usNumeric !== null && r.usNumeric >= 3 && r.usNumeric <= 14), true);
+eq('every lookup row answers in all seven systems',
+   allLookup.every((r) => [r.us, r.uk, r.eu, r.jp, r.in, r.it, r.br].every((x) => x !== null)), true);
+/* India and IT/ES/CH/BR share a scale; the page prints them side by side and
+ * says they agree. If the ceilings ever diverge inside this range, say so. */
+eq('India equals IT/ES/CH/BR on every lookup row', allLookup.every((r) => r.in === r.it && r.it === r.br), true);
+eq('circumference rows: EU column equals the row figure',
+   CIRCUMFERENCE_LOOKUP_ROWS.every((r) => r.eu === Math.round(r.circumferenceMm)), true);
+eq('Japan rows run 4, 5, 6 … with no gap or repeat',
+   JP_LOOKUP_ROWS.every((r, i) => r.jp === 4 + i), true);
+eq('Japan rows: each diameter is 13 + (n - 1)/3',
+   JP_LOOKUP_ROWS.every((r) => Math.abs(r.diameterMm - (13 + (r.jp! - 1) / 3)) < 1e-9), true);
+
+console.log('\n— Lookup tables: spot rows, worked by hand —');
+const findDia = (mm: number) => DIAMETER_LOOKUP_ROWS.find((r) => Math.abs(r.diameterMm - mm) < 1e-9)!;
+const findCirc = (mm: number) => CIRCUMFERENCE_LOOKUP_ROWS.find((r) => Math.abs(r.circumferenceMm - mm) < 1e-9)!;
+// 17 mm: (17 - 11.6332)/0.8128 = 6.60 -> 6½ · 53.41 mm round: (53.41 - 37.5)/1.25 = 12.73 -> 12½ steps = M½ · EU 53 · JCS (17 - 13)×3 + 1 = 13
+for (const [k, want] of [['us', '6½'], ['uk', 'M½'], ['eu', 53], ['jp', 13]] as const) {
+  eq(`17 mm across -> ${k} ${want}`, findDia(17)[k], want);
+}
+// 18 mm: 7.83 -> 7¾ · 56.55 round: 15.24 -> 15 steps = P · EU 57 · (5×3) + 1 = 16
+for (const [k, want] of [['us', '7¾'], ['uk', 'P'], ['eu', 57], ['jp', 16]] as const) {
+  eq(`18 mm across -> ${k} ${want}`, findDia(18)[k], want);
+}
+// 54 mm round = EU 54: 17.19 mm across -> (17.19 - 11.63)/0.8128 = 6.84 -> 6¾ · 13.2 steps = N · JCS 13.57 -> 14 · minus-40 = 14
+for (const [k, want] of [['us', '6¾'], ['uk', 'N'], ['eu', 54], ['jp', 14], ['in', 14], ['it', 14]] as const) {
+  eq(`54 mm round -> ${k} ${want}`, findCirc(54)[k], want);
+}
+// 2.3 in = 58.42 mm round: 18.60 mm across -> 8.57 -> 8½ · 16.74 steps -> 16½ = Q½ · EU 58 · JCS 17.79 -> 18
+const in23 = INCH_LOOKUP_ROWS.find((r) => r.inch === 2.3)!;
+for (const [k, want] of [['us', '8½'], ['uk', 'Q½'], ['eu', 58], ['jp', 18]] as const) {
+  eq(`2.3 in round -> ${k} ${want}`, in23[k], want);
+}
+// JCS 14 = 13 + 13/3 = 17.33 mm -> (17.33 - 11.63)/0.8128 = 7.01 -> US 7
+eq('Japan 14 -> US 7', JP_LOOKUP_ROWS.find((r) => r.jp === 14)!.us, '7');
+
+console.log('\n— Chart page prose: per-country worked examples —');
+// UK T: 19 steps after A -> 37.5 + 19 × 1.25 = 61.25 mm round, 61.25/π = 19.50 mm across
+const ukT = fromCircumference(37.5 + 19 * 1.25);
+eq('UK T is 61.25 mm round', ukT.circumferenceMm, 61.25, 1e-9);
+eq('UK T is 19.50 mm across', Number(ukT.diameterMm.toFixed(2)), 19.50);
+eq('UK T reads back as T', ukT.uk, 'T');
+eq('UK T -> US 9¾  ((19.50 - 11.63)/0.8128 = 9.67)', ukT.us, '9¾');
+eq('UK T -> EU 61', ukT.eu, 61);
+eq('UK T -> Japan 20  ((19.50 - 13)×3 + 1 = 20.5 -> 20)', ukT.jp, 20);
+// UK M: 12 steps -> 52.50 mm -> 16.71 mm across -> 6.25 -> US 6¼
+eq('UK M -> US 6¼', fromCircumference(37.5 + 12 * 1.25).us, '6¼');
+eq('aro 19 -> US 8¾  ((18.78 - 11.63)/0.8128 = 8.79)', fromCircumference(59).us, '8¾');
+eq('US 7 -> UK N½  (54.42 mm: 13.53 steps)', fromDiameter(diameterFromUs(7)).uk, 'N½');
+eq('chart prints EU 54 against exactly US 6¾ and 7',
+   CHART_ROWS.filter((r) => r.eu === 54).map((r) => r.us).join(','), '6¾,7');
+/* "Misjudge a ring's inside diameter by a quarter of a millimetre and the
+ * answer moves by more than a US quarter size." */
+eq('a US quarter is less than 0.25 mm of diameter', US_STEP_MM / 4 < 0.25, true);
+/* "A tenth of an inch round the finger … each row is about a size apart." */
+eq('0.1 in of circumference ≈ one US size (within 1%)',
+   Math.abs((MM_PER_INCH / 10) / (Math.PI * US_STEP_MM) - 1) < 0.01, true);
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
