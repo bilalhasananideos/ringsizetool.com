@@ -3,7 +3,16 @@
 Last updated: 5 Oct 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
 
-**🚀 Release candidate `draft/oct-release` — 5 Oct 2026, NOT deployed.** Worktree
+**✅ DEPLOYED 5 Oct 2026 on the owner's "haan push kar do": `1d25265..0498040`, run 37311610061 green.**
+Verified on the live site: all 10 sitemap URLs 200 (incl. `/uk-ring-size-chart`, index/follow,
+self-canonical, 1 h1), `/sitemap.xml` 301 → `/sitemap-index.xml`, chart `#measurement` `#systems`
+`#japan` + diagram + `2¼ in 2.25` / `63.5 mm` / `1.7 cm` / `6½ 6.5` served, printable "ring size
+ruler" heading, homepage title unchanged, pages.dev still `noindex`. Owner to do: GSC → URL
+Inspection → Request indexing for `/uk-ring-size-chart`, `/ring-size-chart`, `/printable-ring-sizer`.
+The R6 and chart-lookup sections below describe what shipped; their "NOT deployed" lines are
+history now. `sites/.worktrees/ringsizetool-uk` is merged and can be removed.
+
+**🚀 Release candidate `draft/oct-release` — 5 Oct 2026 (shipped, see above).** Worktree
 `sites/.worktrees/ringsizetool-release`, preview config `ringsizetool-release` (port 4335). It is
 main + `draft/uk-ring-size-chart` (R6) + `draft/chart-lookup` (below), conflicts resolved by keeping
 both sides (all additive), and the chart's `#uk` section now links to `/uk-ring-size-chart`.
