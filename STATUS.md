@@ -112,7 +112,7 @@ reversed on its own (chart 69 impressions vs homepage 35, after 37 vs 54 on 24�
   resizing, fit/wide band) were all decided against before (SEO-AUDIT.md §15–16, SEO-STRATEGY §11)
   and the homepage already has sections for secret sizing, resizing limits, wide bands and knuckles.
 
-**🍪 R9 consent banner — owner said "laga do" 2 Oct 2026; built and tested, NOT deployed.** Commit
+**🍪 R9 consent banner — DEPLOYED 6 Oct 2026 on the owner's "consent banner wala bhi deploy kar do".** Main (18 commits ahead) merged into the branch cleanly; /privacy re-dated 6 October 2026; re-tested on a scratch copy with `G-TESTTEST00` the same day on the fit and UK pages too: nothing from Google before consent, Accept loads gtag with `gcs=G101` + `npa=1` and sets `_ga`, Reject from "Cookie settings" deletes `_ga`/`_ga_*` and reloads with no Google request; 375 px no page scroll. Originally: Commit
 `285749c` on branch `feature/consent-banner`, worktree `sites/.worktrees/ringsizetool-consent`. It
 merges cleanly with `draft/uk-ring-size-chart`. It does not touch Search Console data, so it does
 NOT have to wait for the 10 Oct check: ship it once the owner has looked at it.
@@ -132,7 +132,7 @@ NOT have to wait for the 10 Oct check: ship it once the owner has looked at it.
   gate it. /privacy now says that. Turning it off in the Cloudflare dashboard removes the last
   unconsented script, and its /privacy section must go in the same deploy (verify the live HTML).
 - ⚠️ Not a TCF-certified CMP. Replace it before any ad code (AdSense help 13554116).
-- `LAST_UPDATED` on /privacy says 2 October 2026: re-date it if the deploy is later.
+- `LAST_UPDATED` on /privacy re-dated to 6 October 2026 for the deploy.
 
 **📄 R6 `/uk-ring-size-chart` — APPROVED by the owner 2 Oct 2026, drafted, NOT deployed.** The draft
 is commit `820c31f` on branch `draft/uk-ring-size-chart`, checked out as a separate worktree at
