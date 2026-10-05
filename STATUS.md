@@ -8,7 +8,10 @@ indexable and verified in Google Search Console, Bing and Ahrefs.**
 main + `draft/uk-ring-size-chart` (R6) + `draft/chart-lookup` (below), conflicts resolved by keeping
 both sides (all additive), and the chart's `#uk` section now links to `/uk-ring-size-chart`.
 `verify` 404/404, `astro check` 0 errors, 12 pages, sweep clean, no dead anchors, sitemap 10 URLs.
-The consent banner is NOT in it. **Ship only after the owner has read both new parts.** The
+Also on it: the printable sheet's finger strip is now called the "ring size ruler" (section 3
+heading and strip label) — GSC to 3 Oct shows seven `…ring size ruler…` variants at the page's best
+positions (42–56); print still 3 pages. The consent banner is NOT in it. **Ship only after the
+owner has read the new parts.** The
 10 Oct hold no longer needs to be waited out: GSC 1–4 Oct already shows the chart↔homepage swap
 reversed on its own (chart 69 impressions vs homepage 35, after 37 vs 54 on 24–29 Sep).
 
