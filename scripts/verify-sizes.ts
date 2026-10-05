@@ -12,7 +12,7 @@ import {
   AVERAGE_US_SIZE,
   UK_LETTER_ROWS, UK_STEP_MM, ukWholeLetterUp, ukCircumferenceAtStep,
   DIAMETER_LOOKUP_ROWS, CIRCUMFERENCE_LOOKUP_ROWS, INCH_LOOKUP_ROWS, JP_LOOKUP_ROWS,
-  US_STEP_MM, MM_PER_INCH, inchFraction, CHART_MAX_US,
+  US_STEP_MM, MM_PER_INCH, inchFraction, CHART_MAX_US, JP_STEP_MM,
 } from '../src/data/ringSizes.ts';
 import { AU_CHARTS, AU_RULE_QUOTER, UK_HIGH_STREET, UK_HIGHER_GROUP } from '../src/data/letterCharts.ts';
 import {
@@ -987,6 +987,33 @@ eq('a tenth of an inch is more than a US quarter of circumference',
 console.log('\n— Homepage: resizing a 7 to a 10 —');
 eq('US 7 to US 10 adds 7.66 mm of inner circumference',
    Number((Math.PI * (diameterFromUs(10) - diameterFromUs(7))).toFixed(2)), 7.66);
+
+/* ── /how-should-a-ring-fit: one size step in mm (5 Oct 2026) ─────────────
+ * The page computes these from the step constants; .astro cannot be imported
+ * here, so the same arithmetic is redone and pinned to hand-worked values.
+ * US 0.8128 mm across per size · UK 1.25 mm round per letter · ISO 1 mm round
+ * per size · JCS 1/3 mm across per size. Printed to 2 dp. */
+console.log('\n— /how-should-a-ring-fit: one size step —');
+const fit2 = (n: number) => n.toFixed(2);
+// US quarter: 0.8128 / 4 = 0.2032 across, × π = 0.6384 round
+eq('US quarter = 0.20 mm across, 0.64 mm round', `${fit2(US_STEP_MM / 4)} ${fit2((US_STEP_MM / 4) * Math.PI)}`, '0.20 0.64');
+// US half: 0.4064 across, 1.2767 round
+eq('US half = 0.41 mm across, 1.28 mm round', `${fit2(US_STEP_MM / 2)} ${fit2((US_STEP_MM / 2) * Math.PI)}`, '0.41 1.28');
+// US whole: 0.8128 across, 2.5535 round
+eq('US whole = 0.81 mm across, 2.55 mm round', `${fit2(US_STEP_MM)} ${fit2(US_STEP_MM * Math.PI)}`, '0.81 2.55');
+// UK half letter: 0.625 round (exact in binary, toFixed picks the larger: 0.63), 0.1989 across
+eq('UK half letter = 0.20 mm across, 0.63 mm round', `${fit2(UK_STEP_MM / 2 / Math.PI)} ${fit2(UK_STEP_MM / 2)}`, '0.20 0.63');
+// UK whole letter: 1.25 round, 0.3979 across
+eq('UK whole letter = 0.40 mm across, 1.25 mm round', `${fit2(UK_STEP_MM / Math.PI)} ${fit2(UK_STEP_MM)}`, '0.40 1.25');
+// ISO: 1 mm round, 0.3183 across
+eq('EU/ISO size = 0.32 mm across, 1.00 mm round', `${fit2(1 / Math.PI)} ${fit2(1)}`, '0.32 1.00');
+// JCS: 0.3333 across, 1.0472 round
+eq('Japanese size = 0.33 mm across, 1.05 mm round', `${fit2(JP_STEP_MM)} ${fit2(JP_STEP_MM * Math.PI)}`, '0.33 1.05');
+// "the finest step … about 0.2 mm across": the UK half letter, 0.1989
+eq('finest step is about 0.2 mm across',
+   Math.min(US_STEP_MM / 4, US_STEP_MM / 2, US_STEP_MM, UK_STEP_MM / 2 / Math.PI, UK_STEP_MM / Math.PI, 1 / Math.PI, JP_STEP_MM).toFixed(1), '0.2');
+// "a paper strip read 1 mm too long puts you 1.6 US quarter sizes out": 1 / 0.6384 = 1.566
+eq('1 mm of strip is 1.6 US quarter sizes', (1 / ((US_STEP_MM / 4) * Math.PI)).toFixed(1), '1.6');
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

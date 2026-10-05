@@ -3,6 +3,29 @@
 Last updated: 5 Oct 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
 
+**📐 `/how-should-a-ring-fit` — drafted 5 Oct 2026, NOT deployed, owner to read.** Branch
+`draft/ring-fit`, worktree `sites/.worktrees/ringsizetool-fit`, preview config
+`ringsizetool-fit-draft` (port 4336).
+- Why: a pasted third-party keyword plan (5 Oct) was checked and all of it declined except this one.
+  `how should a ring fit` 1,600 and `how tight should a ring be` 1,000 (DataForSEO US, KD 0; these were
+  OpenSEO's last 16 credits, so it is now at 0). Ahrefs free puts both in >100, i.e. under 1,000, so the
+  real demand is lower than DataForSEO says. Google US page one (owner's screenshot): an AI Overview,
+  2 ads, Reddit, PAA, videos and forums, then dedicated jewellers' pages at DR 44–47 whose pages carry
+  0–1 backlinks. Expect impressions; clicks will be few. The 28 Aug call ("Reddit-shaped, not worth a
+  page") was made without volume or SERP data and is reversed for that reason.
+- What it is: four checks (going on, at the base, coming off, after a few hours) × fits / too tight /
+  too loose, every cell sourced; too tight (incl. "stuck and swelling → see a doctor", Alberta Health
+  Services); should it spin; tighter or looser + up or down between sizes (PAA verbatim as headings);
+  one size step in mm for US/UK/ISO/JP, computed and asserted (verify 464/464); wedding/wide/men's,
+  linking to `/#cases` instead of restating it. No FAQ block: the PAA questions are the headings.
+- Also on the branch: how-to `#when` loses "and how tight is right" from its heading and links to the
+  new page; footer link; llms.txt entry. Sitemap 11 URLs, 13 pages built, check 0 errors, sweep clean,
+  375 px no page scroll, light + dark, focus ring checked. No shop names in the served HTML.
+- **Pre-existing inconsistency, not fixed here:** homepage "Fingers change size" says measure "in the
+  middle of the day"; how-to `#when` says "at the end of the day". The GIA only says the two differ.
+  Pick one wording before or with this deploy.
+- Hold the deploy until the owner has read the page and the ~10 Oct GSC check is done.
+
 **🧩 Two homepage edge cases — DEPLOYED 5 Oct 2026 (`7ef283d..78b5e00`, run 37322120440 green; live text verified, no shop named in the served HTML).** The two
 QuestionFinder gaps from 2 Oct, answered inside "Cases the number alone won't cover" (no new page, no
 blog — the owner asked about a blog the same day and was advised against it):

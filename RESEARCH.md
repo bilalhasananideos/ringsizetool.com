@@ -928,3 +928,26 @@ its calibration. That is a homepage change, so it waits until after the ~10 Oct 
 - **Verdict: no smart-ring page.** Rising demand (Trends +3,100 %) does not change what can be
   said truthfully. At most, and only if a real PAA question asks it, add one FAQ answering "is my
   ring size my Oura size?" with Oura's own words and a link.
+
+## "How should a ring fit" — 5 Oct 2026
+
+- **Volume.** DataForSEO US: `how should a ring fit` 1,600 (KD 0, informational), `how tight should a
+  ring be` 1,000 (KD 0), `ring too tight` 170. Ahrefs free (owner): both heads >100 (under 1,000);
+  phrase-match variants all <100 — `…on your finger`, `…a man` / `men`, `…a woman`, `…properly`,
+  `…reddit`, `…youtube`, `how tight should a ring fit` >100.
+- **SERP, Google US (owner's screenshot, not personalised).** AI Overview (cites Reddit, Shiree Odiz,
+  Jewelers Mutual, The Knot; its "3 to 5 seconds to remove" was not found on any page read) → 2 ads →
+  Reddit r/weddingplanning → PAA → short videos → videos (Jewelers Mutual, Larson) → forums → organic:
+  shireeodiz.com, The Knot, danarebeccadesigns.com, moderngents.com. Ahrefs SERP checker: Reddit DR 95;
+  Dana Rebecca DR 47 / UR 4 / 0 backlinks / 362 traffic; Rock Her DR 44 / UR 4 / 1 backlink / 171
+  traffic; theartisanrings.com; modgents.com.
+- **PAA:** Is it better for a ring to be tighter or looser? · What are the signs of a properly fit
+  ring? · What is the 3 month rule for ring? (spending, not fit — excluded) · Is it better to size up
+  or down for a ring?
+- **People also search for:** …men · …reddit · …a woman · …on tapered fingers · how should a wedding
+  band fit · is my ring too loose if it spins · should a ring move on your finger.
+- **Sources read 5 Oct 2026** (quoted in the page's source comments): GIA 4Cs ring-size article
+  (18 Jan 2018), Brilliant Earth "What to Do if Your Ring Is Too Big" (24 Sep 2026), Jewelsmith "How
+  Should a Ring Fit?", Ken Walker Jewelers (21 Sep 2026), Shiree Odiz (14 Sep 2024), Alberta Health
+  Services "Removing a Ring From a Finger or Toe" (reviewed 31 Jul 2024). Jewelers Mutual returns 403
+  from here and The Knot could not be fetched; neither is relied on.
