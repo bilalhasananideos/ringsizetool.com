@@ -19,7 +19,10 @@
  * Numbers come from the conversion engine, never typed, so an answer can never
  * drift from what the tool says.
  */
-import { fromDiameter, diameterFromUs, US_STEP_MM, AVERAGE_US_SIZE, MM_PER_INCH, JP_MAX } from './ringSizes';
+import {
+  fromDiameter, diameterFromUs, US_STEP_MM, AVERAGE_US_SIZE, MM_PER_INCH, JP_MAX,
+  UK_BASE_CIRC_MM, UK_STEP_MM,
+} from './ringSizes';
 import { CHECK_MM, HOLE_STROKE_MM } from './print';
 
 const six = fromDiameter(diameterFromUs(6));
@@ -314,6 +317,44 @@ export const PRINTABLE_FAQS: Faq[] = [
   {
     q: 'Is a printed ring sizer as accurate as measuring on screen?',
     a: `Not quite, and the difference is the ink rather than the paper. Each gauge circle here is outlined at ${HOLE_STROKE_MM.toFixed(2)} mm, while a quarter of a US size is only ${(US_STEP_MM / 4).toFixed(2)} mm of diameter — the printed line is wider than the difference it would have to show, so this sheet carries whole sizes only. On screen the circle is drawn at your own calibration with no stroke to fall inside, which is what makes quarter sizes meaningful there. A correctly printed sheet is still good to about a third of a size, which is enough for most purchases.`,
+  },
+];
+
+/* ── /uk-ring-size-chart ─────────────────────────────────────────────────
+ * Source: QuestionFinder (questionfinder.io), which reports Google's "People
+ * also ask" questions — run by the owner for `uk ring size chart`, US ·
+ * English, 2 Oct 2026. 16 questions; the 9 visible in the owner's screenshot
+ * were reviewed, the other 7 not yet. Wording is verbatim. These are
+ * third-party-reported PAA, not questions we saw in Google ourselves.
+ *
+ * Left out on purpose:
+ *   - already answered on another page, and no question appears twice:
+ *     "Is a size 7 ring big for a girl?" (FAQS); "Is a size 6 ring big or
+ *     small?", "Is 7 a small ring?", "What size ring is a 7?" and "What does a
+ *     size 7 ring look like?" — the same questions as "Is ring size 6 small?",
+ *     "Is size 7 a large ring?" and "How big is a 7 size ring?" already here.
+ *   - "What ring size is a skinny woman?" — nothing links body size to finger
+ *     size that we could cite, and it is not this page's topic.
+ * Note the US locale: these are what US searchers see for a UK query. A UK
+ * pull would differ. */
+const d21 = fromDiameter(21);
+const eight = fromDiameter(diameterFromUs(8));
+const sevenHalf = fromDiameter(diameterFromUs(7.5));
+const lettersSevenToEight = Math.round((eight.circumferenceMm - seven.circumferenceMm) / UK_STEP_MM);
+const spell = (n: number) => ['no', 'one', 'two', 'three', 'four'][n] ?? String(n);
+
+export const UK_FAQS: Faq[] = [
+  {
+    q: 'How do I find my UK ring size?',
+    a: `Get the size in millimetres, then turn it into a letter. Measure straight across the inside of a ring that fits and multiply by π, or wrap a paper strip round the base of the finger and measure it flat; either way you have the inner circumference. Subtract ${UK_BASE_CIRC_MM} and divide by ${UK_STEP_MM}, then round to the nearest half. Counting A as 0, 11 is L and 11.5 is L½. If the jeweller stocks whole letters only, take the letter above a half. The ring sizer on this site does the arithmetic for you and shows the letter beside the millimetres.`,
+  },
+  {
+    q: 'What is a 21 mm ring size in US size?',
+    a: `US ${d21.us}, if 21 mm is the inside diameter, the distance straight across the ring. That is UK ${d21.uk} and ${mm(d21.circumferenceMm)} around. If you meant 21 mm round the finger, measure again: that is smaller than any adult ring, and the smallest UK letter, A, is ${mm(UK_BASE_CIRC_MM)} around.`,
+  },
+  {
+    q: 'How much bigger is a size 8 ring than a 7?',
+    a: `One US size is ${mm(US_STEP_MM)} of inside diameter, which is ${mm(US_STEP_MM * Math.PI)} around. In UK letters, US 7 is ${seven.uk} and US 8 is ${eight.uk}, ${spell(lettersSevenToEight)} whole letters apart. US 7½ sits between them at UK ${sevenHalf.uk}, and US jewellers also sell quarter sizes, each ${mm((US_STEP_MM / 4) * Math.PI)} around.`,
   },
 ];
 

@@ -10,7 +10,11 @@ import {
   inFromCircumference, sizeContext, CHART_ROWS,
   ISO_MIN, ISO_MAX, JP_MAX, UK_MAX_STEP, INDIA_MAX, CIRC_MINUS_40_MAX,
   AVERAGE_US_SIZE,
+  UK_LETTER_ROWS, UK_STEP_MM, ukWholeLetterUp, ukCircumferenceAtStep,
+  DIAMETER_LOOKUP_ROWS, CIRCUMFERENCE_LOOKUP_ROWS, INCH_LOOKUP_ROWS, JP_LOOKUP_ROWS,
+  US_STEP_MM, MM_PER_INCH, inchFraction, CHART_MAX_US, JP_STEP_MM,
 } from '../src/data/ringSizes.ts';
+import { AU_CHARTS, AU_RULE_QUOTER, UK_HIGH_STREET, UK_HIGHER_GROUP } from '../src/data/letterCharts.ts';
 import {
   toMode, toDia, modeSpec, modeFromParams, ceilTo, floorTo,
   parseMeasurement, clampToMode,
@@ -756,6 +760,260 @@ for (const m of ['dia', 'circ'] as const) {
     eq(`${m}/${u}: an in-range value is not moved`, clampToMode(mid, m, u).value, mid, 0);
   }
 }
+
+console.log('\n— /uk-ring-size-chart: the letter-ordered chart —');
+/* The page lists the scale BY LETTER, so these check the scale as a list:
+ * complete, in order, nothing skipped or repeated. A skipped half letter is
+ * exactly the defect that shifts published charts (RESEARCH.md, I½). */
+eq('letter chart starts at A', UK_LETTER_ROWS[0].uk, 'A');
+eq('letter chart ends at Z+6', UK_LETTER_ROWS[UK_LETTER_ROWS.length - 1].uk, 'Z+6');
+eq('letter chart has every half letter, A to Z+6 (63)', UK_LETTER_ROWS.length, 63);
+eq('no letter appears twice', new Set(UK_LETTER_ROWS.map((r) => r.uk)).size, UK_LETTER_ROWS.length);
+eq('rows are exactly half a letter apart',
+   UK_LETTER_ROWS.every((r, i) => i === 0
+     || Math.abs(r.circumferenceMm - UK_LETTER_ROWS[i - 1].circumferenceMm - UK_STEP_MM / 2) < 1e-9), true);
+eq('Z+6 is 76.25 mm around', UK_LETTER_ROWS[UK_LETTER_ROWS.length - 1].circumferenceMm, 76.25, 1e-9);
+eq('worked example on the page: 57 mm -> P½', ukFromCircumference(57), 'P½');
+
+/* Read-back at the precision the page prints, the same test the main chart
+ * gets: a figure copied off a row must name that row's letter and US size.
+ * (The sizer itself starts at 40.5 mm, so A to C are checked as arithmetic
+ * only — nobody can type them in.) */
+const letterDp = { dia: modeSpec('dia', 'mm').dp, circ: modeSpec('circ', 'mm').dp };
+const letterMisreads = UK_LETTER_ROWS.filter((r) => {
+  const c = fromCircumference(parseFloat(r.circumferenceMm.toFixed(letterDp.circ)));
+  const d = fromDiameter(parseFloat(r.diameterMm.toFixed(letterDp.dia)));
+  return c.uk !== r.uk || d.uk !== r.uk || c.us !== r.us;
+}).map((r) => r.uk);
+eq('every letter row reads back as itself', letterMisreads.join(' ') || 'none', 'none');
+
+console.log('\n— /uk-ring-size-chart: "whole letters only? buy" column —');
+const letterIndex = (l: string | null) => UK_LETTER_ROWS.findIndex((r) => r.uk === l);
+eq('US 6 is L½ — whole letters only, buy M',
+   ukWholeLetterUp(fromDiameter(diameterFromUs(6)).circumferenceMm), 'M');
+eq('an exact whole letter is left alone (M -> M)', ukWholeLetterUp(ukCircumferenceAtStep(12)), 'M');
+eq('Z½ goes up to Z+1', ukWholeLetterUp(ukCircumferenceAtStep(25.5)), 'Z+1');
+eq('Z+5½ goes up to Z+6, still on the scale', ukWholeLetterUp(ukCircumferenceAtStep(30.5)), 'Z+6');
+eq('past Z+6 nothing is offered', ukWholeLetterUp(ukCircumferenceAtStep(32)), null);
+/* For every US row the page prints: the letter to buy is a WHOLE letter, and
+ * it is the exact letter or the one half-step above — never below. */
+const buyWrong = Array.from({ length: 21 }, (_, i) => 3 + i / 2).filter((us) => {
+  const circ = fromDiameter(diameterFromUs(us)).circumferenceMm;
+  const exact = letterIndex(ukFromCircumference(circ));
+  const buy = letterIndex(ukWholeLetterUp(circ));
+  return buy % 2 !== 0 || (buy - exact !== 0 && buy - exact !== 1);
+});
+eq('US 3–13: buy column is whole, and never rounds down', buyWrong.join(' ') || 'none', 'none');
+
+console.log('\n— /uk-ring-size-chart: jewellers\' published letters (letterCharts.ts) —');
+/* Readings, not standards — these pin the sentences the page builds from them. */
+eq('UK high street L is within 0.05 mm of ours',
+   Math.abs(UK_HIGH_STREET.l - ukCircumferenceAtStep(11)), 0.05, 1e-9);
+eq('UK high street M equals ours', Math.abs(UK_HIGH_STREET.m - ukCircumferenceAtStep(12)), 0, 1e-9);
+eq('the higher UK group\'s M (51.87 mm) is L½ here', ukFromCircumference(UK_HIGHER_GROUP.m), 'L½');
+eq('AU chart 2: L from 16.41 mm across', AU_CHARTS[1].l, 51.55, 0.005);
+eq('AU chart 2: M from 16.81 mm across', AU_CHARTS[1].m, 52.81, 0.005);
+const auMs = AU_CHARTS.map((c) => c.m);
+const auSpread = Math.max(...auMs) - Math.min(...auMs);
+eq('Australian M spread is 1.33 mm', auSpread, 1.33, 1e-9);
+eq('…which is more than one whole letter', auSpread > UK_STEP_MM, true);
+eq('the chart quoting the 1.25 mm rule sits ~0.3 mm above it',
+   (AU_RULE_QUOTER.l - ukCircumferenceAtStep(11) + AU_RULE_QUOTER.m - ukCircumferenceAtStep(12)) / 2, 0.3, 0.05);
+
+console.log('\n— /uk-ring-size-chart FAQ (UK_FAQS in faq.ts) —');
+/* faq.ts cannot be imported here (extensionless imports), so the figures its
+ * answers print are pinned at the source instead. */
+eq('21 mm across is US 11½', fromDiameter(21).us, '11½');
+eq('21 mm across is UK X', fromDiameter(21).uk, 'X');
+eq('21 mm around is below A, so no letter', ukFromCircumference(21), null);
+eq('US 7 is N½ and US 8 is P½',
+   `${fromDiameter(diameterFromUs(7)).uk} ${fromDiameter(diameterFromUs(8)).uk}`, 'N½ P½');
+eq('US 7 to US 8 is two whole letters',
+   Math.round((fromDiameter(diameterFromUs(8)).circumferenceMm - fromDiameter(diameterFromUs(7)).circumferenceMm) / UK_STEP_MM), 2);
+eq('counting A as 0: step 11 is L, 11.5 is L½',
+   `${ukFromCircumference(ukCircumferenceAtStep(11))} ${ukFromCircumference(ukCircumferenceAtStep(11.5))}`, 'L L½');
+
+/* ── Lookup tables on /ring-size-chart (#measurement, #japan) ─────────────
+ * Added 5 Oct 2026. These tables start from a round reading or a Japanese
+ * size instead of a US size. Expected values are worked by hand from the
+ * published rules — US 11.6332 + 0.8128n, UK A = 37.5 mm + 1.25 per letter,
+ * ISO = circumference, JCS 13 mm + 1/3 per size — not read back from the
+ * functions under test. */
+console.log('\n— Chart range: US 3 to the last size every system names —');
+/* Raised from US 14 on 5 Oct 2026. The ceiling is computed; these pin it and
+ * prove the reason for it: one quarter higher, the standards run out. */
+eq('chart top is US 15½', CHART_MAX_US, 15.5);
+eq('chart has 51 rows (US 3 to 15½ in quarters)', CHART_ROWS.length, 51);
+eq('every chart row answers in all seven systems',
+   CHART_ROWS.every((r) => [r.us, r.uk, r.eu, r.jp, r.in, r.it, r.br].every((x) => x !== null)), true);
+// US 15¾ = 11.6332 + 15.75 × 0.8128 = 24.43 mm, 76.76 mm round: past ISO 76 and past Z+6 (76.25 mm)
+const us1575 = fromDiameter(diameterFromUs(15.75));
+eq('US 15¾ has no ISO size (76.76 mm > 76.5)', us1575.eu, null);
+eq('US 15¾ has no UK letter (past Z+6)', us1575.uk, null);
+eq('US 15¾ has no IT/ES/CH/BR size (past 36)', us1575.it, null);
+// US 15 = 11.6332 + 15 × 0.8128 = 23.83 mm across, 74.85 mm round: (37.35/1.25) = 29.88 -> 30 steps = Z+5 · EU 75 · JCS (10.83×3) = 32.5 -> 33
+const us15 = fromDiameter(diameterFromUs(15));
+eq('US 15 is 23.83 mm across', Number(us15.diameterMm.toFixed(2)), 23.83);
+for (const [k, want] of [['uk', 'Z+5'], ['eu', 75], ['jp', 33]] as const) {
+  eq(`US 15 -> ${k} ${want}`, us15[k], want);
+}
+// US 15½ = 24.23 mm, 76.13 mm round: 30.9 steps -> 31 = Z+6 · EU 76 · JCS (11.23×3) = 33.7 -> 34 + 1 = 35 · minus-40 36
+const us155 = fromDiameter(diameterFromUs(15.5));
+for (const [k, want] of [['uk', 'Z+6'], ['eu', 76], ['jp', 35], ['it', 36]] as const) {
+  eq(`US 15½ -> ${k} ${want}`, us155[k], want);
+}
+
+/* The how-to strip table's new 7.5 cm row. 75 mm round / π = 23.87 mm across;
+ * (23.87 - 11.63)/0.8128 = 15.06 -> US 15 · (37.5/1.25) = 30 steps = Z+5 · EU 75. */
+const cm75 = fromCircumference(75);
+for (const [k, want] of [['us', '15'], ['uk', 'Z+5'], ['eu', 75]] as const) {
+  eq(`7.5 cm round -> ${k} ${want}`, cm75[k], want);
+}
+
+console.log('\n— Lookup tables: ranges stay inside the chart (US 3 to 15½) —');
+const lastOf = <T>(a: T[]) => a[a.length - 1];
+eq('diameter rows: count (14 to 24 mm, half mm)', DIAMETER_LOOKUP_ROWS.length, 21);
+eq('diameter rows: first is 14 mm', DIAMETER_LOOKUP_ROWS[0].diameterMm, 14, 1e-9);
+// 24.5 mm -> (24.5 - 11.63)/0.8128 = 15.83 -> 15¾, past the top, so 24 mm (15¼) is the last row
+eq('diameter rows: last is 24 mm', lastOf(DIAMETER_LOOKUP_ROWS).diameterMm, 24, 1e-9);
+eq('circumference rows: count (44 to 76 mm)', CIRCUMFERENCE_LOOKUP_ROWS.length, 33);
+eq('circumference rows: first is 44 mm', CIRCUMFERENCE_LOOKUP_ROWS[0].circumferenceMm, 44, 1e-9);
+// 76 mm is ISO's last size and US 15½ (24.19 mm across -> 15.45), so the table now reaches ISO's end
+eq('circumference rows: last is 76 mm', lastOf(CIRCUMFERENCE_LOOKUP_ROWS).circumferenceMm, 76, 1e-9);
+eq('inch rows: count (1¾ to 3 in, eighths and tenths)', INCH_LOOKUP_ROWS.length, 21);
+eq('inch rows: first is 1¾ in', INCH_LOOKUP_ROWS[0].inch, 1.75);
+// 3 in = 76.2 mm round -> 24.26 mm across -> 15.53 -> 15½; 3.1 in -> 16½, past the top
+eq('inch rows: last is 3 in', lastOf(INCH_LOOKUP_ROWS).inch, 3);
+for (const [k, want] of [['us', '15½'], ['uk', 'Z+6'], ['eu', 76], ['jp', 35]] as const) {
+  eq(`3 in round -> ${k} ${want}`, lastOf(INCH_LOOKUP_ROWS)[k], want);
+}
+eq('inch rows: 2.3 in is printed exactly', INCH_LOOKUP_ROWS.some((r) => String(r.inch) === '2.3'), true);
+/* The tape-measure eighths the searches are written in ("2 1/4", "2 1/2",
+ * "2 5/8", "2 3/4 inches ring size" — DataForSEO, US, 5 Oct 2026). */
+for (const v of [2, 2.125, 2.25, 2.375, 2.5, 2.625, 2.75]) {
+  eq(`inch rows: ${v} in has a row`, INCH_LOOKUP_ROWS.filter((r) => r.inch === v).length, 1);
+}
+eq('inch rows: sorted, no repeats', INCH_LOOKUP_ROWS.every((r, i, a) => i === 0 || r.inch > a[i - 1].inch), true);
+for (const [v, want] of [[2.25, '2¼'], [2.5, '2½'], [1.875, '1⅞'], [2.375, '2⅜'], [2, '2'], [2.3, null]] as const) {
+  eq(`inchFraction(${v}) is ${want}`, inchFraction(v), want);
+}
+eq('Japan rows: count (4 to 34)', JP_LOOKUP_ROWS.length, 31);
+eq('Japan rows: first is 4', JP_LOOKUP_ROWS[0].jp, 4);
+// 号35 = 13 + 34/3 = 24.33 mm -> (24.33 - 11.63)/0.8128 = 15.63 -> 15¾, past the top
+eq('Japan rows: last is 34', lastOf(JP_LOOKUP_ROWS).jp, 34);
+/* The how-to page stops its strip table where CHART_ROWS stops, so a size the
+ * chart does not list is printed nowhere. These tables must obey the same. */
+const allLookup = [...DIAMETER_LOOKUP_ROWS, ...CIRCUMFERENCE_LOOKUP_ROWS, ...INCH_LOOKUP_ROWS, ...JP_LOOKUP_ROWS];
+eq('every lookup row is US 3 to 15½',
+   allLookup.every((r) => r.usNumeric !== null && r.usNumeric >= 3 && r.usNumeric <= 15.5), true);
+eq('every lookup row answers in all seven systems',
+   allLookup.every((r) => [r.us, r.uk, r.eu, r.jp, r.in, r.it, r.br].every((x) => x !== null)), true);
+/* India and IT/ES/CH/BR share a scale; the page prints them side by side and
+ * says they agree. If the ceilings ever diverge inside this range, say so. */
+eq('India equals IT/ES/CH/BR on every lookup row', allLookup.every((r) => r.in === r.it && r.it === r.br), true);
+eq('circumference rows: EU column equals the row figure',
+   CIRCUMFERENCE_LOOKUP_ROWS.every((r) => r.eu === Math.round(r.circumferenceMm)), true);
+eq('Japan rows run 4, 5, 6 … with no gap or repeat',
+   JP_LOOKUP_ROWS.every((r, i) => r.jp === 4 + i), true);
+eq('Japan rows: each diameter is 13 + (n - 1)/3',
+   JP_LOOKUP_ROWS.every((r) => Math.abs(r.diameterMm - (13 + (r.jp! - 1) / 3)) < 1e-9), true);
+
+console.log('\n— Lookup tables: spot rows, worked by hand —');
+const findDia = (mm: number) => DIAMETER_LOOKUP_ROWS.find((r) => Math.abs(r.diameterMm - mm) < 1e-9)!;
+const findCirc = (mm: number) => CIRCUMFERENCE_LOOKUP_ROWS.find((r) => Math.abs(r.circumferenceMm - mm) < 1e-9)!;
+// 17 mm: (17 - 11.6332)/0.8128 = 6.60 -> 6½ · 53.41 mm round: (53.41 - 37.5)/1.25 = 12.73 -> 12½ steps = M½ · EU 53 · JCS (17 - 13)×3 + 1 = 13
+for (const [k, want] of [['us', '6½'], ['uk', 'M½'], ['eu', 53], ['jp', 13]] as const) {
+  eq(`17 mm across -> ${k} ${want}`, findDia(17)[k], want);
+}
+// 18 mm: 7.83 -> 7¾ · 56.55 round: 15.24 -> 15 steps = P · EU 57 · (5×3) + 1 = 16
+for (const [k, want] of [['us', '7¾'], ['uk', 'P'], ['eu', 57], ['jp', 16]] as const) {
+  eq(`18 mm across -> ${k} ${want}`, findDia(18)[k], want);
+}
+// 54 mm round = EU 54: 17.19 mm across -> (17.19 - 11.63)/0.8128 = 6.84 -> 6¾ · 13.2 steps = N · JCS 13.57 -> 14 · minus-40 = 14
+for (const [k, want] of [['us', '6¾'], ['uk', 'N'], ['eu', 54], ['jp', 14], ['in', 14], ['it', 14]] as const) {
+  eq(`54 mm round -> ${k} ${want}`, findCirc(54)[k], want);
+}
+// 2.3 in = 58.42 mm round: 18.60 mm across -> 8.57 -> 8½ · 16.74 steps -> 16½ = Q½ · EU 58 · JCS 17.79 -> 18
+const in23 = INCH_LOOKUP_ROWS.find((r) => r.inch === 2.3)!;
+const byInch = (v: number) => INCH_LOOKUP_ROWS.find((r) => r.inch === v)!;
+// 2¼ in = 57.15 mm round: 18.19 mm across -> (18.19 - 11.63)/0.8128 = 8.07 -> 8 · 15.72 steps -> 15½ = P½ · EU 57 · JCS 15.57 -> 16 + 1 = 17
+eq('2¼ in is 57.15 mm', byInch(2.25).circumferenceMm, 57.15, 1e-9);
+for (const [k, want] of [['us', '8'], ['uk', 'P½'], ['eu', 57], ['jp', 17]] as const) {
+  eq(`2¼ in round -> ${k} ${want}`, byInch(2.25)[k], want);
+}
+// 2½ in = 63.5 mm: 20.21 mm across -> 10.56 -> 10½ · 20.8 steps -> 21 = V · JCS 21.64 -> 22 + 1 = 23 · EU: 63.5 is a knife edge, rounded up to 64, the site's go-up rule
+eq('2½ in is 63.5 mm', byInch(2.5).circumferenceMm, 63.5, 1e-9);
+for (const [k, want] of [['us', '10½'], ['uk', 'V'], ['eu', 64], ['jp', 23]] as const) {
+  eq(`2½ in round -> ${k} ${want}`, byInch(2.5)[k], want);
+}
+// 2¾ in = 69.85 mm: 22.23 mm across -> 13.04 -> 13 · 25.88 steps -> 26 = Z+1 · EU 70 · JCS 27.7 -> 28 + 1 = 29
+for (const [k, want] of [['us', '13'], ['uk', 'Z+1'], ['eu', 70], ['jp', 29]] as const) {
+  eq(`2¾ in round -> ${k} ${want}`, byInch(2.75)[k], want);
+}
+for (const [k, want] of [['us', '8½'], ['uk', 'Q½'], ['eu', 58], ['jp', 18]] as const) {
+  eq(`2.3 in round -> ${k} ${want}`, in23[k], want);
+}
+// JCS 14 = 13 + 13/3 = 17.33 mm -> (17.33 - 11.63)/0.8128 = 7.01 -> US 7
+eq('Japan 14 -> US 7', JP_LOOKUP_ROWS.find((r) => r.jp === 14)!.us, '7');
+
+console.log('\n— Chart page prose: per-country worked examples —');
+// UK T: 19 steps after A -> 37.5 + 19 × 1.25 = 61.25 mm round, 61.25/π = 19.50 mm across
+const ukT = fromCircumference(37.5 + 19 * 1.25);
+eq('UK T is 61.25 mm round', ukT.circumferenceMm, 61.25, 1e-9);
+eq('UK T is 19.50 mm across', Number(ukT.diameterMm.toFixed(2)), 19.50);
+eq('UK T reads back as T', ukT.uk, 'T');
+eq('UK T -> US 9¾  ((19.50 - 11.63)/0.8128 = 9.67)', ukT.us, '9¾');
+eq('UK T -> EU 61', ukT.eu, 61);
+eq('UK T -> Japan 20  ((19.50 - 13)×3 + 1 = 20.5 -> 20)', ukT.jp, 20);
+// UK M: 12 steps -> 52.50 mm -> 16.71 mm across -> 6.25 -> US 6¼
+eq('UK M -> US 6¼', fromCircumference(37.5 + 12 * 1.25).us, '6¼');
+eq('aro 19 -> US 8¾  ((18.78 - 11.63)/0.8128 = 8.79)', fromCircumference(59).us, '8¾');
+eq('US 7 -> UK N½  (54.42 mm: 13.53 steps)', fromDiameter(diameterFromUs(7)).uk, 'N½');
+eq('chart prints EU 54 against exactly US 6¾ and 7',
+   CHART_ROWS.filter((r) => r.eu === 54).map((r) => r.us).join(','), '6¾,7');
+/* "Misjudge a ring's inside diameter by a quarter of a millimetre and the
+ * answer moves by more than a US quarter size." */
+eq('a US quarter is less than 0.25 mm of diameter', US_STEP_MM / 4 < 0.25, true);
+/* "An eighth … and a tenth … so an inch tape cannot see quarter sizes." */
+eq('an eighth of an inch is more than a US quarter of circumference',
+   MM_PER_INCH / 8 > (Math.PI * US_STEP_MM) / 4, true);
+eq('a tenth of an inch is more than a US quarter of circumference',
+   MM_PER_INCH / 10 > (Math.PI * US_STEP_MM) / 4, true);
+
+
+/* ── Homepage edge case: "a 7 that needs to be a 10" (5 Oct 2026) ─────────
+ * US 7 = 11.6332 + 7 × 0.8128 = 17.32 mm, US 10 = 19.76 mm (both asserted at
+ * the top). The metal added round the inside is π × 3 × 0.8128 = 7.66 mm. */
+console.log('\n— Homepage: resizing a 7 to a 10 —');
+eq('US 7 to US 10 adds 7.66 mm of inner circumference',
+   Number((Math.PI * (diameterFromUs(10) - diameterFromUs(7))).toFixed(2)), 7.66);
+
+/* ── /how-should-a-ring-fit: one size step in mm (5 Oct 2026) ─────────────
+ * The page computes these from the step constants; .astro cannot be imported
+ * here, so the same arithmetic is redone and pinned to hand-worked values.
+ * US 0.8128 mm across per size · UK 1.25 mm round per letter · ISO 1 mm round
+ * per size · JCS 1/3 mm across per size. Printed to 2 dp. */
+console.log('\n— /how-should-a-ring-fit: one size step —');
+const fit2 = (n: number) => n.toFixed(2);
+// US quarter: 0.8128 / 4 = 0.2032 across, × π = 0.6384 round
+eq('US quarter = 0.20 mm across, 0.64 mm round', `${fit2(US_STEP_MM / 4)} ${fit2((US_STEP_MM / 4) * Math.PI)}`, '0.20 0.64');
+// US half: 0.4064 across, 1.2767 round
+eq('US half = 0.41 mm across, 1.28 mm round', `${fit2(US_STEP_MM / 2)} ${fit2((US_STEP_MM / 2) * Math.PI)}`, '0.41 1.28');
+// US whole: 0.8128 across, 2.5535 round
+eq('US whole = 0.81 mm across, 2.55 mm round', `${fit2(US_STEP_MM)} ${fit2(US_STEP_MM * Math.PI)}`, '0.81 2.55');
+// UK half letter: 0.625 round (exact in binary, toFixed picks the larger: 0.63), 0.1989 across
+eq('UK half letter = 0.20 mm across, 0.63 mm round', `${fit2(UK_STEP_MM / 2 / Math.PI)} ${fit2(UK_STEP_MM / 2)}`, '0.20 0.63');
+// UK whole letter: 1.25 round, 0.3979 across
+eq('UK whole letter = 0.40 mm across, 1.25 mm round', `${fit2(UK_STEP_MM / Math.PI)} ${fit2(UK_STEP_MM)}`, '0.40 1.25');
+// ISO: 1 mm round, 0.3183 across
+eq('EU/ISO size = 0.32 mm across, 1.00 mm round', `${fit2(1 / Math.PI)} ${fit2(1)}`, '0.32 1.00');
+// JCS: 0.3333 across, 1.0472 round
+eq('Japanese size = 0.33 mm across, 1.05 mm round', `${fit2(JP_STEP_MM)} ${fit2(JP_STEP_MM * Math.PI)}`, '0.33 1.05');
+// "the finest step … about 0.2 mm across": the UK half letter, 0.1989
+eq('finest step is about 0.2 mm across',
+   Math.min(US_STEP_MM / 4, US_STEP_MM / 2, US_STEP_MM, UK_STEP_MM / 2 / Math.PI, UK_STEP_MM / Math.PI, 1 / Math.PI, JP_STEP_MM).toFixed(1), '0.2');
+// "a paper strip read 1 mm too long puts you 1.6 US quarter sizes out": 1 / 0.6384 = 1.566
+eq('1 mm of strip is 1.6 US quarter sizes', (1 / ((US_STEP_MM / 4) * Math.PI)).toFixed(1), '1.6');
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

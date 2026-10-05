@@ -1,7 +1,138 @@
 # ringsizetool.com — status
 
-Last updated: 2 Oct 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
+Last updated: 5 Oct 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
+
+**📐 `/how-should-a-ring-fit` — DEPLOYED 5 Oct 2026 (`78b5e00..f11256f`, run 37359841040 green; live 200, index/follow, in the sitemap, verified). Owner read and approved it first. 6 Oct: prose rewritten in plainer words on the owner's "humanize, it should not read as AI" (no em dashes, contractions, the punchline sentences unpicked; every fact and source unchanged).** Branch
+`draft/ring-fit`, worktree `sites/.worktrees/ringsizetool-fit`, preview config
+`ringsizetool-fit-draft` (port 4336).
+- Why: a pasted third-party keyword plan (5 Oct) was checked and all of it declined except this one.
+  `how should a ring fit` 1,600 and `how tight should a ring be` 1,000 (DataForSEO US, KD 0; these were
+  OpenSEO's last 16 credits, so it is now at 0). Ahrefs free puts both in >100, i.e. under 1,000, so the
+  real demand is lower than DataForSEO says. Google US page one (owner's screenshot): an AI Overview,
+  2 ads, Reddit, PAA, videos and forums, then dedicated jewellers' pages at DR 44–47 whose pages carry
+  0–1 backlinks. Expect impressions; clicks will be few. The 28 Aug call ("Reddit-shaped, not worth a
+  page") was made without volume or SERP data and is reversed for that reason.
+- What it is: four checks (going on, at the base, coming off, after a few hours) × fits / too tight /
+  too loose, every cell sourced; too tight (incl. "stuck and swelling → see a doctor", Alberta Health
+  Services); should it spin; tighter or looser + up or down between sizes (PAA verbatim as headings);
+  one size step in mm for US/UK/ISO/JP, computed and asserted (verify 464/464); wedding/wide/men's,
+  linking to `/#cases` instead of restating it. No FAQ block: the PAA questions are the headings.
+- Also on the branch: how-to `#when` loses "and how tight is right" from its heading and links to the
+  new page; footer link; llms.txt entry. Sitemap 11 URLs, 13 pages built, check 0 errors, sweep clean,
+  375 px no page scroll, light + dark, focus ring checked. No shop names in the served HTML.
+- **Time-of-day wording made consistent (owner's choice, 5 Oct): end of the day.** The homepage
+  "Fingers change size" case said "in the middle of the day", contradicting the homepage's own
+  calibration section and /about ("in the evening") and how-to `#when` ("at the end of the day"). It
+  now says "at the end of the day". The new page gives no time, only that the time of day matters.
+- Request indexing for `/how-should-a-ring-fit` in GSC a few days after the deploy.
+
+**🧩 Two homepage edge cases — DEPLOYED 5 Oct 2026 (`7ef283d..78b5e00`, run 37322120440 green; live text verified, no shop named in the served HTML).** The two
+QuestionFinder gaps from 2 Oct, answered inside "Cases the number alone won't cover" (no new page, no
+blog — the owner asked about a blog the same day and was advised against it):
+- "Rings that get tighter with age" — the knuckle, not the finger: hand osteoarthritis affects the
+  middle finger joints and gets likelier with age (NHS, two pages; Wikipedia on Bouchard's nodes);
+  remedy is mechanical — sizing beads or an opening shank (GIA 4Cs; a US and a UK jeweller). No
+  claim about how often age is the cause.
+- "A ring three sizes out — a 7 that needs to be a 10" — about two sizes is the common limit (Larson,
+  Hauser's), up is harder (GIA), stone-set bands get their stones moved to a new band (Beaverbrooks);
+  7 → 10 adds 7.66 mm round the inside (asserted). GIA/Blue Nile/Ernest Jones "two-size" claims in
+  search summaries were NOT found on their own pages and are not relied on.
+- Sources sit in `{/* */}` comments, which Astro strips: an HTML comment would have shipped the shop
+  names in the served page. verify 455/455, check 0, build + sweep clean, 375 px checked.
+
+**📏 Chart range raised from US 14 to US 15½ — DEPLOYED 5 Oct 2026 (`0498040..7ef283d`, run 37314849956 green; live chart has 51 rows, verified).**
+Owner asked for US 16; shown that at US 15¾ and 16 the UK (past Z+6), ISO (past 76), Japanese (past
+35) and minus-40 (past 36) columns are empty and the tool stops there, the owner chose 15½.
+`CHART_MAX_US` is computed (the last quarter where all seven systems answer), not typed.
+- Grows with it: the chart (45 → 51 rows), every lookup table (diameter to 24 mm, circumference to
+  76 mm = all of ISO, inches to 3 in, Japan to 34), the printable strip table (adds US 15), and the
+  how-to strip table (adds 7.5 cm = US 15). Newly answered: `3 inch ring size`, `76.2 mm`, `76 mm`,
+  `size 15 ring in mm`, `7.5 cm ring size`.
+- Kept at 14 on purpose: the men's table ("what jewellers sell" caveat) and /average-ring-size's
+  "a size 3 and a size 14 are both entirely ordinary" — claims about stock, not about standards.
+- The printable strip note said "most adult fingers land between 44 and 73 mm", which those figures
+  never were; it now says "US 3 to 15 run from 44 to 75 mm".
+- `verify` 454/454, check 0 errors, build + sweep clean, print still 3 pages, 375 px no page scroll.
+
+**✅ DEPLOYED 5 Oct 2026 on the owner's "haan push kar do": `1d25265..0498040`, run 37311610061 green.**
+Verified on the live site: all 10 sitemap URLs 200 (incl. `/uk-ring-size-chart`, index/follow,
+self-canonical, 1 h1), `/sitemap.xml` 301 → `/sitemap-index.xml`, chart `#measurement` `#systems`
+`#japan` + diagram + `2¼ in 2.25` / `63.5 mm` / `1.7 cm` / `6½ 6.5` served, printable "ring size
+ruler" heading, homepage title unchanged, pages.dev still `noindex`. Owner to do: GSC → URL
+Inspection → Request indexing for `/uk-ring-size-chart`, `/ring-size-chart`, `/printable-ring-sizer`.
+The R6 and chart-lookup sections below describe what shipped; their "NOT deployed" lines are
+history now. `sites/.worktrees/ringsizetool-uk` is merged and can be removed.
+
+**🚀 Release candidate `draft/oct-release` — 5 Oct 2026 (shipped, see above).** Worktree
+`sites/.worktrees/ringsizetool-release`, preview config `ringsizetool-release` (port 4335). It is
+main + `draft/uk-ring-size-chart` (R6) + `draft/chart-lookup` (below), conflicts resolved by keeping
+both sides (all additive), and the chart's `#uk` section now links to `/uk-ring-size-chart`.
+`verify` 404/404, `astro check` 0 errors, 12 pages, sweep clean, no dead anchors, sitemap 10 URLs.
+Also on it: the printable sheet's finger strip is now called the "ring size ruler" (section 3
+heading and strip label) — GSC to 3 Oct shows seven `…ring size ruler…` variants at the page's best
+positions (42–56); print still 3 pages. Keyword pass, same day (DataForSEO US, seed `mm ring size`, 123 rows, 54 credits; 16 left): the
+inch table now lists eighths as well as tenths (1¾ to 2.8 in, 18 rows), because the searches are
+written as tape fractions — `2 1/2 inches ring size`, `2 3/4…`, `2 1/4…`, `2 5/8…` and their mm
+twins `63.5 mm`, `57.15 mm`, `50.8 mm`; cm and mm print without trailing zeros (`1.7 cm`, `6 cm`,
+not `1.70`/`6.0`); the main chart shows the decimal beside each fractional US size (`6½ 6.5`),
+for `6.5 ring size`, `8.5`, `5.75`. Not served on purpose: `3 inch` / `76.2 mm` / `76 mm` / `8 cm` /
+`size 15 ring in mm` — all above US 14, the chart's top. Widening the chart is an owner decision.
+The consent banner is NOT in it. **Ship only after the owner has read the new parts.** The
+10 Oct hold no longer needs to be waited out: GSC 1–4 Oct already shows the chart↔homepage swap
+reversed on its own (chart 69 impressions vs homepage 35, after 37 vs 54 on 24–29 Sep).
+
+**📊 Chart lookups + R5 per-country sections — drafted 5 Oct 2026, NOT deployed.** Branch
+`draft/chart-lookup`, worktree `sites/.worktrees/ringsizetool-lookup`, preview config
+`ringsizetool-lookup-draft` (port 4334). Built after checking a pasted third-party "Full SEO Audit"
+(5 Oct) against the live site and GSC; most of that audit was already decided against (see below).
+- What it adds, all on `/ring-size-chart` (no new URL; sitemap still 9): (1) `#measurement`, three
+  lookup tables that start from a round reading — inner diameter 14–23 mm in half millimetres,
+  circumference 44–72 mm (also the EU/ISO/FR size), and 1.8–2.8 in; (2) R5 `#systems` with
+  `#us #uk #eu #japan #india #it-es-ch`, each a definition plus a worked conversion both ways,
+  linking to `/#disagree` rather than restating it, with a Japanese 号 table (4–31); (3) an inline
+  SVG diameter-vs-circumference diagram in `#units`. Also: tool `<details>` links to `#uk`/`#india`,
+  the how-to strip table links to `#by-circumference`, `public/_redirects` sends `/sitemap.xml`
+  (a 404) to `/sitemap-index.xml`, llms.txt mentions the tables.
+- Why: GSC 25 Aug–4 Oct shows the chart ranking 1–11 only for two-decimal strings its table happens
+  to contain (`16.31 mm ring size`), while the round figures people measure (`17mm ring size`,
+  `18mm diameter ring size`, `2.3 inches ring size`, `ring size 54`, `5.2 cm circumference ring size`)
+  sat at 18–95. Every row is generated by `fromDiameter()`/`fromCircumference()` and stops at
+  US 3–14, the same rule the how-to strip table follows (so `7.5 cm` is deliberately not answered).
+- Checks on the branch: `verify` 376/376 (new assertions are hand-worked values), `astro check`
+  0 errors, build + newline sweep clean, no dead anchors, 1 `<h1>`, 375 px with no page scroll,
+  light and dark.
+- **Hold until (1) the owner has read the new sections and (2) the ~10 Oct GSC check is done.**
+  It touches the chart page, so shipping first would confound that check. It will conflict lightly
+  with `draft/uk-ring-size-chart` in `ring-size-chart.astro` and `ringSizes.ts` (both additive).
+- Audit claims checked live and found wrong: `/terms` robots meta is correct (no `maxlarge`);
+  contextual links are not "near-absent" (4–8 per content page); FAQ rich results are retired
+  (7 May 2026), not "restricted"; its "US 7 = UK N" is half a letter off (the rule gives N½);
+  `WebApplication` already has `offers`. Its new pages (`/ring-size-converter`, gift/secret,
+  resizing, fit/wide band) were all decided against before (SEO-AUDIT.md §15–16, SEO-STRATEGY §11)
+  and the homepage already has sections for secret sizing, resizing limits, wide bands and knuckles.
+
+**🍪 R9 consent banner — owner said "laga do" 2 Oct 2026; built and tested, NOT deployed.** Commit
+`285749c` on branch `feature/consent-banner`, worktree `sites/.worktrees/ringsizetool-consent`. It
+merges cleanly with `draft/uk-ring-size-chart`. It does not touch Search Console data, so it does
+NOT have to wait for the 10 Oct check: ship it once the owner has looked at it.
+- Why (sources in `src/data/consent.ts`): Google's EU User Consent Policy requires consent "where
+  legally required"; for EEA visitors the CNIL says Google Analytics is outside the analytics
+  exemption whatever its configuration; the UK ICO exception was not settled for GA4. A static
+  site cannot geolocate, so everyone is asked.
+- Behaviour, verified on a scratch copy with a dummy ID (`G-TESTTEST00`, host rewritten to
+  localhost, so no real property was touched): before consent no Google request and no `_ga`
+  cookie, and old ones are deleted; on Accept the hit carries `gcs=G101` and `npa=1`; Reject from
+  "Cookie settings" deletes the cookies and reloads; expired, old-version, future-dated and garbage
+  answers all re-ask. CLS 0; the banner takes 26% of a 375 px screen; light and dark checked; skip
+  link first, then the banner in tab order.
+- ⚠️ **GA4 numbers will drop from the deploy day**, because only visitors who accept are counted.
+  Any GA4 comparison across that date is broken; Search Console is unaffected.
+- ⚠️ **Open, owner's call:** Cloudflare's Web Analytics beacon is edge-injected, so the banner cannot
+  gate it. /privacy now says that. Turning it off in the Cloudflare dashboard removes the last
+  unconsented script, and its /privacy section must go in the same deploy (verify the live HTML).
+- ⚠️ Not a TCF-certified CMP. Replace it before any ad code (AdSense help 13554116).
+- `LAST_UPDATED` on /privacy says 2 October 2026: re-date it if the deploy is later.
 
 **📄 R6 `/uk-ring-size-chart` — APPROVED by the owner 2 Oct 2026, drafted, NOT deployed.** The draft
 is commit `820c31f` on branch `draft/uk-ring-size-chart`, checked out as a separate worktree at

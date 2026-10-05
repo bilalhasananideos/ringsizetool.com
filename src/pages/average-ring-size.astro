@@ -37,7 +37,11 @@ const womenHigh = fromDiameter(diameterFromUs(8.5));
 const menLow = fromDiameter(diameterFromUs(8));
 const menHigh = fromDiameter(diameterFromUs(13));
 
-const sold = CHART_ROWS.filter((r) => r.usNumeric !== null);
+/* "A size 3 and a size 14 are both entirely ordinary" is a claim about what
+   jewellers sell, so it keeps the old US 14 top. The chart now runs to US 15½
+   because every sizing system can still name those sizes, which says nothing
+   about how common they are. */
+const sold = CHART_ROWS.filter((r) => r.usNumeric !== null && r.usNumeric <= 14);
 const smallest = sold[0];
 const largest = sold[sold.length - 1];
 

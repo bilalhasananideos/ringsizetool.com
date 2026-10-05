@@ -144,13 +144,17 @@ export const UK_NOTE =
   'to the next letter \u2014 rounding down gives a ring smaller than your ' +
   'finger. Or give them the circumference in millimetres.';
 
-export function ukFromCircumference(circMm: number): string | null {
-  // Position on the letter scale, rounded to the nearest half size.
+/** Position on the letter scale, rounded to the nearest half size: A = 0,
+ *  A½ = 0.5, B = 1 … Z+6 = 31. Null outside A to Z+6. */
+function ukStep(circMm: number): number | null {
   const raw = (circMm - UK_BASE_CIRC_MM) / UK_STEP_MM;
   const step = Math.round(raw * 2) / 2;
   if (step < 0) return null;               // smaller than size A - no honest answer
   if (step > UK_MAX_STEP) return null;     // larger than Z+6 - the scale stops
+  return step;
+}
 
+function ukLabel(step: number): string {
   const whole = Math.floor(step);
   const half = step - whole >= 0.5;
 
@@ -160,6 +164,24 @@ export function ukFromCircumference(circMm: number): string | null {
 
   return half ? `${letter}½` : letter;
 }
+
+export function ukFromCircumference(circMm: number): string | null {
+  const step = ukStep(circMm);
+  return step === null ? null : ukLabel(step);
+}
+
+/** The letter to buy from a jeweller who stocks whole letters only: the
+ *  result above, with a half letter rounded UP. This is UK_NOTE's advice as a
+ *  function, so the /uk-ring-size-chart column and the note cannot disagree.
+ *  Z+5½ goes up to Z+6, which the scale names, so nothing here is refused
+ *  that ukFromCircumference() answers. */
+export function ukWholeLetterUp(circMm: number): string | null {
+  const step = ukStep(circMm);
+  return step === null ? null : ukLabel(Math.ceil(step));
+}
+
+/** Inner circumference of a letter-scale position (0 = A, 0.5 = A½ …). */
+export const ukCircumferenceAtStep = (step: number) => UK_BASE_CIRC_MM + step * UK_STEP_MM;
 
 /* ── EU / ISO 8653:2016 ───────────────────────────────────────────────────
  * The size IS the inner circumference in mm. Nothing to convert.
@@ -384,11 +406,107 @@ export function fromDiameter(diameterMm: number): RingSize {
 
 export const fromCircumference = (circMm: number) => fromDiameter(circMm / Math.PI);
 
-/** US 3 to 14 in quarter steps - the range actually sold. */
+/* ── The chart's range ────────────────────────────────────────────────────
+ * From US 3, the smallest size jewellers stock, up to the last quarter size
+ * every one of the seven systems can still name. Above it the British scale
+ * (Z+6), ISO 8653 (76), the Japanese 号 table (35) and the minus-40 scales (36)
+ * run out, and a row would be mostly em dashes. That ceiling is US 15½. It is
+ * found here rather than typed, so it moves if one of those constants does.
+ *
+ * Until 5 Oct 2026 the chart stopped at US 14, "the range actually sold". It
+ * was raised on the owner's call because the sizes above 14 are searched —
+ * "3 inch ring size", "76.2 mm ring size", "size 15 ring in mm", "7.5 cm ring
+ * size" (DataForSEO, US, 5 Oct 2026) — and every system still answers them.
+ * The owner chose 15½ over 16: at US 15¾ and 16 the UK, EU, Japanese, Italian
+ * and Brazilian columns would be empty, and the tool stops there too. */
+export const CHART_MIN_US = 3;
+
+const answersEverywhere = (r: RingSize) =>
+  [r.us, r.uk, r.eu, r.jp, r.in, r.it, r.br].every((x) => x !== null);
+
+export const CHART_MAX_US = (() => {
+  let q = CHART_MIN_US;
+  while (answersEverywhere(fromDiameter(diameterFromUs(q + 0.25)))) q += 0.25;
+  return q;
+})();
+
+/** US 3 to 15½ in quarter steps — see the range note above. */
 export const CHART_ROWS: RingSize[] = Array.from(
-  { length: (14 - 3) * 4 + 1 },
-  (_, i) => fromDiameter(diameterFromUs(3 + i * 0.25)),
+  { length: (CHART_MAX_US - CHART_MIN_US) * 4 + 1 },
+  (_, i) => fromDiameter(diameterFromUs(CHART_MIN_US + i * 0.25)),
 );
+
+/** Every position the British scale names, A to Z+6 in half letters, for the
+ *  letter-ordered chart on /uk-ring-size-chart. Built from the UK rule and
+ *  read back through fromCircumference(), never typed. Declared here, not
+ *  beside the UK functions, because fromCircumference is a const and must
+ *  exist before this runs. */
+export const UK_LETTER_ROWS: RingSize[] = Array.from(
+  { length: UK_MAX_STEP * 2 + 1 },
+  (_, i) => fromCircumference(ukCircumferenceAtStep(i / 2)),
+);
+/* ── Lookup rows: start from the number you have, not from a US size ──────
+ * CHART_ROWS is ordered by US quarter size, so its millimetre figures run to
+ * two decimals (17.32, 17.53) and a ruler never produces them. Search Console
+ * shows what that costs: "16.31 mm ring size", a string the chart contains,
+ * ranked first, while "17mm ring size", "18mm ring size", "7.5 cm ring size"
+ * and "2.3 inches ring size" — the round figures people actually measure —
+ * sat on pages 4 to 9 (GSC, 25 Aug to 4 Oct 2026). These rows start from round
+ * figures and from foreign size labels instead.
+ *
+ * Every row goes through fromDiameter() or fromCircumference(), the same path
+ * as the tool, and is kept only while its US size is inside CHART_ROWS (US 3
+ * to 15½, see the range note above). That is the rule the how-to page's strip
+ * table already follows: a size the chart does not list is printed nowhere.
+ * The bounds are read from CHART_ROWS, so widening the chart widens these.
+ */
+const US_LO = CHART_ROWS[0].usNumeric!;
+const US_HI = CHART_ROWS[CHART_ROWS.length - 1].usNumeric!;
+
+const inChartRange = (r: RingSize) =>
+  r.usNumeric !== null && r.usNumeric >= US_LO && r.usNumeric <= US_HI;
+
+/** from, from + step, … to. Rounded so 0.1 steps print as 2.3, not 2.3000000000000003. */
+const steps = (from: number, to: number, step: number) =>
+  Array.from({ length: Math.round((to - from) / step) + 1 }, (_, i) => Number((from + i * step).toFixed(4)));
+
+/** A ring measured across with a ruler: inner diameter in half millimetres. */
+export const DIAMETER_LOOKUP_ROWS: RingSize[] =
+  steps(10, 30, 0.5).map(fromDiameter).filter(inChartRange);
+
+/** A paper strip read in whole millimetres. ISO 8653 sizes ARE these figures,
+ *  so this is also the EU/ISO/French chart, in EU order. */
+export const CIRCUMFERENCE_LOOKUP_ROWS: RingSize[] =
+  steps(ISO_MIN, ISO_MAX, 1).map(fromCircumference).filter(inChartRange);
+
+/** A tape measure round the finger, in tenths AND eighths of an inch. A US
+ *  tape is marked in fractions, and that is how the searches are written:
+ *  DataForSEO (US, 5 Oct 2026) has "2 1/2 inches ring size", "2 3/4 inches to
+ *  mm ring size", "2 1/4…", "2 5/8…" and their millimetre twins "63.5 mm",
+ *  "57.15 mm", "50.8 mm" — none of which a tenths-only table contains. The two
+ *  sets overlap at whole and half inches; the Set keeps one row for each.
+ *  `inch` keeps the figure as written, so the first column never prints a
+ *  float artefact. */
+export const INCH_LOOKUP_ROWS: (RingSize & { inch: number })[] =
+  [...new Set([...steps(1, 4, 0.1), ...steps(1, 4, 0.125)])]
+    .sort((a, b) => a - b)
+    .map((inch) => ({ inch, ...fromCircumference(inch * MM_PER_INCH) }))
+    .filter(inChartRange);
+
+const EIGHTHS = ['', '⅛', '¼', '⅜', '½', '⅝', '¾', '⅞'];
+
+/** "2¼" for an exact eighth of an inch, null otherwise. */
+export function inchFraction(inch: number): string | null {
+  const n = Math.round(inch * 8);
+  if (Math.abs(n - inch * 8) > 1e-9) return null;
+  return `${Math.floor(n / 8)}${EIGHTHS[n % 8]}`;
+}
+
+/** Every Japanese 号 size inside the chart's range, in 号 order. */
+export const JP_LOOKUP_ROWS: RingSize[] = Array.from(
+  { length: JP_MAX },
+  (_, i) => fromDiameter(JP_BASE_MM + i * JP_STEP_MM),
+).filter(inChartRange);
 
 /* ── Context for the result ───────────────────────────────────────────────
  * Google's People Also Ask carries three separate versions of this question:

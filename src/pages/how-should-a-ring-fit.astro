@@ -1,0 +1,370 @@
+---
+/**
+ * /how-should-a-ring-fit — what a ring that fits feels like, and the signs it
+ * does not. Drafted 5 Oct 2026 on the owner's go-ahead.
+ *
+ * Why a page and not the old how-to paragraph: DataForSEO (US, 5 Oct) gives
+ * `how should a ring fit` 1,600 and `how tight should a ring be` 1,000, both
+ * KD 0; Ahrefs' free tool (owner, 5 Oct) puts each in its >100 bucket, i.e.
+ * under 1,000, so the real figure is somewhere in between. Every organic result
+ * on page one (Google US, owner's screenshot, 5 Oct) is a dedicated page —
+ * jewellers' blogs at DR 44–47 whose pages have 0–1 backlinks — under an AI
+ * Overview, Reddit, videos and forums. A section on a page titled "how to
+ * measure" does not compete with that; a page might. Expect impressions, not
+ * many clicks.
+ *
+ * MUST NOT become a measuring guide (/how-to-measure-ring-size-at-home) or
+ * restate the homepage's edge cases (/#cases: knuckle, wide band, resizing).
+ * It links to both. The one thing it adds that the ranking pages do not: what
+ * one size step is in millimetres, from the standards, and why that makes a
+ * ring that passes the checks the best thing to measure.
+ *
+ * Sources sit in {/* *\/} comments, which Astro strips. Shops are named only
+ * there, never in the served page — same policy as UK_NOTE. The GIA and a
+ * public health body are named on the page; neither is a shop.
+ */
+import Layout from '../layouts/Layout.astro';
+import { NOINDEX_SITE, SITE_URL } from '../config';
+import { US_STEP_MM, UK_STEP_MM, JP_STEP_MM } from '../data/ringSizes';
+import { breadcrumbSchema } from '../data/faq';
+
+const PAGE_URL = `${SITE_URL}/how-should-a-ring-fit`;
+
+/* ISO 8653: the size number IS the inner circumference in millimetres, so one
+   size is 1 mm round. Not in ringSizes.ts because nothing there steps by it. */
+const ISO_STEP_MM = 1;
+
+/* One step of each scale. US and Japanese steps are defined across the inside
+   (diameter), UK and ISO steps round it (circumference); the other column is
+   the same step times or divided by π. Nothing typed. */
+type Step = { label: string; dia: number; circ: number };
+const across = (label: string, dia: number): Step => ({ label, dia, circ: dia * Math.PI });
+const around = (label: string, circ: number): Step => ({ label, dia: circ / Math.PI, circ });
+
+const STEPS: Step[] = [
+  across('US quarter size', US_STEP_MM / 4),
+  across('US half size', US_STEP_MM / 2),
+  across('US whole size', US_STEP_MM),
+  around('UK half letter', UK_STEP_MM / 2),
+  around('UK whole letter', UK_STEP_MM),
+  around('EU / ISO size', ISO_STEP_MM),
+  across('Japanese size', JP_STEP_MM),
+];
+
+const finest = Math.min(...STEPS.map((s) => s.dia));
+
+/* A paper strip read 1 mm long is this many US quarter sizes out. */
+const usQuarterRound = (US_STEP_MM / 4) * Math.PI;
+const quartersPerMm = 1 / usQuarterRound;
+
+const jsonLd = [
+  breadcrumbSchema([
+    { name: 'Ring Sizer', url: SITE_URL },
+    { name: 'How Should a Ring Fit', url: PAGE_URL },
+  ]),
+];
+---
+<Layout
+  title="How Should a Ring Fit? Tight vs Loose Signs | Ring Size Tool"
+  description="A ring that fits passes the knuckle with a little resistance, sits snug without pinching and needs a twist to come off. Signs it is too tight or too loose."
+  noindex={NOINDEX_SITE}
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+
+    <nav aria-label="Breadcrumb" class="text-sm text-text-faint">
+      <a href="/" class="text-accent-text underline underline-offset-2">Ring Sizer</a>
+      <span aria-hidden="true"> · </span>How should a ring fit
+    </nav>
+
+    {/* Query: "how should a ring fit" (DataForSEO 1,600 / Ahrefs >100),
+         "how should a ring fit on your finger", "how should a ring fit
+         properly". The first sentence is the answer: it is what the GIA
+         (4Cs, 18 Jan 2018: "snug on her finger, but not so tight as to cause
+         discomfort"), Brilliant Earth (24 Sep 2026: "loose enough to slide
+         over your knuckle with some resistance, but not so tight that it
+         causes pain"), Jewelsmith (goldsmith's guide: "slight resistance when
+         taking it off"), Ken Walker Jewelers (21 Sep 2026: "a gentle,
+         twisting pull") and Shiree Odiz (14 Sep 2024: "fairly easy to slip on
+         and harder to slip off") all say. Read 5 Oct 2026. */}
+    <header class="mt-6">
+      <h1 class="max-w-[20ch] text-[clamp(2.25rem,5.5vw,3.5rem)]">
+        How should a <span class="text-accent-text">ring fit</span>? </h1>
+
+      <p class="mt-5 max-w-[60ch] text-lg text-text-muted">
+        It should go over your knuckle with a bit of resistance, sit snug at the base of your finger
+        without pinching, and need a gentle twist to come back off. If it&rsquo;s easier to put on than to
+        take off, you&rsquo;ve probably got it right.
+      </p>
+
+      <p class="mt-6 border-l-2 border-accent py-1 pl-4 text-sm text-text-muted">
+        That&rsquo;s what most jewellers&rsquo; guides say. Few of them mention how close together the sizes
+        are, though: the smallest step between two sizes changes the inside of a ring by only about <span class="tabular">{finest.toFixed(1)}&nbsp;mm</span>.
+        So trying a ring on your own finger, with the checks below, tells you more than a chart will.
+      </p>
+    </header>
+
+    {/* Query: "What are the signs of a properly fit ring?" (Google PAA for
+         "how should a ring fit", owner's screenshot 5 Oct 2026). Every cell
+         has a source, read 5 Oct 2026:
+         - Going on: Shiree Odiz — "slide over with ease up until it reaches
+           the knuckle where you'll experience a bit of friction".
+         - At the base: GIA — "snug … not so tight as to cause discomfort";
+           Jewelsmith — "never be so tight it pinches or so loose it spins
+           freely"; Shiree Odiz — a ring that "can comfortably turn clockwise
+           and counterclockwise would be the best fit".
+         - Too tight: Ken Walker — "Tingling or numbness", "Muffin-top
+           effect", "Painful removal", "Redness and indentations", trapped
+           moisture and rashes.
+         - Too loose: Ken Walker — "Constant spinning", "Flying off with
+           gestures", comes off "without knuckle resistance", "Clicking
+           against objects"; Brilliant Earth — "Visible gap", stone "on the
+           underside".
+         - Coming off: Ken Walker — "a gentle, twisting pull"; Jewelsmith —
+           "'walk' it back over the knuckle".
+         - Warmth: GIA — "Fingers shrink in the cold and swell in the heat",
+           humidity and altitude too, and "a measurement taken on a cool
+           morning can also differ from one taken in the afternoon".
+         Not used: the AI Overview's "3 to 5 seconds" to remove — not found on
+         any page read here. */}
+    <section class="mt-14" aria-labelledby="checks">
+      <h2 id="checks" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Signs a ring fits properly</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        There are four things to check, in the order you&rsquo;ll notice them. Try the ring when your
+        hands are at their normal temperature, not straight in from the cold or just after a run.
+        Fingers shrink in the cold and swell in the heat, and the GIA says humidity, altitude and the
+        time of day affect them as well. If a ring feels wrong one day, try it again on another day
+        before you decide.
+      </p>
+
+      <div class="table-scroll mt-8 rounded-2xl border border-border bg-surface shadow-xs">
+        <table class="w-full min-w-[40rem] text-left text-sm">
+          <caption class="sr-only">
+            How a ring that fits, a ring that is too tight and a ring that is too loose each behave
+            going on, at the base of the finger, coming off and after a few hours.
+          </caption>
+          <thead>
+            <tr class="border-b border-border bg-surface-sunk/80">
+              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-text">Check</th>
+              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-accent-text">Fits</th>
+              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-text">Too tight</th>
+              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-text">Too loose</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border/60 align-top">
+            <tr>
+              <th scope="row" class="px-4 py-3.5 font-semibold text-text">Going on</th>
+              <td class="px-4 py-3.5 text-text">Slides on easily, then catches a little at the knuckle</td>
+              <td class="px-4 py-3.5 text-text-muted">Has to be forced over the knuckle</td>
+              <td class="px-4 py-3.5 text-text-muted">Goes over the knuckle without you feeling it</td>
+            </tr>
+            <tr>
+              <th scope="row" class="px-4 py-3.5 font-semibold text-text">At the base</th>
+              <td class="px-4 py-3.5 text-text">Snug but not pinching. You can turn it with your fingers</td>
+              <td class="px-4 py-3.5 text-text-muted">Pinches, skin bulges either side of the band, or your finger tingles or goes numb</td>
+              <td class="px-4 py-3.5 text-text-muted">You can see a gap. It turns on its own, so a stone keeps ending up on the palm side</td>
+            </tr>
+            <tr>
+              <th scope="row" class="px-4 py-3.5 font-semibold text-text">Coming off</th>
+              <td class="px-4 py-3.5 text-text">Needs a gentle twist to get back over the knuckle</td>
+              <td class="px-4 py-3.5 text-text-muted">You need soap to get it off, it hurts, or it won&rsquo;t come off at all</td>
+              <td class="px-4 py-3.5 text-text-muted">Slides straight off, or flies off when you shake your hand</td>
+            </tr>
+            <tr>
+              <th scope="row" class="px-4 py-3.5 font-semibold text-text">After a few hours</th>
+              <td class="px-4 py-3.5 text-text">Comfortable</td>
+              <td class="px-4 py-3.5 text-text-muted">Red marks or a dent in your skin, or damp, irritated skin under the band</td>
+              <td class="px-4 py-3.5 text-text-muted">Clinks against things when you hold them</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    {/* Query: "how tight should a ring be" (DataForSEO 1,000 / Ahrefs >100),
+         "ring too tight" (170). Sources, read 5 Oct 2026: Ken Walker (signs,
+         above); Alberta Health Services, "Removing a Ring From a Finger or
+         Toe" (reviewed 31 Jul 2024) — "If these methods fail, see your doctor
+         to have the ring removed"; GIA — "It is easier to remove metal from a
+         ring that's too big than add metal to a ring that's too small";
+         Brilliant Earth — rings "can be sized up or down by about two sizes";
+         Ken Walker — "up or down by two full sizes". No removal method is
+         given here: that is medical advice, and the page links nowhere it
+         cannot stand behind. */}
+    <section class="mt-16" aria-labelledby="tight">
+      <h2 id="tight" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">If a ring is too tight</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Take it off, and don&rsquo;t wear it again until it&rsquo;s been sorted. If your finger tingles or goes
+        numb, the band is pressing too hard, and that won&rsquo;t get better with wear.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        If it won&rsquo;t come off and your finger is swelling, tingling or numb, stop pulling at it and
+        get medical help. That&rsquo;s where public health advice ends up too: Alberta Health Services&rsquo;
+        guide to removing a stuck ring says to see a doctor if the home methods don&rsquo;t work.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Making a ring bigger is harder for a jeweller than making it smaller, because metal has to be
+        added rather than cut out. Jewellers usually put the limit at about two sizes either way, so
+        if yours is further out than that, it may need more than a resize. There&rsquo;s an example on the sizer page: <a href="/#cases" class="text-accent-text underline underline-offset-2">a 7 that needs to be a 10</a>.
+      </p>
+    </section>
+
+    {/* Query: "is my ring too loose if it spins", "should a ring move on
+         your finger" (Google "People also search for", owner's screenshot
+         5 Oct 2026). Sources: Shiree Odiz (turning when pushed is fine);
+         Jewelsmith ("so loose it spins freely"; large knuckles "may require
+         sizing pillows or hinged shanks to prevent spinning"); Ken Walker
+         ("heavy center stones tend to flop to the palm side"); GIA ("Small
+         gold balls can be added to the inside of a ring that's too big …
+         jewelers can install mechanical shanks for people suffering from
+         arthritis"). The knuckle case itself lives on the homepage. */}
+    <section class="mt-16" aria-labelledby="spin">
+      <h2 id="spin" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Should a ring spin on your finger?</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        It&rsquo;s fine if it turns when you push it. It shouldn&rsquo;t turn on its own. If it moves round
+        while you&rsquo;re not touching it, it&rsquo;s loose. You&rsquo;ll notice that first on a ring with a stone
+        or a raised top, because the heavy side swings round towards your palm.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Sometimes a ring spins at the base but only just gets over the knuckle. A smaller size won&rsquo;t
+        help there, because you couldn&rsquo;t get it on. The problem is that your knuckle is wider than
+        the base of your finger, and a jeweller can fix that inside the band instead: small metal
+        beads that stop it turning, or a shank that opens to get past the knuckle. There&rsquo;s more on
+        this in <a href="/#cases" class="text-accent-text underline underline-offset-2">the knuckle case on the sizer page</a>.
+      </p>
+    </section>
+
+    {/* Queries: "Is it better for a ring to be tighter or looser?" and "Is it
+         better to size up or down for a ring?" (both Google PAA, owner's
+         screenshot 5 Oct 2026). Reasoning from the GIA lines quoted above
+         (beads for a ring too big; removing metal is easier than adding it).
+         "Take the larger" is already the site's rule: homepage day-to-day
+         case, how-to #when, UK page whole-letter column. Comfort-fit
+         direction: homepage wide-band case. */}
+    <section class="mt-16" aria-labelledby="looser">
+      <h2 id="looser" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Is it better for a ring to be tighter or looser?</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Slightly looser, but only slightly. A ring that&rsquo;s a little loose can be tightened without
+        cutting it. The GIA describes small gold beads being added inside a ring that&rsquo;s too big. And
+        if it does need resizing, making a ring smaller is the easier job. A ring that&rsquo;s too tight
+        can only be made bigger, which means adding metal, and until then it sits in a drawer.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        The limit is the knuckle. If the ring can slip off over it when you shake your hand, it&rsquo;s too
+        loose. A snug ring is better than a lost one.
+      </p>
+
+      <h3 class="mt-10 text-lg font-semibold text-text">Between two sizes: up or down?</h3>
+
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        Go up, for a plain band. The reasoning is the same, and it&rsquo;s what we say everywhere else on
+        this site: if two readings disagree, take the larger one, and if a UK shop only stocks whole
+        letters, go up to the next letter. There are two exceptions. A comfort-fit band, which is
+        rounded on the inside, often needs the same size or a smaller one (more on wide bands below).
+        And if the bigger size comes off when you shake your hand, it&rsquo;s too big, whatever the
+        numbers say.
+      </p>
+    </section>
+
+    {/* The page's own contribution. Every figure is a scale's definition from
+         ringSizes.ts (US 0.8128 mm across per size, UK 1.25 mm round per
+         letter, ISO 1 mm round per size, Japan 1/3 mm across per size),
+         asserted in scripts/verify-sizes.ts. Left/right half size: GIA, as
+         above ("the left ring finger is typically smaller than the right ring
+         finger by about half a size"). */}
+    <section class="mt-16" aria-labelledby="steps">
+      <h2 id="steps" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">How small one size step is</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Smaller than most people think. These are the steps rings are made in, and the smallest of
+        them, a US quarter size or a UK half letter, makes the inside of a ring about <span class="tabular">{finest.toFixed(1)}&nbsp;mm</span> wider.
+      </p>
+
+      <div class="table-scroll mt-8 rounded-2xl border border-border bg-surface shadow-xs">
+        <table class="w-full min-w-[20rem] text-left text-sm">
+          <caption class="sr-only">
+            How much one step of each ring sizing system changes the inner diameter and inner
+            circumference of a ring, in millimetres.
+          </caption>
+          <thead>
+            <tr class="border-b border-border bg-surface-sunk/80">
+              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-text">One step</th>
+              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-accent-text">Across the inside</th>
+              <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-accent-text">Round the inside</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-border/60">
+            {STEPS.map((s) => (
+              <tr>
+                <th scope="row" class="px-4 py-3.5 font-semibold text-text">{s.label}</th>
+                <td class="tabular px-4 py-3.5 font-mono text-accent-text">{s.dia.toFixed(2)} mm</td>
+                <td class="tabular px-4 py-3.5 font-mono text-accent-text">{s.circ.toFixed(2)} mm</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-6 max-w-[62ch] text-text-muted">
+        That&rsquo;s why we&rsquo;d rather you measured a ring that already passes the checks above than your
+        finger. Read a paper strip just 1&nbsp;mm too long and you&rsquo;re <span class="tabular">{quartersPerMm.toFixed(1)}</span> US
+        quarter sizes out. A ring that already fits has no slack to misread. Put it on the <a href="/" class="text-accent-text underline underline-offset-2">ring sizer</a> and
+        read the size from its inside edge.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        It does need to be from the same finger on the same hand. According to the GIA, a
+        right-handed person&rsquo;s left ring finger is usually about half a size smaller than their right.
+      </p>
+    </section>
+
+    {/* Query: "how should a wedding band fit", "how should a ring fit men" /
+         "a man" / "a woman" (Google PASF and Ahrefs phrase-match, owner
+         5 Oct 2026). GIA — "Rings with wide shanks usually need to be a bit
+         larger, as they will fit more snugly". The comfort-fit direction and
+         why no figure is given: homepage wide-band case (checked 7 Sep 2026).
+         Nothing is said about men's rings being wider on average: no source
+         here measures it. */}
+    <section class="mt-16" aria-labelledby="bands">
+      <h2 id="bands" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Wedding bands, wide bands and men&rsquo;s rings</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        The four checks work the same way for any ring, on any hand. What changes is how a given size
+        feels. A wide band covers more of your finger, so it feels tighter at the same size. That&rsquo;s
+        why the GIA says rings with wide bands usually need to be a bit larger.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        Many wedding bands are comfort-fit, though, which means they&rsquo;re rounded on the inside, and
+        for those jewellers often suggest going down rather than up. There&rsquo;s no standard figure for
+        either, and the sizer page <a href="/#cases" class="text-accent-text underline underline-offset-2">explains why</a>. Men&rsquo;s rings work exactly the
+        same way. If yours is a wide band, the paragraph above is the one that matters.
+      </p>
+    </section>
+
+    <section class="mt-16 rounded-2xl border border-border bg-surface-sunk/40 p-6 sm:p-8" aria-labelledby="measure">
+      <h2 id="measure" class="text-xl font-semibold">Have a ring that passes all four checks?</h2>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        Then measure it. Calibrate your screen with a bank card, put the ring on the circle, and
+        you&rsquo;ll get its size in every system at once. No ring that fits? <a href="/how-to-measure-ring-size-at-home" class="text-accent-text underline underline-offset-2">Measure your finger instead</a>.
+      </p>
+      <p class="mt-6">
+        <a
+          href="/"
+          class="inline-flex min-h-11 items-center rounded-full bg-accent px-6 font-semibold text-on-accent no-underline transition-colors hover:bg-accent-hover"
+        >
+          Open the ring sizer &rarr;
+        </a>
+      </p>
+    </section>
+
+  </div>
+</Layout>

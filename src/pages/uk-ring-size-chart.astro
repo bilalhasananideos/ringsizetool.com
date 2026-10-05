@@ -1,0 +1,434 @@
+---
+/**
+ * /uk-ring-size-chart — the British letter scale, which Ireland, Australia and
+ * New Zealand share. R6 in SEO-STRATEGY.md; the owner said yes on 2 Oct 2026.
+ *
+ * Queries (DataForSEO 30 Sep, absolute volumes unverified): UK `ring size chart
+ * uk` cluster 27.1K, `us ring size to uk` 6.6K, `uk ring size to us` 3.6K,
+ * `ring size letters` 880; AU `australian ring size chart` 4.4K, `australian
+ * ring size` 3.6K, `australian ring size to us` 1.3K.
+ *
+ * MUST NOT duplicate /ring-size-chart. That page is ordered by US quarter size,
+ * with the UK as one column of seven. This one is ordered BY LETTER — every
+ * half letter from A to Z+6, which no other page here lists. Nor may it restate
+ * the homepage's #disagree working for US 6 (L / L½ / M); it links there.
+ *
+ * MUST be a complete destination, not a funnel to the tool. Google's doorway
+ * wording names "pages targeted at specific regions or cities that funnel
+ * users to one page". A reader has to be able to finish here.
+ *
+ * Every size is generated from ringSizes.ts. Every jeweller figure comes from
+ * letterCharts.ts, where its source and date are recorded. Nothing is typed.
+ */
+import Layout from '../layouts/Layout.astro';
+import { NOINDEX_SITE, SITE_URL } from '../config';
+import {
+  UK_LETTER_ROWS, UK_BASE_CIRC_MM, UK_STEP_MM, US_STEP_MM, ukCircumferenceAtStep,
+  ukFromCircumference, ukWholeLetterUp, fromDiameter, diameterFromUs,
+} from '../data/ringSizes';
+import { modeSpec } from '../data/ringModes';
+import FaqSection from '../components/FaqSection.astro';
+import { breadcrumbSchema, faqPageSchema, UK_FAQS } from '../data/faq';
+import {
+  AU_CHARTS, AU_RULE_QUOTER, UK_HIGH_STREET, UK_HIGHER_GROUP,
+  UK_CHAINS_CHECKED, UK_CHAINS_AGREEING,
+} from '../data/letterCharts';
+
+const rows = UK_LETTER_ROWS;
+const first = rows[0];
+const last = rows[rows.length - 1];
+const firstIso = rows.find((r) => r.eu !== null)!;
+
+/* Neighbouring letters that round to the same US quarter. A half letter is
+   0.625 mm around and a US quarter 0.638 mm, so the letters slowly fall
+   behind and now and then two of them land in one quarter. Found, not
+   listed, so the note under the table can never go stale. */
+const sharedUs = rows.flatMap((r, i) => (i > 0 && r.us !== null && r.us === rows[i - 1].us ? [[rows[i - 1], r]] : []));
+const usQuarterAround = (US_STEP_MM / 4) * Math.PI;
+
+const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six'];
+const word = (n: number) => WORDS[n] ?? String(n);
+const cap = (t: string) => t[0].toUpperCase() + t.slice(1);
+
+/* Same decimal places as the tool, so a figure read off this page and typed
+   into the sizer names the same letter (verify-sizes.ts walks every row). */
+const dp = { dia: modeSpec('dia', 'mm').dp, circ: modeSpec('circ', 'mm').dp };
+
+/* US 3 to 13 in half sizes — the US-to-UK lookup. Quarters are on the main
+   chart; repeating them here would be that table again. */
+const usRows = Array.from({ length: (13 - 3) * 2 + 1 }, (_, i) => fromDiameter(diameterFromUs(3 + i / 2)));
+
+const half = UK_STEP_MM / 2;
+const L = ukCircumferenceAtStep(11);
+const M = ukCircumferenceAtStep(12);
+
+/* The worked example. 57 mm is a chosen input, not a size; everything after
+   it is computed. */
+const EXAMPLE_MM = 57;
+const exampleRaw = (EXAMPLE_MM - UK_BASE_CIRC_MM) / UK_STEP_MM;
+const exampleStep = Math.round(exampleRaw * 2) / 2;
+const exampleLetter = ukFromCircumference(EXAMPLE_MM)!;
+const exampleBase = ukFromCircumference(ukCircumferenceAtStep(Math.floor(exampleStep)))!;
+
+const ukGap = Math.max(Math.abs(UK_HIGH_STREET.l - L), Math.abs(UK_HIGH_STREET.m - M));
+const higherGroupHere = ukFromCircumference(UK_HIGHER_GROUP.m)!;
+
+const auM = AU_CHARTS.map((c) => c.m);
+const auMMin = Math.min(...auM);
+const auMMax = Math.max(...auM);
+const ruleQuoterOffset = (AU_RULE_QUOTER.l - L + AU_RULE_QUOTER.m - M) / 2;
+
+const longDate = (iso: string) =>
+  new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(`${iso}T00:00:00Z`));
+
+const mm = (n: number, places = 2) => `${n.toFixed(places)} mm`;
+/* A jeweller's figure at the precision it was published to — 51.9 stays
+   51.9, never "51.90". Computed diameters come out at two places. */
+const pub = (n: number) => `${Number(n.toFixed(2))} mm`;
+
+const jsonLd = [
+  faqPageSchema(UK_FAQS),
+  breadcrumbSchema([
+    { name: 'Ring Sizer', url: SITE_URL },
+    { name: 'Ring Size Chart', url: `${SITE_URL}/ring-size-chart` },
+    { name: 'UK & Australian Ring Sizes', url: `${SITE_URL}/uk-ring-size-chart` },
+  ]),
+];
+
+const SECTIONS = [
+  { href: '#letters', label: 'Every letter' },
+  { href: '#us-to-uk', label: 'US to UK' },
+  { href: '#how', label: 'How the letters work' },
+  { href: '#uk-shops', label: 'UK jewellers' },
+  { href: '#australia', label: 'Australia & NZ' },
+];
+---
+<Layout
+  title="UK & Australian Ring Size Chart (Letters) | Ring Size Tool"
+  description="Every UK and Australian ring size letter, A to Z+6 with half letters, in mm with the US size. Computed from the 1.25 mm rule, with US to UK both ways."
+  noindex={NOINDEX_SITE}
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+
+    <nav aria-label="Breadcrumb" class="text-sm text-text-faint">
+      <a href="/" class="text-accent-text underline underline-offset-2">Ring Sizer</a>
+      <span aria-hidden="true"> · </span>
+      <a href="/ring-size-chart" class="text-accent-text underline underline-offset-2">Ring Size Chart</a>
+      <span aria-hidden="true"> · </span>UK &amp; Australian sizes
+    </nav>
+
+    <header class="mt-6">
+      <h1 class="max-w-[20ch] text-[clamp(2.25rem,5.5vw,3.5rem)]">
+        UK &amp; Australian ring size <span class="text-accent-text">chart</span>
+      </h1>
+
+      <p class="mt-5 max-w-[60ch] text-lg text-text-muted">
+        Every letter on the British scale, {first.uk} to {last.uk}, with every half letter — its
+        inner circumference and diameter in millimetres, and the nearest US and EU size. Ireland,
+        Australia and New Zealand use the same letters.
+      </p>
+
+      <p class="mt-6 border-l-2 border-accent py-1 pl-4 text-sm text-text-muted">
+        A letter is a length. Size {first.uk} is <span class="tabular">{mm(UK_BASE_CIRC_MM)}</span> around
+        the inside, and every letter adds <span class="tabular">{mm(UK_STEP_MM)}</span>. So when a shop’s
+        letter and a chart disagree, the millimetres settle it — and in Australia, as it turns out,
+        they disagree a lot.
+      </p>
+
+      <p class="mt-6 text-sm text-text-faint">
+        Don’t know your size yet? The{' '}
+        <a href="/" class="text-accent-text underline underline-offset-2">ring sizer</a>
+        {' '}measures it against your screen and gives the letter beside the millimetres. No screen
+        to hand?{' '}
+        <a href="/printable-ring-sizer" class="text-accent-text underline underline-offset-2">Print a paper ring sizer</a> instead.
+      </p>
+    </header>
+
+    <nav aria-label="On this page" class="mt-8 flex flex-wrap gap-2">
+      {SECTIONS.map((s) => (
+        <a
+          href={s.href}
+          class="rounded-lg border border-border px-3 py-2 text-sm text-text-muted no-underline
+                 transition-colors duration-150 hover:border-accent hover:text-text"
+        >{s.label}</a>
+      ))}
+    </nav>
+
+    <!-- ── Every letter ─────────────────────────────────────────────────────
+         Query: "ring size chart uk", "uk ring size chart", "australian ring
+         size chart", and — read across — "uk ring size to us", "australian
+         ring size to us". Ordered by letter; the main chart is ordered by US. -->
+    <section class="mt-14" aria-labelledby="letters">
+      <h2 id="letters" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Every letter, {first.uk} to {last.uk}</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Find your letter and read across for the US size. Circumference is what a paper strip
+        round your finger measures; diameter is what you measure straight across a ring you
+        already own.
+      </p>
+
+      <div class="table-scroll mt-6">
+        <table class="w-full min-w-[34rem] text-left text-sm">
+          <caption class="sr-only">
+            UK, Irish, Australian and New Zealand ring sizes from {first.uk} to {last.uk} in half
+            letters, with inner circumference and diameter in millimetres, US/Canada size and
+            EU/ISO size.
+          </caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">UK / IE / AU / NZ</th>
+              <th scope="col" class="px-3 py-2 font-medium">Circumference</th>
+              <th scope="col" class="px-3 py-2 font-medium">Diameter</th>
+              <th scope="col" class="px-3 py-2 font-medium">US / CA</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">EU / ISO</th>
+            </tr>
+          </thead>
+          <tbody class="tabular">
+            {rows.map((r) => (
+              <tr class="border-t border-border">
+                <th scope="row" class="px-3 py-2.5 font-medium text-text">{r.uk}</th>
+                <td class="px-3 py-2.5">{mm(r.circumferenceMm, dp.circ)}</td>
+                <td class="px-3 py-2.5">{mm(r.diameterMm, dp.dia)}</td>
+                <td class="px-3 py-2.5">{r.us ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.eu ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-5 max-w-[62ch] text-sm text-text-faint">
+        US sizes are to the nearest quarter, the smallest step US jewellers sell.
+        {sharedUs.map(([a, b]) => (
+          <>{' '}{a.uk} and {b.uk} both come out as US {b.us}: a half letter is{' '}
+          <span class="tabular">{mm(UK_STEP_MM / 2, 3)}</span> around and a US quarter{' '}
+          <span class="tabular">{mm(usQuarterAround, 3)}</span>, so the two scales slowly drift and now
+          and then two letters share a quarter.</>
+        ))}
+        {' '}Below{' '}
+        {firstIso.uk} there is no EU/ISO size, because ISO 8653 does not define one. Every other
+        system, in quarter US sizes, is on the{' '}
+        <a href="/ring-size-chart" class="text-accent-text underline underline-offset-2">full ring size chart</a>.
+      </p>
+    </section>
+
+    <!-- ── US to UK ────────────────────────────────────────────────────────
+         Query: "us ring size to uk", "us to uk ring size"; and the PAA
+         "Is it better to have a bigger or smaller ring?" (QuestionFinder,
+         `ring size`, US, 2 Oct 2026) for the whole-letter column. -->
+    <section class="mt-16" aria-labelledby="us-to-uk">
+      <h2 id="us-to-uk" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">US to UK ring size</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Find your US size and read across. The third column is for a shop that stocks whole
+        letters only, as many do. If your size is a half letter there, buy the letter above, not
+        the one below. Between two sizes, bigger is the safer mistake: the smaller ring is tighter
+        than the finger you measured and may not pass the knuckle, while the bigger one is a
+        fraction loose.
+      </p>
+
+      <div class="table-scroll mt-6">
+        <table class="w-full min-w-[34rem] text-left text-sm">
+          <caption class="sr-only">
+            US ring sizes 3 to 13 converted to UK and Australian letters, with the whole letter to buy
+            and the inner circumference in millimetres.
+          </caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">US / CA</th>
+              <th scope="col" class="px-3 py-2 font-medium">UK / AU</th>
+              <th scope="col" class="px-3 py-2 font-medium">Whole letters only? Buy</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Circumference</th>
+            </tr>
+          </thead>
+          <tbody class="tabular">
+            {usRows.map((r) => (
+              <tr class="border-t border-border">
+                <th scope="row" class="px-3 py-2.5 font-medium text-text">{r.us}</th>
+                <td class="px-3 py-2.5">{r.uk ?? '—'}</td>
+                <td class="px-3 py-2.5">{ukWholeLetterUp(r.circumferenceMm) ?? '—'}</td>
+                <td class="px-3 py-2.5">{mm(r.circumferenceMm, dp.circ)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-5 max-w-[62ch] text-sm text-text-faint">
+        Why a US 6 comes out as L½ here but M on many charts is worked through, step by step, on
+        the{' '}
+        <a href="/#disagree" class="text-accent-text underline underline-offset-2">ring sizer page</a>.
+      </p>
+    </section>
+
+    <!-- ── How the letters work ────────────────────────────────────────────
+         Query: "ring size letters" (UK 880, AU 320). The rule, the working,
+         and what comes after Z. -->
+    <section class="mt-16" aria-labelledby="how">
+      <h2 id="how" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">How the letter scale works</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Size {first.uk} is a ring <span class="tabular">{mm(UK_BASE_CIRC_MM)}</span> around the inside.
+        Each letter after it adds <span class="tabular">{mm(UK_STEP_MM)}</span>, and a half letter adds
+        <span class="tabular"> {mm(half, 3)}</span>. That is the rule the British Standards Institution
+        adopted when it metricated the scale in 1987, and it is the whole scale — there is no table
+        to memorise.
+      </p>
+
+      <div class="mt-6 rounded-xl border border-border bg-surface p-5">
+        <p class="font-medium">Working out a letter yourself</p>
+        <ol class="mt-3 max-w-[62ch] list-decimal space-y-2 pl-5 text-text-muted">
+          <li>
+            Take the circumference in millimetres. A paper strip reading{' '}
+            <span class="tabular">{EXAMPLE_MM} mm</span>, say.
+          </li>
+          <li>
+            Subtract {UK_BASE_CIRC_MM} and divide by {UK_STEP_MM}:{' '}
+            <span class="tabular">({EXAMPLE_MM} − {UK_BASE_CIRC_MM}) ÷ {UK_STEP_MM} = {exampleRaw.toFixed(1)}</span>.
+          </li>
+          <li>
+            Round to the nearest half: <span class="tabular">{exampleStep}</span>.
+          </li>
+          <li>
+            Count the letters from {first.uk} as 0. Number {Math.floor(exampleStep)} is {exampleBase},
+            so <span class="tabular">{exampleStep}</span> is <strong class="text-text">{exampleLetter}</strong>.
+          </li>
+        </ol>
+        <p class="mt-3 max-w-[62ch] text-sm text-text-faint">
+          Measured straight across a ring instead? Multiply the diameter by π
+          (<span class="tabular">{Math.PI.toFixed(4)}</span>) first.
+        </p>
+      </div>
+
+      <p class="mt-6 max-w-[62ch] text-text-muted">
+        After Z the alphabet runs out, so the scale keeps counting: Z+1, Z+2 and on to {last.uk},
+        each still <span class="tabular">{mm(UK_STEP_MM)}</span> apart. Some charts write them Z1, Z2. The
+        British scale names nothing past {last.uk}, and neither does this page.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-sm text-text-faint">
+        Source: the 1987 rule is attributed to BS 6820:1987, the British adoption of ISO 8653. The
+        standard is paywalled and we have not read it, so we claim no more than the rule itself,
+        which Wikipedia states as C = <span class="tabular">{mm(ukCircumferenceAtStep(2), 0)}</span> and
+        <span class="tabular"> {mm(UK_STEP_MM)}</span> per letter.
+      </p>
+    </section>
+
+    <!-- ── UK jewellers ────────────────────────────────────────────────────
+         The thing only we know, part 1: the shops a UK buyer actually uses,
+         read on one date. No shop is named; letterCharts.ts says why. -->
+    <section class="mt-16" aria-labelledby="uk-shops">
+      <h2 id="uk-shops" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">What UK jewellers actually use</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        We read the size guides of {word(UK_CHAINS_CHECKED)} UK high-street chains on{' '}
+        {longDate(UK_HIGH_STREET.checked)}. {cap(word(UK_CHAINS_AGREEING))} of them put L at{' '}
+        <span class="tabular">{pub(UK_HIGH_STREET.l)}</span> and M at{' '}
+        <span class="tabular">{pub(UK_HIGH_STREET.m)}</span> around — this chart to within{' '}
+        <span class="tabular">{mm(ukGap)}</span>. The other {word(UK_CHAINS_CHECKED - UK_CHAINS_AGREEING)}, which
+        belong to one group, run half a letter higher from {UK_HIGHER_GROUP.fromLetter} to{' '}
+        {UK_HIGHER_GROUP.toLetter}: their M is <span class="tabular">{pub(UK_HIGHER_GROUP.m)}</span>, which
+        is {higherGroupHere} here.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        So in Britain a letter means close to the same ring from shop to shop — never more than
+        half a letter out. To move a size from one shop to another, carry the millimetres, not the
+        letter.
+      </p>
+    </section>
+
+    <!-- ── Australia & NZ ──────────────────────────────────────────────────
+         Query: "australian ring size", "australian ring size chart",
+         "australian ring size to us". The thing only we know, part 2: three
+         Australian charts, read 2 Oct 2026, a whole letter apart. -->
+    <section class="mt-16" aria-labelledby="australia">
+      <h2 id="australia" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Australia and New Zealand: same letters, looser charts</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Australia, New Zealand and Ireland size rings with the same letters as Britain, so the
+        chart above works for all of them. In Australia, though, what a letter means moves around
+        far more from shop to shop.
+      </p>
+
+      <div class="table-scroll mt-6">
+        <table class="w-full min-w-[30rem] text-left text-sm">
+          <caption class="sr-only">
+            Inner circumference of sizes L and M on this chart, on most UK high-street charts, and on
+            three Australian jewellers’ published charts.
+          </caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">Chart</th>
+              <th scope="col" class="px-3 py-2 font-medium">L, around</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">M, around</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-t border-border bg-accent-sunk">
+              <th scope="row" class="px-3 py-2.5 font-medium text-text">This page (the {UK_STEP_MM} mm rule)</th>
+              <td class="tabular whitespace-nowrap px-3 py-2.5">{mm(L)}</td>
+              <td class="tabular whitespace-nowrap px-3 py-2.5">{mm(M)}</td>
+            </tr>
+            <tr class="border-t border-border">
+              <th scope="row" class="px-3 py-2.5 font-medium text-text">UK high street ({UK_CHAINS_AGREEING} of {UK_CHAINS_CHECKED} chains)</th>
+              <td class="tabular whitespace-nowrap px-3 py-2.5">{pub(UK_HIGH_STREET.l)}</td>
+              <td class="tabular whitespace-nowrap px-3 py-2.5">{pub(UK_HIGH_STREET.m)}</td>
+            </tr>
+            {AU_CHARTS.map((c, i) => (
+              <tr class="border-t border-border">
+                <th scope="row" class="px-3 py-2.5 font-medium text-text">
+                  Australian jeweller {i + 1}{c.published === 'diameter' && (
+                    <span class="ml-1 text-xs font-normal text-text-faint">(from its diameters)</span>
+                  )}
+                </th>
+                <td class="tabular whitespace-nowrap px-3 py-2.5">{pub(c.l)}</td>
+                <td class="tabular whitespace-nowrap px-3 py-2.5">{pub(c.m)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Read from three Australian jewellers’ own size guides on {longDate(AU_CHARTS[0].checked)}. An
+        Australian M runs from <span class="tabular">{pub(auMMin)}</span> to{' '}
+        <span class="tabular">{pub(auMMax)}</span> depending on the shop: <span class="tabular">{pub(auMMax - auMMin)}</span> apart,
+        more than a whole letter. One of the three quotes the {UK_STEP_MM} mm rule in its own guide,
+        and its chart sits about <span class="tabular">{mm(ruleQuoterOffset, 1)}</span> above it.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-text-muted">
+        <strong class="text-text">So in Australia, don’t carry a letter from one shop to another.</strong>{' '}
+        Get your size in millimetres — measure it, or ask a jeweller to — and look that figure up on
+        the chart of the shop you are buying from. For a US size, use the US column above, then
+        check it against that shop’s millimetres.
+      </p>
+
+      <p class="mt-4 max-w-[62ch] text-sm text-text-faint">
+        We have not compared New Zealand or Irish jewellers’ charts closely enough to say how well
+        they agree, so this page makes no claim either way.
+      </p>
+    </section>
+
+    <aside class="mt-16 rounded-xl border border-border bg-surface-sunk p-6">
+      <p class="max-w-[62ch] text-text-muted">
+        <strong class="text-text">The millimetres are the size; the letter is a label for them.</strong>{' '}
+        The{' '}
+        <a href="/" class="text-accent-text underline underline-offset-2">ring sizer</a>
+        {' '}measures a ring or a paper strip against your screen and shows both, so you have the
+        figure that means the same thing in every shop.
+      </p>
+    </aside>
+
+    <FaqSection
+      faqs={UK_FAQS}
+      heading="UK ring size questions"
+      id="faq"
+      sourceNote="Word for word, the questions Google shows US searchers for “uk ring size chart”. Nothing here is invented to pad the page."
+    />
+
+  </div>
+</Layout>

@@ -1,0 +1,8 @@
+# Cloudflare Pages redirects.
+#
+# @astrojs/sitemap writes /sitemap-index.xml, and robots.txt points there, so
+# Google already finds it. But /sitemap.xml is the conventional path many
+# crawlers and SEO tools probe first, and it was a 404 (checked live 5 Oct
+# 2026). A permanent redirect sends them to the real index without a second
+# copy of the file to keep in sync.
+/sitemap.xml /sitemap-index.xml 301
