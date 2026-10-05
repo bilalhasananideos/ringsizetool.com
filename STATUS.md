@@ -3,7 +3,7 @@
 Last updated: 5 Oct 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
 
-**📐 `/how-should-a-ring-fit` — drafted 5 Oct 2026, owner READ AND APPROVED it the same day ("page padh li hai, theek hai"). NOT deployed yet.** Branch
+**📐 `/how-should-a-ring-fit` — DEPLOYED 5 Oct 2026 (`78b5e00..f11256f`, run 37359841040 green; live 200, index/follow, in the sitemap, verified). Owner read and approved it first. 6 Oct: prose rewritten in plainer words on the owner's "humanize, it should not read as AI" (no em dashes, contractions, the punchline sentences unpicked; every fact and source unchanged).** Branch
 `draft/ring-fit`, worktree `sites/.worktrees/ringsizetool-fit`, preview config
 `ringsizetool-fit-draft` (port 4336).
 - Why: a pasted third-party keyword plan (5 Oct) was checked and all of it declined except this one.
@@ -25,7 +25,7 @@ indexable and verified in Google Search Console, Bing and Ahrefs.**
   "Fingers change size" case said "in the middle of the day", contradicting the homepage's own
   calibration section and /about ("in the evening") and how-to `#when` ("at the end of the day"). It
   now says "at the end of the day". The new page gives no time, only that the time of day matters.
-- Owner has read it. Deploy waits only on the owner's go-ahead to push.
+- Request indexing for `/how-should-a-ring-fit` in GSC a few days after the deploy.
 
 **🧩 Two homepage edge cases — DEPLOYED 5 Oct 2026 (`7ef283d..78b5e00`, run 37322120440 green; live text verified, no shop named in the served HTML).** The two
 QuestionFinder gaps from 2 Oct, answered inside "Cases the number alone won't cover" (no new page, no
