@@ -31,6 +31,11 @@ const sixDiaCm = sixDiaMm / 10;
 const sixDiaIn = sixDiaMm / MM_PER_INCH;
 const quarterMm = diameterFromUs(6.25) - diameterFromUs(6);
 const fullSizeMm = diameterFromUs(7) - diameterFromUs(6);
+/* "Can a size 7 ring be resized to a 10?" — the edge case below. Both
+   diameters and the metal it takes come from the engine, never typed. */
+const sevenDiaMm = diameterFromUs(7);
+const tenDiaMm = diameterFromUs(10);
+const sevenToTenAddedMm = Math.PI * (tenDiaMm - sevenDiaMm);
 /* The slider's own end labels, not the exact DIA_MIN/DIA_MAX: the prose used to
    say 12.89-24.35 mm beside a slider labelled 12.90-24.34 mm. */
 const diaMm = modeSpec('dia', 'mm');
@@ -711,6 +716,36 @@ const jsonLd = [
             </p>
           </div>
 
+          {/* Query: "Do rings get tighter with age?" (Google PAA via the
+               owner's QuestionFinder pull, 2 Oct 2026). Sources, read 5 Oct
+               2026: NHS osteoarthritis symptoms (reviewed 20 Mar 2023) — hand
+               OA affects "the middle joints of your fingers" and "you may
+               develop bumps on your finger joints"; NHS overview — "your risk
+               of developing the condition increases as you get older";
+               Wikipedia, Bouchard's nodes — "hard, bony outgrowths … on the
+               proximal interphalangeal joints". Remedies: GIA 4Cs ring-size
+               guide (18 Jan 2018) — "Jewelers can install mechanical shanks for
+               people suffering from arthritis"; a US and a UK jeweller each
+               describe a shank that opens at the bottom to pass the knuckle,
+               and internal bumps for small differences. No shop is named on
+               the page, same policy as UK_NOTE. No claim is made about how
+               often age is the cause: no source here measures that. */}
+          <div>
+            <h3 class="text-lg font-semibold text-text">Rings that get tighter with age</h3>
+            <p class="mt-2 text-sm text-text-muted leading-relaxed">
+              They can, and the place to look first is the knuckle rather than the finger. Osteoarthritis,
+              which becomes more likely as you get older, can leave hard bumps on the middle joints of the
+              fingers — the joint a ring has to pass to go on or come off. The base of the finger can
+              measure exactly what it always did while the ring no longer clears the knuckle.
+            </p>
+            <p class="mt-2 text-sm text-text-muted leading-relaxed">
+              So measure both, as in the knuckle case above. If a size that clears the knuckle spins at the
+              base, the answer is mechanical rather than a different number: sizing beads inside the band
+              for a small gap, or a shank that opens at the bottom to pass the knuckle and closes to fit
+              the base. Jewellers fit those for exactly this.
+            </p>
+          </div>
+
           <div>
             <h3 class="text-lg font-semibold text-text">You are sizing someone else's finger, secretly</h3>
             <p class="mt-2 text-sm text-text-muted leading-relaxed">
@@ -729,6 +764,38 @@ const jsonLd = [
               and no safe way to work the material. For any of those, and for an engagement ring, confirm
               with a jeweller before you buy. An on-screen measurement is a good estimate; it is not a
               fitting.
+            </p>
+          </div>
+
+          {/* Query: "Can a size 7 ring be resized to a 10?" (Google PAA via
+               QuestionFinder, 2 Oct 2026). Sources, read 5 Oct 2026: Larson
+               Jewelers' resizing guide — "It is usually not recommended to
+               resize a ring up or down more than 2 whole sizes"; Hauser's
+               Jewelers (26 Aug 2026) — "Many rings may be resized
+               approximately two sizes larger or smaller, although the actual
+               amount depends on the design and construction of the piece";
+               GIA 4Cs ring-size guide — "It is easier to remove metal from a
+               ring that's too big than add metal to a ring that's too small";
+               Beaverbrooks FAQ — stone-set bands and stone-set shoulders
+               "cannot be resized", and such diamonds "will usually need to
+               have the original diamonds re-set in a band of the correct
+               size". Search summaries also credited GIA, Blue Nile and Ernest
+               Jones with a two-size rule; none of that was found on their own
+               pages (Blue Nile and the US Signet sites refuse requests from
+               here), so none of it is relied on. */}
+          <div>
+            <h3 class="text-lg font-semibold text-text">A ring three sizes out — a 7 that needs to be a 10</h3>
+            <p class="mt-2 text-sm text-text-muted leading-relaxed">
+              Usually not as a simple resize. Jewellers commonly put the comfortable limit at about two
+              sizes either way, and how far past it a particular ring can go depends on its design. Up is
+              the harder direction: a ring made smaller has metal taken out, a ring made larger needs metal
+              added — and from US&nbsp;7 to US&nbsp;10 that is {sevenToTenAddedMm.toFixed(2)}&nbsp;mm more
+              round the inside, as the diameter goes from {sevenDiaMm.toFixed(2)} to {tenDiaMm.toFixed(2)}&nbsp;mm.
+            </p>
+            <p class="mt-2 text-sm text-text-muted leading-relaxed">
+              A plain band has the most room. A ring with stones in the band or the shoulders has the least,
+              and the usual answer there is to move the stones to a new band in the right size. Either
+              way, have a jeweller look at the ring itself before you pay for the work.
             </p>
           </div>
         </div>

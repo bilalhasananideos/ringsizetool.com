@@ -980,5 +980,13 @@ eq('an eighth of an inch is more than a US quarter of circumference',
 eq('a tenth of an inch is more than a US quarter of circumference',
    MM_PER_INCH / 10 > (Math.PI * US_STEP_MM) / 4, true);
 
+
+/* ── Homepage edge case: "a 7 that needs to be a 10" (5 Oct 2026) ─────────
+ * US 7 = 11.6332 + 7 × 0.8128 = 17.32 mm, US 10 = 19.76 mm (both asserted at
+ * the top). The metal added round the inside is π × 3 × 0.8128 = 7.66 mm. */
+console.log('\n— Homepage: resizing a 7 to a 10 —');
+eq('US 7 to US 10 adds 7.66 mm of inner circumference',
+   Number((Math.PI * (diameterFromUs(10) - diameterFromUs(7))).toFixed(2)), 7.66);
+
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

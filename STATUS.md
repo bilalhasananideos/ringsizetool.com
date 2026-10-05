@@ -3,6 +3,20 @@
 Last updated: 5 Oct 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
 
+**🧩 Two homepage edge cases — 5 Oct 2026, branch `draft/cases-age-resize`, NOT deployed.** The two
+QuestionFinder gaps from 2 Oct, answered inside "Cases the number alone won't cover" (no new page, no
+blog — the owner asked about a blog the same day and was advised against it):
+- "Rings that get tighter with age" — the knuckle, not the finger: hand osteoarthritis affects the
+  middle finger joints and gets likelier with age (NHS, two pages; Wikipedia on Bouchard's nodes);
+  remedy is mechanical — sizing beads or an opening shank (GIA 4Cs; a US and a UK jeweller). No
+  claim about how often age is the cause.
+- "A ring three sizes out — a 7 that needs to be a 10" — about two sizes is the common limit (Larson,
+  Hauser's), up is harder (GIA), stone-set bands get their stones moved to a new band (Beaverbrooks);
+  7 → 10 adds 7.66 mm round the inside (asserted). GIA/Blue Nile/Ernest Jones "two-size" claims in
+  search summaries were NOT found on their own pages and are not relied on.
+- Sources sit in `{/* */}` comments, which Astro strips: an HTML comment would have shipped the shop
+  names in the served page. verify 455/455, check 0, build + sweep clean, 375 px checked.
+
 **📏 Chart range raised from US 14 to US 15½ — DEPLOYED 5 Oct 2026 (`0498040..7ef283d`, run 37314849956 green; live chart has 51 rows, verified).**
 Owner asked for US 16; shown that at US 15¾ and 16 the UK (past Z+6), ISO (past 76), Japanese (past
 35) and minus-40 (past 36) columns are empty and the tool stops there, the owner chose 15½.
