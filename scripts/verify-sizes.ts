@@ -12,7 +12,7 @@ import {
   AVERAGE_US_SIZE,
   UK_LETTER_ROWS, UK_STEP_MM, ukWholeLetterUp, ukCircumferenceAtStep,
   DIAMETER_LOOKUP_ROWS, CIRCUMFERENCE_LOOKUP_ROWS, INCH_LOOKUP_ROWS, JP_LOOKUP_ROWS,
-  US_STEP_MM, MM_PER_INCH,
+  US_STEP_MM, MM_PER_INCH, inchFraction,
 } from '../src/data/ringSizes.ts';
 import { AU_CHARTS, AU_RULE_QUOTER, UK_HIGH_STREET, UK_HIGHER_GROUP } from '../src/data/letterCharts.ts';
 import {
@@ -847,10 +847,19 @@ eq('diameter rows: last is 23 mm', lastOf(DIAMETER_LOOKUP_ROWS).diameterMm, 23, 
 eq('circumference rows: count (44 to 72 mm)', CIRCUMFERENCE_LOOKUP_ROWS.length, 29);
 eq('circumference rows: first is 44 mm', CIRCUMFERENCE_LOOKUP_ROWS[0].circumferenceMm, 44, 1e-9);
 eq('circumference rows: last is 72 mm', lastOf(CIRCUMFERENCE_LOOKUP_ROWS).circumferenceMm, 72, 1e-9);
-eq('inch rows: count (1.8 to 2.8 in)', INCH_LOOKUP_ROWS.length, 11);
-eq('inch rows: first is 1.8 in', INCH_LOOKUP_ROWS[0].inch, 1.8);
+eq('inch rows: count (1¾ to 2.8 in, eighths and tenths)', INCH_LOOKUP_ROWS.length, 18);
+eq('inch rows: first is 1¾ in', INCH_LOOKUP_ROWS[0].inch, 1.75);
 eq('inch rows: last is 2.8 in', lastOf(INCH_LOOKUP_ROWS).inch, 2.8);
 eq('inch rows: 2.3 in is printed exactly', INCH_LOOKUP_ROWS.some((r) => String(r.inch) === '2.3'), true);
+/* The tape-measure eighths the searches are written in ("2 1/4", "2 1/2",
+ * "2 5/8", "2 3/4 inches ring size" — DataForSEO, US, 5 Oct 2026). */
+for (const v of [2, 2.125, 2.25, 2.375, 2.5, 2.625, 2.75]) {
+  eq(`inch rows: ${v} in has a row`, INCH_LOOKUP_ROWS.filter((r) => r.inch === v).length, 1);
+}
+eq('inch rows: sorted, no repeats', INCH_LOOKUP_ROWS.every((r, i, a) => i === 0 || r.inch > a[i - 1].inch), true);
+for (const [v, want] of [[2.25, '2¼'], [2.5, '2½'], [1.875, '1⅞'], [2.375, '2⅜'], [2, '2'], [2.3, null]] as const) {
+  eq(`inchFraction(${v}) is ${want}`, inchFraction(v), want);
+}
 eq('Japan rows: count (4 to 31)', JP_LOOKUP_ROWS.length, 28);
 eq('Japan rows: first is 4', JP_LOOKUP_ROWS[0].jp, 4);
 eq('Japan rows: last is 31', lastOf(JP_LOOKUP_ROWS).jp, 31);
@@ -888,6 +897,21 @@ for (const [k, want] of [['us', '6¾'], ['uk', 'N'], ['eu', 54], ['jp', 14], ['i
 }
 // 2.3 in = 58.42 mm round: 18.60 mm across -> 8.57 -> 8½ · 16.74 steps -> 16½ = Q½ · EU 58 · JCS 17.79 -> 18
 const in23 = INCH_LOOKUP_ROWS.find((r) => r.inch === 2.3)!;
+const byInch = (v: number) => INCH_LOOKUP_ROWS.find((r) => r.inch === v)!;
+// 2¼ in = 57.15 mm round: 18.19 mm across -> (18.19 - 11.63)/0.8128 = 8.07 -> 8 · 15.72 steps -> 15½ = P½ · EU 57 · JCS 15.57 -> 16 + 1 = 17
+eq('2¼ in is 57.15 mm', byInch(2.25).circumferenceMm, 57.15, 1e-9);
+for (const [k, want] of [['us', '8'], ['uk', 'P½'], ['eu', 57], ['jp', 17]] as const) {
+  eq(`2¼ in round -> ${k} ${want}`, byInch(2.25)[k], want);
+}
+// 2½ in = 63.5 mm: 20.21 mm across -> 10.56 -> 10½ · 20.8 steps -> 21 = V · JCS 21.64 -> 22 + 1 = 23 · EU: 63.5 is a knife edge, rounded up to 64, the site's go-up rule
+eq('2½ in is 63.5 mm', byInch(2.5).circumferenceMm, 63.5, 1e-9);
+for (const [k, want] of [['us', '10½'], ['uk', 'V'], ['eu', 64], ['jp', 23]] as const) {
+  eq(`2½ in round -> ${k} ${want}`, byInch(2.5)[k], want);
+}
+// 2¾ in = 69.85 mm: 22.23 mm across -> 13.04 -> 13 · 25.88 steps -> 26 = Z+1 · EU 70 · JCS 27.7 -> 28 + 1 = 29
+for (const [k, want] of [['us', '13'], ['uk', 'Z+1'], ['eu', 70], ['jp', 29]] as const) {
+  eq(`2¾ in round -> ${k} ${want}`, byInch(2.75)[k], want);
+}
 for (const [k, want] of [['us', '8½'], ['uk', 'Q½'], ['eu', 58], ['jp', 18]] as const) {
   eq(`2.3 in round -> ${k} ${want}`, in23[k], want);
 }
@@ -912,9 +936,11 @@ eq('chart prints EU 54 against exactly US 6¾ and 7',
 /* "Misjudge a ring's inside diameter by a quarter of a millimetre and the
  * answer moves by more than a US quarter size." */
 eq('a US quarter is less than 0.25 mm of diameter', US_STEP_MM / 4 < 0.25, true);
-/* "A tenth of an inch round the finger … each row is about a size apart." */
-eq('0.1 in of circumference ≈ one US size (within 1%)',
-   Math.abs((MM_PER_INCH / 10) / (Math.PI * US_STEP_MM) - 1) < 0.01, true);
+/* "An eighth … and a tenth … so an inch tape cannot see quarter sizes." */
+eq('an eighth of an inch is more than a US quarter of circumference',
+   MM_PER_INCH / 8 > (Math.PI * US_STEP_MM) / 4, true);
+eq('a tenth of an inch is more than a US quarter of circumference',
+   MM_PER_INCH / 10 > (Math.PI * US_STEP_MM) / 4, true);
 
 console.log(`\n${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);

@@ -10,8 +10,14 @@ both sides (all additive), and the chart's `#uk` section now links to `/uk-ring-
 `verify` 404/404, `astro check` 0 errors, 12 pages, sweep clean, no dead anchors, sitemap 10 URLs.
 Also on it: the printable sheet's finger strip is now called the "ring size ruler" (section 3
 heading and strip label) — GSC to 3 Oct shows seven `…ring size ruler…` variants at the page's best
-positions (42–56); print still 3 pages. The consent banner is NOT in it. **Ship only after the
-owner has read the new parts.** The
+positions (42–56); print still 3 pages. Keyword pass, same day (DataForSEO US, seed `mm ring size`, 123 rows, 54 credits; 16 left): the
+inch table now lists eighths as well as tenths (1¾ to 2.8 in, 18 rows), because the searches are
+written as tape fractions — `2 1/2 inches ring size`, `2 3/4…`, `2 1/4…`, `2 5/8…` and their mm
+twins `63.5 mm`, `57.15 mm`, `50.8 mm`; cm and mm print without trailing zeros (`1.7 cm`, `6 cm`,
+not `1.70`/`6.0`); the main chart shows the decimal beside each fractional US size (`6½ 6.5`),
+for `6.5 ring size`, `8.5`, `5.75`. Not served on purpose: `3 inch` / `76.2 mm` / `76 mm` / `8 cm` /
+`size 15 ring in mm` — all above US 14, the chart's top. Widening the chart is an owner decision.
+The consent banner is NOT in it. **Ship only after the owner has read the new parts.** The
 10 Oct hold no longer needs to be waited out: GSC 1–4 Oct already shows the chart↔homepage swap
 reversed on its own (chart 69 impressions vs homepage 35, after 37 vs 54 on 24–29 Sep).
 

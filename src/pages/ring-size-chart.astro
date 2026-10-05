@@ -19,7 +19,7 @@ import FaqSection from '../components/FaqSection.astro';
 import { NOINDEX_SITE, SITE_URL } from '../config';
 import {
   CHART_ROWS, AVERAGE_US_SIZE, fromDiameter, fromCircumference, diameterFromUs,
-  DIAMETER_LOOKUP_ROWS, CIRCUMFERENCE_LOOKUP_ROWS, INCH_LOOKUP_ROWS, JP_LOOKUP_ROWS,
+  DIAMETER_LOOKUP_ROWS, CIRCUMFERENCE_LOOKUP_ROWS, INCH_LOOKUP_ROWS, JP_LOOKUP_ROWS, inchFraction,
   US_BASE_MM, US_STEP_MM, UK_BASE_CIRC_MM, UK_STEP_MM, ISO_MIN, ISO_MAX, JP_MAX, MM_PER_INCH,
 } from '../data/ringSizes';
 import { modeSpec, toDia } from '../data/ringModes';
@@ -75,6 +75,13 @@ const jsonLd = [
 /* First-column formatting for the lookup tables: "17 mm", "17.5 mm", "2.3 in".
    A trailing ".0" is how no one writes a ruler reading. */
 const plain = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+/* Up to two decimals with trailing zeros dropped — "1.7 cm", "6 cm", "63.5 mm",
+   "57.15 mm" — the way the figures are searched (DataForSEO, 5 Oct 2026:
+   "1.7 cm ring size", "6 cm to mm ring size", "63.5 mm ring size"), not "1.70". */
+const plain2 = (n: number) => String(Number(n.toFixed(2)));
+/* An inch row's label: the tape-measure fraction where there is one (2¼),
+   else the decimal (2.3). */
+const inchLabel = (inch: number) => inchFraction(inch) ?? plain(inch);
 
 /* Worked examples for the per-country sections. Every figure in that prose is
    one of these rows, computed by the data module — none is typed. */
@@ -194,7 +201,14 @@ const SECTIONS = [
           <tbody class="tabular">
             {rows.map((r) => (
               <tr class="border-t border-border">
-                <th scope="row" class="px-3 py-2.5 font-medium text-text">{r.us}</th>
+                {/* The decimal beside the fraction: sizes are searched as "6.5 ring
+                    size", "8.5", "5.75" (DataForSEO, 5 Oct 2026), and many shops
+                    list them that way. Same number, the other way of writing it. */}
+                <th scope="row" class="whitespace-nowrap px-3 py-2.5 font-medium text-text">
+                  {r.us}{r.usNumeric !== null && !Number.isInteger(r.usNumeric) && (
+                    <>{' '}<span class="ml-1 text-xs font-normal text-text-faint">{r.usNumeric}</span></>
+                  )}
+                </th>
                 <td class="px-3 py-2.5">{r.uk ?? '—'}</td>
                 <td class="px-3 py-2.5">{r.eu ?? '—'}</td>
                 <td class="px-3 py-2.5">{r.jp ?? '—'}</td>
@@ -440,7 +454,7 @@ const SECTIONS = [
             {DIAMETER_LOOKUP_ROWS.map((r) => (
               <tr class="border-t border-border">
                 <th scope="row" class="px-3 py-2.5 font-medium text-text">{plain(r.diameterMm)} mm</th>
-                <td class="px-3 py-2.5">{(r.diameterMm / 10).toFixed(2)} cm</td>
+                <td class="px-3 py-2.5">{plain2(r.diameterMm / 10)} cm</td>
                 <td class="px-3 py-2.5">{r.diameterIn.toFixed(3)} in</td>
                 <td class="px-3 py-2.5">{r.us}</td>
                 <td class="px-3 py-2.5">{r.uk ?? '—'}</td>
@@ -487,7 +501,7 @@ const SECTIONS = [
             {CIRCUMFERENCE_LOOKUP_ROWS.map((r) => (
               <tr class="border-t border-border">
                 <th scope="row" class="px-3 py-2.5 font-medium text-text">{plain(r.circumferenceMm)} mm</th>
-                <td class="px-3 py-2.5">{(r.circumferenceMm / 10).toFixed(1)} cm</td>
+                <td class="px-3 py-2.5">{plain2(r.circumferenceMm / 10)} cm</td>
                 <td class="px-3 py-2.5">{r.circumferenceIn.toFixed(2)} in</td>
                 <td class="px-3 py-2.5">{r.eu ?? '—'}</td>
                 <td class="px-3 py-2.5">{r.us}</td>
@@ -504,18 +518,19 @@ const SECTIONS = [
 
       <h3 id="by-inches" class="mt-12 text-xl font-semibold">Round the finger, in inches</h3>
       <p class="mt-3 max-w-[62ch] text-text-muted">
-        For a soft tape measure read in tenths of an inch. A tenth of an inch round the finger is
-        {' '}{(MM_PER_INCH / 10).toFixed(2)}&nbsp;mm, and a whole US size is
-        {' '}{(Math.PI * US_STEP_MM).toFixed(2)}&nbsp;mm of circumference — so each row here is about a
-        size apart. If your tape has millimetres on the other side, use those and the table above.
+        For a soft tape measure, marked in eighths or in tenths of an inch — both are listed. An
+        eighth of an inch round the finger is {(MM_PER_INCH / 8).toFixed(2)}&nbsp;mm and a tenth is
+        {' '}{(MM_PER_INCH / 10).toFixed(2)}&nbsp;mm, while a whole US size is
+        {' '}{(Math.PI * US_STEP_MM).toFixed(2)}&nbsp;mm of circumference, so an inch tape cannot see
+        quarter sizes. If it has millimetres on the other side, use those and the table above.
       </p>
 
       <div class="table-scroll mt-5">
         <table class="w-full min-w-[34rem] text-left text-sm">
           <caption class="sr-only">
-            Ring size from finger circumference in inches, {plain(INCH_LOOKUP_ROWS[0].inch)} to
-            {' '}{plain(INCH_LOOKUP_ROWS[INCH_LOOKUP_ROWS.length - 1].inch)} inches, with millimetres and
-            the nearest US, UK, EU and Japanese size.
+            Ring size from finger circumference in inches, {inchLabel(INCH_LOOKUP_ROWS[0].inch)} to
+            {' '}{inchLabel(INCH_LOOKUP_ROWS[INCH_LOOKUP_ROWS.length - 1].inch)} inches in eighths and
+            tenths, with millimetres and the nearest US, UK, EU and Japanese size.
           </caption>
           <thead>
             <tr class="bg-surface-sunk">
@@ -530,8 +545,12 @@ const SECTIONS = [
           <tbody class="tabular">
             {INCH_LOOKUP_ROWS.map((r) => (
               <tr class="border-t border-border">
-                <th scope="row" class="px-3 py-2.5 font-medium text-text">{plain(r.inch)} in</th>
-                <td class="px-3 py-2.5">{r.circumferenceMm.toFixed(1)} mm</td>
+                <th scope="row" class="whitespace-nowrap px-3 py-2.5 font-medium text-text">
+                  {inchLabel(r.inch)} in{!Number.isInteger(r.inch) && inchFraction(r.inch) && (
+                    <>{' '}<span class="ml-1 text-xs font-normal text-text-faint">{r.inch}</span></>
+                  )}
+                </th>
+                <td class="px-3 py-2.5">{plain2(r.circumferenceMm)} mm</td>
                 <td class="px-3 py-2.5">{r.us}</td>
                 <td class="px-3 py-2.5">{r.uk ?? '—'}</td>
                 <td class="px-3 py-2.5">{r.eu ?? '—'}</td>

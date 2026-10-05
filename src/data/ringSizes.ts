@@ -455,12 +455,28 @@ export const DIAMETER_LOOKUP_ROWS: RingSize[] =
 export const CIRCUMFERENCE_LOOKUP_ROWS: RingSize[] =
   steps(ISO_MIN, ISO_MAX, 1).map(fromCircumference).filter(inChartRange);
 
-/** A tape measure read in tenths of an inch, round the finger. `inch` keeps
- *  the figure as typed, so the first column never prints a float artefact. */
+/** A tape measure round the finger, in tenths AND eighths of an inch. A US
+ *  tape is marked in fractions, and that is how the searches are written:
+ *  DataForSEO (US, 5 Oct 2026) has "2 1/2 inches ring size", "2 3/4 inches to
+ *  mm ring size", "2 1/4…", "2 5/8…" and their millimetre twins "63.5 mm",
+ *  "57.15 mm", "50.8 mm" — none of which a tenths-only table contains. The two
+ *  sets overlap at whole and half inches; the Set keeps one row for each.
+ *  `inch` keeps the figure as written, so the first column never prints a
+ *  float artefact. */
 export const INCH_LOOKUP_ROWS: (RingSize & { inch: number })[] =
-  steps(1, 4, 0.1)
+  [...new Set([...steps(1, 4, 0.1), ...steps(1, 4, 0.125)])]
+    .sort((a, b) => a - b)
     .map((inch) => ({ inch, ...fromCircumference(inch * MM_PER_INCH) }))
     .filter(inChartRange);
+
+const EIGHTHS = ['', '⅛', '¼', '⅜', '½', '⅝', '¾', '⅞'];
+
+/** "2¼" for an exact eighth of an inch, null otherwise. */
+export function inchFraction(inch: number): string | null {
+  const n = Math.round(inch * 8);
+  if (Math.abs(n - inch * 8) > 1e-9) return null;
+  return `${Math.floor(n / 8)}${EIGHTHS[n % 8]}`;
+}
 
 /** Every Japanese 号 size inside the chart's range, in 号 order. */
 export const JP_LOOKUP_ROWS: RingSize[] = Array.from(
