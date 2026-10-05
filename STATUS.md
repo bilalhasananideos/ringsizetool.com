@@ -3,7 +3,7 @@
 Last updated: 5 Oct 2026 · **Stage: LAUNCHED AND REGISTERED. `NOINDEX_SITE` is false, the site is
 indexable and verified in Google Search Console, Bing and Ahrefs.**
 
-**🧩 Two homepage edge cases — 5 Oct 2026, branch `draft/cases-age-resize`, NOT deployed.** The two
+**🧩 Two homepage edge cases — DEPLOYED 5 Oct 2026 (`7ef283d..78b5e00`, run 37322120440 green; live text verified, no shop named in the served HTML).** The two
 QuestionFinder gaps from 2 Oct, answered inside "Cases the number alone won't cover" (no new page, no
 blog — the owner asked about a blog the same day and was advised against it):
 - "Rings that get tighter with age" — the knuckle, not the finger: hand osteoarthritis affects the
