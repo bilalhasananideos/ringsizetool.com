@@ -17,7 +17,11 @@
 import Layout from '../layouts/Layout.astro';
 import FaqSection from '../components/FaqSection.astro';
 import { NOINDEX_SITE, SITE_URL } from '../config';
-import { CHART_ROWS, AVERAGE_US_SIZE, fromDiameter } from '../data/ringSizes';
+import {
+  CHART_ROWS, AVERAGE_US_SIZE, fromDiameter, fromCircumference, diameterFromUs,
+  DIAMETER_LOOKUP_ROWS, CIRCUMFERENCE_LOOKUP_ROWS, INCH_LOOKUP_ROWS, JP_LOOKUP_ROWS,
+  US_BASE_MM, US_STEP_MM, UK_BASE_CIRC_MM, UK_STEP_MM, ISO_MIN, ISO_MAX, JP_MAX, MM_PER_INCH,
+} from '../data/ringSizes';
 import { modeSpec, toDia } from '../data/ringModes';
 import { breadcrumbSchema, CHART_FAQS, faqPageSchema } from '../data/faq';
 
@@ -68,11 +72,35 @@ const jsonLd = [
   ]),
 ];
 
+/* First-column formatting for the lookup tables: "17 mm", "17.5 mm", "2.3 in".
+   A trailing ".0" is how no one writes a ruler reading. */
+const plain = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+
+/* Worked examples for the per-country sections. Every figure in that prose is
+   one of these rows, computed by the data module — none is typed. */
+const us7 = fromDiameter(diameterFromUs(7));
+const us0Mm = US_BASE_MM;
+const usQuarterMm = US_STEP_MM / 4;
+const dia18 = fromDiameter(18);
+const dia18RawUs = (18 - US_BASE_MM) / US_STEP_MM;
+const ukStepsT = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf('T');
+const ukT = fromCircumference(UK_BASE_CIRC_MM + ukStepsT * UK_STEP_MM);
+const ukM = fromCircumference(UK_BASE_CIRC_MM + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf('M') * UK_STEP_MM);
+const eu54 = fromCircumference(54);
+const eu54Rows = rows.filter((r) => r.eu === 54).map((r) => `US ${r.us}`);
+const in14 = fromCircumference(14 + 40);
+const aro19 = fromCircumference(19 + 40);
+const jpAt = (mm: number) => fromDiameter(mm).jp;
+const jpFirst = JP_LOOKUP_ROWS[0];
+const jpLast = JP_LOOKUP_ROWS[JP_LOOKUP_ROWS.length - 1];
+
 const SECTIONS = [
   { href: '#full', label: 'Every size' },
   { href: '#womens', label: 'Women’s' },
   { href: '#mens', label: 'Men’s' },
   { href: '#units', label: 'mm, cm & inches' },
+  { href: '#measurement', label: 'From a measurement' },
+  { href: '#systems', label: 'By country' },
   { href: '#sources', label: 'Where the numbers come from' },
 ];
 ---
@@ -303,6 +331,38 @@ const SECTIONS = [
         divide millimetres by 10 for centimetres, or by 25.4 for inches. What matters far more is <strong class="text-text"> which</strong> measurement you have.
       </p>
 
+      {/* Drawn, not described: "diameter or circumference?" is spatial, and the
+          one mistake this section exists to prevent. Inline so it follows the
+          theme tokens in light and dark; role="img" with a title and desc so a
+          screen reader gets the same picture. */}
+      <figure class="mt-8">
+        <svg
+          viewBox="0 0 380 220"
+          class="h-auto w-full max-w-md"
+          role="img"
+          aria-labelledby="ring-dims-title ring-dims-desc"
+        >
+          <title id="ring-dims-title">Inner diameter and inner circumference of a ring</title>
+          <desc id="ring-dims-desc">
+            A ring seen from above. The inner diameter is the straight line across the inside, edge
+            to edge. The inner circumference is the distance round the inside edge, pi times the
+            diameter. The metal band itself is not part of either measurement.
+          </desc>
+          <circle cx="110" cy="110" r="80" fill="none" class="stroke-border-strong" stroke-width="20" />
+          <circle cx="110" cy="110" r="70" fill="none" class="stroke-accent-text" stroke-width="3" stroke-dasharray="6 5" />
+          <line x1="42" y1="110" x2="178" y2="110" class="stroke-text" stroke-width="2" />
+          <line x1="42" y1="102" x2="42" y2="118" class="stroke-text" stroke-width="2" />
+          <line x1="178" y1="102" x2="178" y2="118" class="stroke-text" stroke-width="2" />
+          <text x="110" y="100" text-anchor="middle" class="fill-text text-sm">Inner diameter</text>
+          <line x1="160" y1="60" x2="206" y2="42" class="stroke-text-faint" stroke-width="1" />
+          <text x="212" y="40" class="fill-text text-sm">Inner circumference</text>
+          <text x="212" y="58" class="fill-text-muted text-sm">= π × diameter</text>
+          <line x1="179" y1="150" x2="206" y2="166" class="stroke-text-faint" stroke-width="1" />
+          <text x="212" y="168" class="fill-text text-sm">The band itself</text>
+          <text x="212" y="186" class="fill-text-muted text-sm">is not measured</text>
+        </svg>
+      </figure>
+
       <dl class="mt-6 space-y-5">
         <div class="rounded-xl border border-border bg-surface p-5">
           <dt class="font-medium">Inner diameter</dt>
@@ -325,6 +385,312 @@ const SECTIONS = [
         Mixing the two up is the commonest sizing mistake there is, and it puts you out by roughly
         three times — a 16&nbsp;mm circumference is a child’s ring; a 16&nbsp;mm diameter is
         about US&nbsp;5½.
+      </p>
+    </section>
+
+    <!-- ── From a measurement ──────────────────────────────────────────────
+         Query family, all in GSC for this page 25 Aug–4 Oct 2026: "17mm ring
+         size", "what ring size is 17mm", "18mm diameter ring size", "ring
+         size 22mm", "1.8 diameter ring size", "7.5 cm ring size", "5.2 cm
+         circumference ring size", "2.3 inches ring size", "ring size 54".
+         They sat at positions 18–95 while the two-decimal strings the big
+         table happens to contain ranked 1–11: people search the round figure
+         their ruler gave them. Three generated tables, one per way of
+         measuring — never a page per value (SEO-AUDIT.md §16). -->
+    <section class="mt-16" aria-labelledby="measurement">
+      <h2 id="measurement" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">Have a measurement, not a size?</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        The chart above runs in US quarter sizes, so its millimetres come out as
+        {' '}{rows[16].diameterMm.toFixed(2)} and {rows[17].diameterMm.toFixed(2)} — figures no ruler
+        gives you. These tables start from the round number you actually read and give the nearest
+        size in every system. Use the one that matches how you measured; the{' '}
+        <a href="#units" class="text-accent-text underline underline-offset-2">difference between diameter and circumference</a>
+        {' '}is the one thing to get right.
+      </p>
+
+      <h3 id="by-diameter" class="mt-10 text-xl font-semibold">Across a ring: inner diameter in millimetres</h3>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        Straight across the inside of a ring that already fits, edge to edge, read to the nearest
+        half millimetre.
+      </p>
+
+      <div class="table-scroll mt-5">
+        <table class="w-full min-w-[46rem] text-left text-sm">
+          <caption class="sr-only">
+            Ring size from inner diameter, {plain(DIAMETER_LOOKUP_ROWS[0].diameterMm)} to
+            {' '}{plain(DIAMETER_LOOKUP_ROWS[DIAMETER_LOOKUP_ROWS.length - 1].diameterMm)} mm in half
+            millimetres, with centimetres, inches and the nearest US, UK, EU, Japanese, Indian and
+            Italian size.
+          </caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">Diameter</th>
+              <th scope="col" class="px-3 py-2 font-medium">cm</th>
+              <th scope="col" class="px-3 py-2 font-medium">Inches</th>
+              <th scope="col" class="px-3 py-2 font-medium">US / CA</th>
+              <th scope="col" class="px-3 py-2 font-medium">UK / AU</th>
+              <th scope="col" class="px-3 py-2 font-medium">EU / ISO / FR</th>
+              <th scope="col" class="px-3 py-2 font-medium">Japan</th>
+              <th scope="col" class="px-3 py-2 font-medium">India</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">IT / ES / CH / BR</th>
+            </tr>
+          </thead>
+          <tbody class="tabular">
+            {DIAMETER_LOOKUP_ROWS.map((r) => (
+              <tr class="border-t border-border">
+                <th scope="row" class="px-3 py-2.5 font-medium text-text">{plain(r.diameterMm)} mm</th>
+                <td class="px-3 py-2.5">{(r.diameterMm / 10).toFixed(2)} cm</td>
+                <td class="px-3 py-2.5">{r.diameterIn.toFixed(3)} in</td>
+                <td class="px-3 py-2.5">{r.us}</td>
+                <td class="px-3 py-2.5">{r.uk ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.eu ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.jp ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.in ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.it ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="by-circumference" class="mt-12 text-xl font-semibold">Round the finger: inner circumference in millimetres</h3>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        The flat length of a paper strip that went round the finger. This is also how Europe sizes
+        rings — under ISO&nbsp;8653 the size <em>is</em> this number — so the row for
+        {' '}{eu54.eu}&nbsp;mm is the row for an EU or French {eu54.eu}.
+      </p>
+
+      <div class="table-scroll mt-5">
+        <table class="w-full min-w-[46rem] text-left text-sm">
+          <caption class="sr-only">
+            Ring size from inner circumference, {plain(CIRCUMFERENCE_LOOKUP_ROWS[0].circumferenceMm)} to
+            {' '}{plain(CIRCUMFERENCE_LOOKUP_ROWS[CIRCUMFERENCE_LOOKUP_ROWS.length - 1].circumferenceMm)} mm,
+            which are also EU, ISO and French sizes, with centimetres, inches, inner diameter and the
+            nearest US, UK, Japanese, Indian and Italian size.
+          </caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">Circumference</th>
+              <th scope="col" class="px-3 py-2 font-medium">cm</th>
+              <th scope="col" class="px-3 py-2 font-medium">Inches</th>
+              <th scope="col" class="px-3 py-2 font-medium">EU / ISO / FR</th>
+              <th scope="col" class="px-3 py-2 font-medium">US / CA</th>
+              <th scope="col" class="px-3 py-2 font-medium">UK / AU</th>
+              <th scope="col" class="px-3 py-2 font-medium">Japan</th>
+              <th scope="col" class="px-3 py-2 font-medium">India</th>
+              <th scope="col" class="px-3 py-2 font-medium">IT / ES / CH / BR</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Diameter</th>
+            </tr>
+          </thead>
+          <tbody class="tabular">
+            {CIRCUMFERENCE_LOOKUP_ROWS.map((r) => (
+              <tr class="border-t border-border">
+                <th scope="row" class="px-3 py-2.5 font-medium text-text">{plain(r.circumferenceMm)} mm</th>
+                <td class="px-3 py-2.5">{(r.circumferenceMm / 10).toFixed(1)} cm</td>
+                <td class="px-3 py-2.5">{r.circumferenceIn.toFixed(2)} in</td>
+                <td class="px-3 py-2.5">{r.eu ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.us}</td>
+                <td class="px-3 py-2.5">{r.uk ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.jp ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.in ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.it ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.diameterMm.toFixed(2)} mm</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="by-inches" class="mt-12 text-xl font-semibold">Round the finger, in inches</h3>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        For a soft tape measure read in tenths of an inch. A tenth of an inch round the finger is
+        {' '}{(MM_PER_INCH / 10).toFixed(2)}&nbsp;mm, and a whole US size is
+        {' '}{(Math.PI * US_STEP_MM).toFixed(2)}&nbsp;mm of circumference — so each row here is about a
+        size apart. If your tape has millimetres on the other side, use those and the table above.
+      </p>
+
+      <div class="table-scroll mt-5">
+        <table class="w-full min-w-[34rem] text-left text-sm">
+          <caption class="sr-only">
+            Ring size from finger circumference in inches, {plain(INCH_LOOKUP_ROWS[0].inch)} to
+            {' '}{plain(INCH_LOOKUP_ROWS[INCH_LOOKUP_ROWS.length - 1].inch)} inches, with millimetres and
+            the nearest US, UK, EU and Japanese size.
+          </caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">Circumference</th>
+              <th scope="col" class="px-3 py-2 font-medium">mm</th>
+              <th scope="col" class="px-3 py-2 font-medium">US / CA</th>
+              <th scope="col" class="px-3 py-2 font-medium">UK / AU</th>
+              <th scope="col" class="px-3 py-2 font-medium">EU / ISO / FR</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">Japan</th>
+            </tr>
+          </thead>
+          <tbody class="tabular">
+            {INCH_LOOKUP_ROWS.map((r) => (
+              <tr class="border-t border-border">
+                <th scope="row" class="px-3 py-2.5 font-medium text-text">{plain(r.inch)} in</th>
+                <td class="px-3 py-2.5">{r.circumferenceMm.toFixed(1)} mm</td>
+                <td class="px-3 py-2.5">{r.us}</td>
+                <td class="px-3 py-2.5">{r.uk ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.eu ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.jp ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-6 max-w-[62ch] text-sm text-text-faint">
+        Each row is exact for the figure in its first column; your reading has an error of its own.
+        Misjudge a ring&rsquo;s inside diameter by a quarter of a millimetre and the answer moves by
+        more than a US quarter size, which is only {usQuarterMm.toFixed(4)}&nbsp;mm. Measure twice.
+        If you fall between two rows, type the exact figure into the{' '}
+        <a href="/#tool-heading" class="text-accent-text underline underline-offset-2">ring sizer</a>.
+        The tables stop at US&nbsp;{rows[0].us} and US&nbsp;{rows[rows.length - 1].us}, the range the
+        chart above covers.
+      </p>
+    </section>
+
+    <!-- ── By country ───────────────────────────────────────────────────────
+         Query family: "us ring size to uk", "uk ring size to us", "ring size
+         m in numbers", "t ring size in mm", "european ring size", "eu ring
+         size to us", "japanese ring size", "indian ring size chart", "italian
+         ring size" (SEO-STRATEGY.md §9, R5). What each label means and a
+         worked conversion both ways. The long "why charts disagree" argument
+         lives on the homepage (#disagree) and is linked, never restated here —
+         two copies of it would compete. -->
+    <section class="mt-16" aria-labelledby="systems">
+      <h2 id="systems" class="text-[clamp(1.75rem,3.5vw,2.25rem)]">How each country’s sizes work</h2>
+
+      <p class="mt-5 max-w-[62ch] text-text-muted">
+        Every system is a different label for the same inside measurement. Here is what each label
+        means, how to convert it both ways, and where charts for it disagree.
+      </p>
+
+      <h3 id="us" class="mt-10 text-xl font-semibold">US and Canada</h3>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        No standards body defines US sizes; every maker uses the same trade rule. Size&nbsp;0 is
+        0.458&nbsp;in ({us0Mm.toFixed(2)}&nbsp;mm) across the inside and each whole size adds
+        0.032&nbsp;in ({US_STEP_MM.toFixed(4)}&nbsp;mm), so a quarter size — the smallest step sold —
+        is {usQuarterMm.toFixed(4)}&nbsp;mm. Canada uses the same scale.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        A US&nbsp;7 is {us0Mm.toFixed(4)} + 7&nbsp;×&nbsp;{US_STEP_MM.toFixed(4)} ={' '}
+        <strong class="text-text tabular">{us7.diameterMm.toFixed(2)}&nbsp;mm</strong> across and
+        {' '}{us7.circumferenceMm.toFixed(2)}&nbsp;mm round: UK&nbsp;{us7.uk}, EU&nbsp;{us7.eu},
+        Japan&nbsp;{us7.jp}. Going back, subtract {us0Mm.toFixed(4)} from the diameter and divide by
+        {' '}{US_STEP_MM.toFixed(4)}: 18&nbsp;mm gives {dia18RawUs.toFixed(2)}, so US&nbsp;{dia18.us}.
+      </p>
+
+      <h3 id="uk" class="mt-10 text-xl font-semibold">UK, Ireland, Australia and New Zealand</h3>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        Letters, measured round the inside: A is {UK_BASE_CIRC_MM}&nbsp;mm and every letter adds
+        {' '}{UK_STEP_MM}&nbsp;mm, with half letters between. After Z the scale carries on as Z+1,
+        Z+2 and so on.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        To turn a letter into millimetres, count its steps from A and multiply by {UK_STEP_MM}. T is
+        {' '}{ukStepsT} steps, so {UK_BASE_CIRC_MM} + {ukStepsT}&nbsp;×&nbsp;{UK_STEP_MM} ={' '}
+        <strong class="text-text tabular">{ukT.circumferenceMm.toFixed(2)}&nbsp;mm</strong> round and
+        {' '}{ukT.diameterMm.toFixed(2)}&nbsp;mm across: US&nbsp;{ukT.us}, EU&nbsp;{ukT.eu},
+        Japan&nbsp;{ukT.jp}. M, the letter asked about most, is {ukM.circumferenceMm.toFixed(2)}&nbsp;mm
+        round, which is US&nbsp;{ukM.us}.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        Going from a US size to a letter often lands on a half letter, because a US quarter and a UK
+        half letter are almost, but not quite, the same step. If your jeweller stocks whole letters
+        only, go up — the{' '}
+        <a href="/#disagree" class="text-accent-text underline underline-offset-2">worked US&nbsp;6 example</a>
+        {' '}shows why. Every letter from A to Z+6 in order, with its millimetres, is on the{' '}
+        <a href="/uk-ring-size-chart" class="text-accent-text underline underline-offset-2">UK &amp; Australian ring size chart</a>.
+      </p>
+
+      <h3 id="eu" class="mt-10 text-xl font-semibold">Europe (ISO 8653) and France</h3>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        The plainest system there is: the size is the inside circumference in millimetres, so a
+        {' '}{eu54.eu} is {eu54.eu}&nbsp;mm round. ISO&nbsp;8653 defines sizes {ISO_MIN} to {ISO_MAX},
+        and France uses the same numbers for its <em>taille</em>.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        Because a size is a whole millimetre, each one covers half a millimetre either side — which
+        is why the chart above prints EU&nbsp;{eu54.eu} against both {eu54Rows.join(' and ')}. A ring
+        made to exactly {eu54.eu}&nbsp;mm is US&nbsp;{eu54.us}. To convert, find your size in the{' '}
+        <a href="#by-circumference" class="text-accent-text underline underline-offset-2">circumference table</a>:
+        the row for {eu54.eu}&nbsp;mm is the row for EU&nbsp;{eu54.eu}.
+      </p>
+
+      <h3 id="japan" class="mt-10 text-xl font-semibold">Japan</h3>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        Japanese shops number rings 1 to {JP_MAX} (号, <em>gō</em>). Size&nbsp;1 is 13&nbsp;mm across
+        and each size adds a third of a millimetre, so 15&nbsp;mm is a {jpAt(15)}, 16&nbsp;mm a
+        {' '}{jpAt(16)} and 19&nbsp;mm a {jpAt(19)}. It is a trade convention: Japan&rsquo;s industrial
+        standard, JIS&nbsp;S&nbsp;4700, numbers rings by circumference, like ISO.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        One Japanese step is {(1 / 3).toFixed(2)}&nbsp;mm of diameter against {usQuarterMm.toFixed(2)}&nbsp;mm
+        for a US quarter, so the US column below moves unevenly — a quarter here, a half there. That
+        is the two scales, not a gap. Sizes {jpFirst.jp} to {jpLast.jp} fall inside the chart&rsquo;s
+        US&nbsp;{rows[0].us}–{rows[rows.length - 1].us} range:
+      </p>
+
+      <div class="table-scroll mt-5">
+        <table class="w-full min-w-[34rem] text-left text-sm">
+          <caption class="sr-only">
+            Japanese ring sizes {jpFirst.jp} to {jpLast.jp} with inner diameter and circumference in
+            millimetres and the nearest US, UK and EU size.
+          </caption>
+          <thead>
+            <tr class="bg-surface-sunk">
+              <th scope="col" class="rounded-l-lg px-3 py-2 font-medium">Japan</th>
+              <th scope="col" class="px-3 py-2 font-medium">Diameter</th>
+              <th scope="col" class="px-3 py-2 font-medium">Circumference</th>
+              <th scope="col" class="px-3 py-2 font-medium">US / CA</th>
+              <th scope="col" class="px-3 py-2 font-medium">UK / AU</th>
+              <th scope="col" class="rounded-r-lg px-3 py-2 font-medium">EU / ISO / FR</th>
+            </tr>
+          </thead>
+          <tbody class="tabular">
+            {JP_LOOKUP_ROWS.map((r) => (
+              <tr class="border-t border-border">
+                <th scope="row" class="px-3 py-2.5 font-medium text-text">{r.jp}</th>
+                <td class="px-3 py-2.5">{r.diameterMm.toFixed(2)} mm</td>
+                <td class="px-3 py-2.5">{r.circumferenceMm.toFixed(1)} mm</td>
+                <td class="px-3 py-2.5">{r.us}</td>
+                <td class="px-3 py-2.5">{r.uk ?? '—'}</td>
+                <td class="px-3 py-2.5">{r.eu ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="india" class="mt-10 text-xl font-semibold">India</h3>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        India has no official ring size standard. Most Indian jewellers number rings by the inside
+        circumference in millimetres minus 40, so an Indian {in14.in} is {in14.circumferenceMm.toFixed(0)}&nbsp;mm
+        round — US&nbsp;{in14.us}, EU&nbsp;{in14.eu} — and that is what this site shows. Tanishq&rsquo;s
+        chart runs about one size smaller. To convert, add 40 and read the{' '}
+        <a href="#by-circumference" class="text-accent-text underline underline-offset-2">circumference table</a>;
+        to be safe, give an Indian jeweller the diameter in millimetres, the one figure no chart can
+        disagree about.{' '}
+        <a href="/#disagree" class="text-accent-text underline underline-offset-2">How we checked</a>.
+      </p>
+
+      <h3 id="it-es-ch" class="mt-10 text-xl font-semibold">Italy, Spain, Switzerland and Brazil</h3>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        The same arithmetic as India — circumference minus 40 — and in Brazil a standard stands
+        behind it: ABNT NBR 16058, aligned to ISO&nbsp;8653. A Brazilian aro {aro19.br} is
+        {' '}{aro19.circumferenceMm.toFixed(0)}&nbsp;mm round and {aro19.diameterMm.toFixed(2)}&nbsp;mm
+        across: US&nbsp;{aro19.us}, EU&nbsp;{aro19.eu}. An Italian {in14.it} is an Indian {in14.in} and
+        a French {in14.fr}.
+      </p>
+      <p class="mt-3 max-w-[62ch] text-text-muted">
+        Spain is the one to check before you buy. Some Spanish shops use the minus-40
+        <em>talla</em> shown here; others label a talla as the plain ISO circumference, so their
+        talla {eu54.eu} is {eu54.eu}&nbsp;mm round. Ask which scale a Spanish chart uses, or give the
+        shop the millimetres.
       </p>
     </section>
 
