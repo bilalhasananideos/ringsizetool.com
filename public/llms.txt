@@ -10,6 +10,7 @@
 
 - [How to Measure Ring Size at Home](https://ringsizetool.com/how-to-measure-ring-size-at-home): Step-by-step instructions for both measuring methods, why string and thread read short, and how to measure in millimetres, centimetres or inches.
 - [Ring Size Chart](https://ringsizetool.com/ring-size-chart): Every quarter size from US 3 to US 14 across all seven sizing systems (US/Canada, UK/Australia, EU/ISO/France, Japan, India, Italy/Spain/Switzerland and Brazil), with diameter and circumference in mm, cm and inches — computed from the published standards, not copied from another chart.
+- [UK & Australian Ring Size Chart](https://ringsizetool.com/uk-ring-size-chart): Every British letter size from A to Z+6 in half letters — the scale Ireland, Australia and New Zealand also use — with inner circumference and diameter in millimetres, US and EU/ISO equivalents, a US-to-UK table with the whole letter to buy when a shop stocks no half letters, and dated readings showing UK high-street charts agree with the 1.25 mm rule while Australian jewellers' charts differ by more than a whole letter.
 - [Printable Ring Sizer](https://ringsizetool.com/printable-ring-sizer): A paper ring-hole gauge and finger-strip ruler with a scale-check square, for measuring without a screen.
 - [Average Ring Size](https://ringsizetool.com/average-ring-size): What the commonly cited averages (US 6 for women, US 9 for men) actually mean, and why no standards body defines them.
 

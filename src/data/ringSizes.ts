@@ -144,13 +144,17 @@ export const UK_NOTE =
   'to the next letter \u2014 rounding down gives a ring smaller than your ' +
   'finger. Or give them the circumference in millimetres.';
 
-export function ukFromCircumference(circMm: number): string | null {
-  // Position on the letter scale, rounded to the nearest half size.
+/** Position on the letter scale, rounded to the nearest half size: A = 0,
+ *  A½ = 0.5, B = 1 … Z+6 = 31. Null outside A to Z+6. */
+function ukStep(circMm: number): number | null {
   const raw = (circMm - UK_BASE_CIRC_MM) / UK_STEP_MM;
   const step = Math.round(raw * 2) / 2;
   if (step < 0) return null;               // smaller than size A - no honest answer
   if (step > UK_MAX_STEP) return null;     // larger than Z+6 - the scale stops
+  return step;
+}
 
+function ukLabel(step: number): string {
   const whole = Math.floor(step);
   const half = step - whole >= 0.5;
 
@@ -160,6 +164,24 @@ export function ukFromCircumference(circMm: number): string | null {
 
   return half ? `${letter}½` : letter;
 }
+
+export function ukFromCircumference(circMm: number): string | null {
+  const step = ukStep(circMm);
+  return step === null ? null : ukLabel(step);
+}
+
+/** The letter to buy from a jeweller who stocks whole letters only: the
+ *  result above, with a half letter rounded UP. This is UK_NOTE's advice as a
+ *  function, so the /uk-ring-size-chart column and the note cannot disagree.
+ *  Z+5½ goes up to Z+6, which the scale names, so nothing here is refused
+ *  that ukFromCircumference() answers. */
+export function ukWholeLetterUp(circMm: number): string | null {
+  const step = ukStep(circMm);
+  return step === null ? null : ukLabel(Math.ceil(step));
+}
+
+/** Inner circumference of a letter-scale position (0 = A, 0.5 = A½ …). */
+export const ukCircumferenceAtStep = (step: number) => UK_BASE_CIRC_MM + step * UK_STEP_MM;
 
 /* ── EU / ISO 8653:2016 ───────────────────────────────────────────────────
  * The size IS the inner circumference in mm. Nothing to convert.
@@ -388,6 +410,16 @@ export const fromCircumference = (circMm: number) => fromDiameter(circMm / Math.
 export const CHART_ROWS: RingSize[] = Array.from(
   { length: (14 - 3) * 4 + 1 },
   (_, i) => fromDiameter(diameterFromUs(3 + i * 0.25)),
+);
+
+/** Every position the British scale names, A to Z+6 in half letters, for the
+ *  letter-ordered chart on /uk-ring-size-chart. Built from the UK rule and
+ *  read back through fromCircumference(), never typed. Declared here, not
+ *  beside the UK functions, because fromCircumference is a const and must
+ *  exist before this runs. */
+export const UK_LETTER_ROWS: RingSize[] = Array.from(
+  { length: UK_MAX_STEP * 2 + 1 },
+  (_, i) => fromCircumference(ukCircumferenceAtStep(i / 2)),
 );
 
 /* ── Context for the result ───────────────────────────────────────────────
