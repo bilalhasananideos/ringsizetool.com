@@ -112,6 +112,22 @@ reversed on its own (chart 69 impressions vs homepage 35, after 37 vs 54 on 24�
   resizing, fit/wide band) were all decided against before (SEO-AUDIT.md §15–16, SEO-STRATEGY §11)
   and the homepage already has sections for secret sizing, resizing limits, wide bands and knuckles.
 
+**🪪 Calibration card fixes — DEPLOYED 18 Oct 2026 on the owner's "card fixes theek hain, deploy kar do".** Merge `23704ba` of `fix/cal-card-overflow`.
+- `9931996` The drawer is one column at every width. From md it was two, leaving the card outline
+  305 px of a 702 px drawer, so above ~5.6 px/mm its side edges (the matched edges) were clipped.
+  Measured live at 6.5 px/mm before the fix.
+- `455889e` Slider ceiling is `WIDE_PPM_MAX` = 7 when the viewport is wider than 500 px; phones keep
+  8. At 8 the owner's 4.12 px/mm laptop drew a card about twice real size. 7 still clears a 13" 4K
+  laptop at 200% (~6.5), an iPad mini in landscape (~6.4) and a sideways phone.
+- `b0498dc` + `12e18b2` The narrow-screen reference is now the whole card on its side (85.6 × 53.98 mm,
+  real corner radius), not an 18 mm strip, which the owner read as "a card this thin doesn't exist".
+  Only the 53.98 mm height is matched. On a phone it is clipped at the right edge, with no scrollbar.
+- **This partly settles the old "give desktop the same gauge" polish item the other way:** the narrow
+  layout now shows a card too. The open idea of matching the LONG edge on desktop is untouched.
+- Owner's question behind it: why the card can't just be "standard size". Browsers don't tell a
+  page the physical screen size, so a real card held against the screen is the only measure.
+- verify 474/474, build + sweep clean, checked at 375, 736, 768 and 1159 px.
+
 **🔤 "US ring sizes in letters" box on /uk-ring-size-chart — DEPLOYED 18 Oct 2026 on the owner's "main mein merge karke deploy kar do".** Commits `65589a4` (box) + `9076097` (Pinterest pins), merged `a855f0c`.
 - Why: impressions fell from ~73/day (6 Oct) to 3–11/day. Checked in GSC on 18 Oct: no manual
   action, no security issue, 7 pages indexed and stable, sitemap read 17 Oct. Against 24–30 Sep,
