@@ -112,6 +112,29 @@ export const DPR_STORE_KEY = 'rst.dprAtCalibration';
 /** Clamp any candidate value into the usable range. */
 export const clampPpm = (v: number) => Math.min(PPM_MAX, Math.max(PPM_MIN, v));
 
+/**
+ * The ceiling for anything wider than a phone held upright.
+ *
+ * PPM_MAX (8) exists for phones. On a laptop it let the slider draw the card
+ * outline at twice the size of a real card — the owner's laptop is 4.12 px/mm,
+ * and 8 on it is a 105 mm "card" (18 Oct 2026, owner: "itna bara card nahi
+ * hota"). 7 still clears every wide screen that can genuinely be this dense:
+ * a 14" 1080p laptop at 100% is ~6.2, an iPad mini in landscape ~6.4, a 13"
+ * 4K laptop at 200% ~6.5, and a phone turned sideways (wider than 500 px)
+ * ~5.5–6.5. Below 7 one of those could not be calibrated at all.
+ */
+export const WIDE_PPM_MAX = 7;
+
+/** The slider's ceiling for a viewport this wide. Unknown width (0) is treated
+ *  as wide, the same rule as the starting value, so a desktop never gets the
+ *  phone range by accident. */
+export const ppmMaxFor = (viewportW: number) =>
+  viewportW > 0 && viewportW <= PHONE_VIEWPORT_MAX_PX ? PPM_MAX : WIDE_PPM_MAX;
+
+/** clampPpm, then the viewport's own ceiling. */
+export const clampPpmFor = (v: number, viewportW: number) =>
+  Math.min(ppmMaxFor(viewportW), clampPpm(v));
+
 
 /* ══════════════════════════════════════════════════════════════════════════
  * Reference objects
