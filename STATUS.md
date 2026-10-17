@@ -112,6 +112,21 @@ reversed on its own (chart 69 impressions vs homepage 35, after 37 vs 54 on 24�
   resizing, fit/wide band) were all decided against before (SEO-AUDIT.md §15–16, SEO-STRATEGY §11)
   and the homepage already has sections for secret sizing, resizing limits, wide bands and knuckles.
 
+**🔤 "US ring sizes in letters" box on /uk-ring-size-chart — DEPLOYED 18 Oct 2026 on the owner's "main mein merge karke deploy kar do".** Commits `65589a4` (box) + `9076097` (Pinterest pins), merged `a855f0c`.
+- Why: impressions fell from ~73/day (6 Oct) to 3–11/day. Checked in GSC on 18 Oct: no manual
+  action, no security issue, 7 pages indexed and stable, sitemap read 17 Oct. Against 24–30 Sep,
+  mobile (54→52) and the chart page (53→52) are flat; the one real loss is the **homepage, 56→11
+  impressions, position 6.5→31**, sliding from 3 Oct. The 1–7 Oct peak was mostly positions 60–135.
+  Overlaps Google's September 2026 spam update (24 Sep–~8 Oct). **External links in GSC: 0.**
+- The box: whole US sizes 4–11 with the letter and the whole letter to buy, right under the header.
+  Queries `ring size 7 in letters`, `ring size 8 in letters`, `what letter is ring size 8` sat at
+  80–97 with the answer four screens down. Meta description now opens with "US ring sizes in
+  letters". Title unchanged. verify 466/466 (adds US 7 = N½ / buy O, which the prose types "an O"
+  against), build clean, 375 px no page scroll, light checked.
+- Pins: `marketing/pins/` (3 PNGs + PINS.md copy), made by `scripts/make-pins.ts` from the data.
+  Not served by the site; the owner uploads them to Pinterest by hand.
+- **Re-check ~1 Nov:** the UK page's position for the "in letters" queries, and the homepage.
+
 **🍪 R9 consent banner — DEPLOYED 6 Oct 2026 on the owner's "consent banner wala bhi deploy kar do".** Main (18 commits ahead) merged into the branch cleanly; /privacy re-dated 6 October 2026; re-tested on a scratch copy with `G-TESTTEST00` the same day on the fit and UK pages too: nothing from Google before consent, Accept loads gtag with `gcs=G101` + `npa=1` and sets `_ga`, Reject from "Cookie settings" deletes `_ga`/`_ga_*` and reloads with no Google request; 375 px no page scroll. Originally: Commit
 `285749c` on branch `feature/consent-banner`, worktree `sites/.worktrees/ringsizetool-consent`. It
 merges cleanly with `draft/uk-ring-size-chart`. It does not touch Search Console data, so it does
