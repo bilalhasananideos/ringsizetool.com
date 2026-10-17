@@ -122,7 +122,8 @@ reversed on its own (chart 69 impressions vs homepage 35, after 37 vs 54 on 24�
   Queries `ring size 7 in letters`, `ring size 8 in letters`, `what letter is ring size 8` sat at
   80–97 with the answer four screens down. Meta description now opens with "US ring sizes in
   letters". Title unchanged. verify 466/466 (adds US 7 = N½ / buy O, which the prose types "an O"
-  against), build clean, 375 px no page scroll, light checked.
+  against), build clean, 375 px no page scroll, light checked. First CI run failed the newline
+  sweep (the tiles' three spans touched, so text read "US 4H½Whole letter I"); fixed with spaces.
 - Pins: `marketing/pins/` (3 PNGs + PINS.md copy), made by `scripts/make-pins.ts` from the data.
   Not served by the site; the owner uploads them to Pinterest by hand.
 - **Re-check ~1 Nov:** the UK page's position for the "in letters" queries, and the homepage.

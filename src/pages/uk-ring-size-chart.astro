@@ -168,8 +168,8 @@ const SECTIONS = [
       <ul class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {quickRows.map((r) => (
           <li class="rounded-lg border border-border px-3 py-2.5">
-            <span class="block text-sm text-text-faint">US {r.us}</span>
-            <span class="block text-lg font-medium text-text">{r.uk}</span>
+            <span class="block text-sm text-text-faint">US {r.us}</span>{' '}
+            <span class="block text-lg font-medium text-text">{r.uk}</span>{' '}
             <span class="block text-sm text-text-muted">Whole letter {ukWholeLetterUp(r.circumferenceMm)}</span>
           </li>
         ))}
