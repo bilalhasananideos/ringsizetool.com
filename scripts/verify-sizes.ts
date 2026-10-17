@@ -24,6 +24,7 @@ import {
 } from '../src/data/ringModes.ts';
 import {
   PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, STAGE_MAX_CIRCLE_PX,
+  WIDE_PPM_MAX, ppmMaxFor, clampPpmFor,
   CAL_OBJECTS, CARD_SHORT_MM, CARD_LONG_MM, CARD_CORNER_MM, DEFAULT_CAL_OBJECT, calObject,
   imprecisionVsCard, usSizeErrorPerPx,
   RULER_MAX_MM, RULER_LABELS, RULER_LABEL_EVERY_MM, rulerLengthPx,
@@ -475,6 +476,17 @@ eq('largest drawable ring fits inside the stage guide',
 eq('the default is the CSS spec figure, 96 dpi', DEFAULT_PX_PER_MM, 96 / 25.4, 1e-12);
 eq('calibration floor is below every real screen', PPM_MIN < 3, true);
 eq('calibration ceiling clears a modern phone (~6.2 px/mm)', PPM_MAX > 6.5, true);
+/* Wider than a phone, the slider stops at WIDE_PPM_MAX. It must still clear the
+ * densest wide screens (13" 4K at 200% ~6.53, iPad mini landscape ~6.42, a
+ * phone turned sideways), and stay below the phone ceiling or it does nothing. */
+eq('wide ceiling clears a 13" 4K laptop at 200% (6.53 px/mm)', WIDE_PPM_MAX > 6.53, true);
+eq('wide ceiling is below the phone ceiling', WIDE_PPM_MAX < PPM_MAX, true);
+eq('a 375 px phone gets the phone ceiling', ppmMaxFor(375), PPM_MAX);
+eq('a 1159 px laptop gets the wide ceiling', ppmMaxFor(1159), WIDE_PPM_MAX);
+eq('unknown width (0) is treated as wide, never as a phone', ppmMaxFor(0), WIDE_PPM_MAX);
+eq('a laptop cannot be pushed to 8', clampPpmFor(8, 1159), WIDE_PPM_MAX);
+eq('a phone still can', clampPpmFor(8, 375), PPM_MAX);
+eq('the floor is unchanged on wide screens', clampPpmFor(1, 1159), PPM_MIN);
 
 /* Calibration and measurement are two independent lanes: pxPerMm decides how
  * LARGE things are drawn, the diameter in mm decides WHICH SIZE they are, and

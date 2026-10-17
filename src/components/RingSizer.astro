@@ -1055,7 +1055,7 @@ const imprecisionLabel = (mm: number) => {
   } from '../data/ringModes';
   import {
     PPM_MIN, PPM_MAX, DEFAULT_PX_PER_MM, PHONE_PX_PER_MM, PHONE_VIEWPORT_MAX_PX,
-    PPM_STORE_KEY, DPR_STORE_KEY, clampPpm,
+    PPM_STORE_KEY, DPR_STORE_KEY, clampPpmFor, ppmMaxFor,
     calObject, DEFAULT_CAL_OBJECT, CAL_OBJECT_STORE_KEY,
     stageUsSizePerPx, stageCircMmPerPx,
   } from '../data/calibration';
@@ -1365,7 +1365,13 @@ const imprecisionLabel = (mm: number) => {
     }
 
     function setPxPerMm(v: number, syncNum = true) {
-      pxPerMm = clampPpm(v);
+      /* The ceiling depends on the viewport: 8 is for phones only, so a
+       * laptop's slider stops at WIDE_PPM_MAX instead of drawing a card twice
+       * the size of a real one. Re-read on every call, so a window resized
+       * across the phone breakpoint gets the right range on its next move. */
+      const max = ppmMaxFor(window.innerWidth);
+      if (calRange.max !== String(max)) calRange.max = String(max);
+      pxPerMm = clampPpmFor(v, window.innerWidth);
       /* One variable, two shapes: the full card outline on wide screens and
        * the width gauge on narrow ones both derive their size from --cal-mm,
        * so whichever the visitor is looking at is the same millimetre. */
