@@ -791,6 +791,12 @@ console.log('\n— /uk-ring-size-chart: "whole letters only? buy" column —');
 const letterIndex = (l: string | null) => UK_LETTER_ROWS.findIndex((r) => r.uk === l);
 eq('US 6 is L½ — whole letters only, buy M',
    ukWholeLetterUp(fromDiameter(diameterFromUs(6)).circumferenceMm), 'M');
+/* The "US sizes in letters" box at the top of the page names US 7 in prose:
+ * "A US 7 is N½ … you buy O … most charts call a 7 an O". The article "an"
+ * is typed, so the letter it sits in front of has to stay O. */
+eq('US 7 is N½', fromDiameter(diameterFromUs(7)).uk, 'N½');
+eq('US 7 — whole letters only, buy O',
+   ukWholeLetterUp(fromDiameter(diameterFromUs(7)).circumferenceMm), 'O');
 eq('an exact whole letter is left alone (M -> M)', ukWholeLetterUp(ukCircumferenceAtStep(12)), 'M');
 eq('Z½ goes up to Z+1', ukWholeLetterUp(ukCircumferenceAtStep(25.5)), 'Z+1');
 eq('Z+5½ goes up to Z+6, still on the scale', ukWholeLetterUp(ukCircumferenceAtStep(30.5)), 'Z+6');
