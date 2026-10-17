@@ -162,8 +162,14 @@ const imprecisionLabel = (mm: number) => {
       </div>
     </div>
 
-    <div class="grid gap-6 md:grid-cols-[1.1fr_0.9fr] md:items-center">
-      <div>
+    <!-- One column at every width. This was two columns from md, which gave the
+         card outline 305 px of a 702 px drawer; a card is 53.98 mm wide, so
+         above ~5.6 px/mm (a 14" 1080p laptop at 100% is ~6.2) its side edges —
+         the very edges being matched — were cut off by the stage's scrollbox.
+         Controls first, outline below: the card grows downward as the slider
+         goes up, so the slider never moves under the thumb. -->
+    <div class="grid gap-6">
+      <div class="md:max-w-xl">
         <p data-cal-hint class="text-sm text-text-muted leading-relaxed">{initObj.hint}</p>
         <!-- Provenance in the UI, not just in a source comment. Every figure
              the drawer matches against traces to a governing standard, and a
