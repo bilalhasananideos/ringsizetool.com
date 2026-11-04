@@ -22,7 +22,7 @@ import {
   DIAMETER_LOOKUP_ROWS, CIRCUMFERENCE_LOOKUP_ROWS, INCH_LOOKUP_ROWS, JP_LOOKUP_ROWS, inchFraction,
   US_BASE_MM, US_STEP_MM, UK_BASE_CIRC_MM, UK_STEP_MM, ISO_MIN, ISO_MAX, JP_MAX, MM_PER_INCH,
 } from '../data/ringSizes';
-import { modeSpec, toDia } from '../data/ringModes';
+import { modeSpec, chartReadBackMismatches } from '../data/ringModes';
 import { breadcrumbSchema, CHART_FAQS, faqPageSchema } from '../data/faq';
 
 /* Every row is generated. Never type a size into this file. */
@@ -51,18 +51,25 @@ const dp = {
   circIn: modeSpec('circ', 'in').dp,
 };
 
-/* Rows whose PRINTED diameter reads back as a different size, found rather
-   than listed. One is known — US 6¼, whose circumference sits 0.006 mm above
-   the EU 52/53 line, so its diameter rounded to 16.71 mm falls just below it —
-   but computing the set means the note can never go stale (QA audit #8). The
-   circumference column has no such row, which is why the note points there. */
-const SYSTEMS = [['us', 'US'], ['uk', 'UK'], ['eu', 'EU'], ['jp', 'Japan'], ['in', 'India']] as const;
-const knifeEdges = rows.flatMap((r) => {
-  const typed = parseFloat(r.diameterMm.toFixed(dp.diaMm));
-  const back = fromDiameter(toDia(typed, 'dia', 'mm'));
-  const differs = SYSTEMS.filter(([k]) => back[k] !== r[k]);
-  return differs.length ? [{ r, typed, back, differs }] : [];
+/* Rows whose PRINTED value reads back as a different size when typed into the
+   sizer, found rather than listed. One is known — US 6¼, whose circumference
+   sits 0.006 mm above the EU 52/53 line, so its diameter rounded to 16.71 mm
+   falls just below it — but computing the set means the flag and the note can
+   never go stale (QA audit #8). The search and its reasoning live in
+   ringModes.ts, so verify-sizes.ts checks every row with the same code. Each
+   flagged row gets a † beside its US size and a note under the chart. */
+const COLUMN_LABEL = { us: 'US', uk: 'UK', eu: 'EU', jp: 'Japan', in: 'India', it: 'IT/ES/CH', br: 'Brazil' } as const;
+const SHOWN = Object.keys(COLUMN_LABEL) as (keyof typeof COLUMN_LABEL)[];
+const UNIT_LABEL = { mm: 'mm', cm: 'cm', in: 'in' } as const;
+const andList = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
+const knifeEdges = [...new Set(chartReadBackMismatches(rows).map((x) => x.row))].map((r) => {
+  const hits = chartReadBackMismatches([r]);
+  const back = hits[0].back;
+  const differs = SHOWN.filter((k) => hits.some((h) => (h.systems as string[]).includes(k)));
+  const printed = hits.map((h) => `${h.printed} ${UNIT_LABEL[h.unit]}`).filter((v, i, a) => a.indexOf(v) === i).join(' or ');
+  return { r, back, differs, printed };
 });
+const flagged = new Set(knifeEdges.map((k) => k.r));
 
 const jsonLd = [
   faqPageSchema(CHART_FAQS),
@@ -135,8 +142,10 @@ const SECTIONS = [
       </p>
 
       <p class="mt-6 border-l-2 border-accent py-1 pl-4 text-sm text-text-muted">
-        Every value is computed from the published standard — nothing is copied from another chart,
-        and nothing is behind a download. The site currently ranking first for this search publishes
+        Every value is computed from the published rule for its scale — a standard where one exists,
+        such as ISO&nbsp;8653 for EU sizes; the trade convention for US and Japanese sizes, which have
+        none; and for India, which has no standard at all, the convention Indian jewellers publish.
+        Nothing is copied from another chart, and nothing is behind a download. The site currently ranking first for this search publishes
         its chart as an <strong class="text-text">image</strong>, so none of it can be read, copied
         or searched.
       </p>
@@ -205,7 +214,9 @@ const SECTIONS = [
                     size", "8.5", "5.75" (DataForSEO, 5 Oct 2026), and many shops
                     list them that way. Same number, the other way of writing it. */}
                 <th scope="row" class="whitespace-nowrap px-3 py-2.5 font-medium text-text">
-                  {r.us}{r.usNumeric !== null && !Number.isInteger(r.usNumeric) && (
+                  {r.us}{flagged.has(r) && (
+                    <><span aria-hidden="true" class="text-accent-text">†</span><span class="sr-only"> (see the note under the chart)</span></>
+                  )}{r.usNumeric !== null && !Number.isInteger(r.usNumeric) && (
                     <>{' '}<span class="ml-1 text-xs font-normal text-text-faint">{r.usNumeric}</span></>
                   )}
                 </th>
@@ -239,9 +250,10 @@ const SECTIONS = [
         <a href="/#disagree" class="text-accent-text underline underline-offset-2">Why charts disagree</a>
       </p>
 
-      {knifeEdges.map(({ r, typed, back, differs }) => (
+      {knifeEdges.map(({ r, back, differs, printed }) => (
         <p class="mt-3 max-w-[62ch] text-sm text-text-faint">
-          {`US ${r.us} is the one row to read by circumference. Its exact size sits a hair over a boundary, so its diameter rounded to ${typed.toFixed(dp.diaMm)} mm, typed into the sizer, reads ${differs.map(([k, label]) => `${label} ${back[k]}`).join(' and ')} rather than ${differs.map(([k, label]) => `${label} ${r[k]}`).join(' and ')}. Both are right for the figure typed; give a jeweller the circumference, ${r.circumferenceMm.toFixed(dp.circMm)} mm, which reads back exactly.`}
+          <span aria-hidden="true" class="text-accent-text">†{' '}</span>
+          {`US ${r.us} is the one row to read by circumference. Its exact size sits a hair over a boundary, so its diameter as printed, ${printed}, typed into the sizer, reads ${andList(differs.map((k) => `${COLUMN_LABEL[k]} ${back[k]}`))} rather than ${andList(differs.map((k) => `${COLUMN_LABEL[k]} ${r[k]}`))}. Both are right for the figure typed; give a jeweller the circumference, ${r.circumferenceMm.toFixed(dp.circMm)} mm, which reads back exactly.`}
         </p>
       ))}
     </section>
@@ -381,8 +393,8 @@ const SECTIONS = [
         <div class="rounded-xl border border-border bg-surface p-5">
           <dt class="font-medium">Inner diameter</dt>
           <dd class="mt-1 max-w-[62ch] text-text-muted">
-            Straight across the inside of the ring, edge to edge. This is the number every size
-            system is built from, and the one to give a jeweller. US&nbsp;{AVERAGE_US_SIZE.women} is <span class="tabular"> {rows.find((r) => r.usNumeric === AVERAGE_US_SIZE.women)!.diameterMm.toFixed(2)} mm</span>.
+            Straight across the inside of the ring, edge to edge. Every size system can be computed
+            from it, and it is the one to give a jeweller. US&nbsp;{AVERAGE_US_SIZE.women} is <span class="tabular"> {rows.find((r) => r.usNumeric === AVERAGE_US_SIZE.women)!.diameterMm.toFixed(2)} mm</span>.
           </dd>
         </div>
         <div class="rounded-xl border border-border bg-surface p-5">
