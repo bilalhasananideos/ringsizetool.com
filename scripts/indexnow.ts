@@ -3,8 +3,8 @@
  * this deploy. Google does not use IndexNow; this is for the engines where the
  * site already ranks.
  *
- * "Changed" = compare the NEW dist/sitemap-0.xml with a snapshot of the LIVE
- * sitemap taken just before the deploy (CI fetches it). A URL is sent when it
+ * "Changed" = compare the NEW (settled) dist/sitemap-0.xml with a snapshot of the LIVE
+ * sitemap taken just before the deploy (settle-lastmod.ts --fetch saves it). A URL is sent when it
  * is new, or its <lastmod> differs from the live one. Comparing against what
  * was actually live (not against the previous commit) means a cancelled or
  * failed run cannot silently drop a change: the next deploy still sees it.

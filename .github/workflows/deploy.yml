@@ -72,10 +72,20 @@ jobs:
       # "to100%". It is invisible in the source and in the diff, and the build
       # passes either way - which is exactly why it needs a gate rather than a
       # habit. It had shipped on five pages (19 occurrences) before 31 Aug 2026.
-      # <lastmod> present, valid, equal to git history (not the build date) and
-      # the IndexNow key file shipped. See scripts/check-sitemap.ts.
+      # The build dates each URL from git (scripts/page-lastmod.mjs). That
+      # over-dates pages that merely import a module someone edited, so this
+      # compares each built page's visible text with the LIVE page (fetched now,
+      # before the deploy replaces it): unchanged text keeps the live lastmod,
+      # changed text gets the git date. Live site unreachable -> git dates and a
+      # warning, never a failed build. Rule: scripts/lastmod-settle-lib.mjs.
+      # The snapshot is reused below by the check and by IndexNow.
+      - name: Settle sitemap lastmod against the live site
+        run: npm run settle:lastmod -- --fetch "$RUNNER_TEMP/live"
+
+      # Fixture tests of that rule, then every <lastmod> present, valid and
+      # equal to what the rule gives for the same snapshot; key file shipped.
       - name: Check sitemap lastmod and IndexNow key
-        run: npm run check:sitemap
+        run: npm run check:sitemap -- --live-dir "$RUNNER_TEMP/live"
 
       - name: Sweep for eaten newlines in the rendered prose
         run: npm run sweep
@@ -121,13 +131,6 @@ jobs:
             echo "::error::NOINDEX_SITE is false but $FOUND_REAL non-error pages still carry noindex"; exit 1
           fi
 
-      # What is live right now, BEFORE this deploy replaces it. IndexNow below
-      # announces only URLs whose <lastmod> differs from this snapshot. If the
-      # fetch fails the file is empty and IndexNow is skipped, never guessed.
-      - name: Snapshot the live sitemap
-        if: github.event_name != 'pull_request'
-        run: curl -fsS --max-time 20 https://ringsizetool.com/sitemap-0.xml -o "$RUNNER_TEMP/live-sitemap.xml" || : > "$RUNNER_TEMP/live-sitemap.xml"
-
       - name: Deploy to Cloudflare Pages
         # Pushes to main only. A PR gets the checks above and stops there.
         if: github.event_name != 'pull_request'
@@ -141,11 +144,13 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=ringsizetool --branch=main
 
-      # Tell Bing / Copilot / DuckDuckGo which URLs changed. No secret: the
+      # Tell Bing / Copilot / DuckDuckGo which URLs changed: only those whose
+      # settled <lastmod> differs from the live sitemap snapshot taken above.
+      # If that snapshot is missing (live unreachable) nothing is sent. No secret: the
       # IndexNow key is public by design (public/<key>.txt). Runs after the
       # deploy because the key file must be live first. continue-on-error: the
       # site is already deployed; a failed ping must not turn the run red.
       - name: Announce changed URLs to IndexNow
         if: github.event_name != 'pull_request'
         continue-on-error: true
-        run: npm run indexnow -- --live "$RUNNER_TEMP/live-sitemap.xml" --submit
+        run: npm run indexnow -- --live "$RUNNER_TEMP/live/sitemap-0.xml" --submit

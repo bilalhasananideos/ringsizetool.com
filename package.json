@@ -14,6 +14,7 @@
     "perplexity": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/perplexity-research.ts",
     "check": "astro check",
     "check:sitemap": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/check-sitemap.ts",
+    "settle:lastmod": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/settle-lastmod.ts",
     "indexnow": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/indexnow.ts",
     "deploy": "astro build && wrangler pages deploy dist --project-name=ringsizetool",
     "sweep": "python3 scripts/sweep-astro-newline.py dist"
