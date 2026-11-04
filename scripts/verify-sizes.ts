@@ -19,7 +19,7 @@ import {
   toMode, toDia, modeSpec, modeFromParams, ceilTo, floorTo,
   parseMeasurement, clampToMode,
   SOURCES, sourceSpec, sourceFromMeasure,
-  DIA_MIN_MM, DIA_MAX_MM,
+  DIA_MIN_MM, DIA_MAX_MM, chartReadBackMismatches,
   type Source,
 } from '../src/data/ringModes.ts';
 import {
@@ -369,25 +369,26 @@ console.log('\n— sizer modes: what the tool PRINTS must round-trip —');
  *
  * This walks every chart row through every mode the way a person would. */
 {
-  const key = (r: ReturnType<typeof fromDiameter>) => [r.us, r.uk, r.eu, r.jp, r.in].join('/');
-  /* US 6¼ is a genuine knife-edge, not a defect, and is pinned separately
-   * below. Excluded here so it cannot mask a real regression. */
-  const KNIFE_EDGE = 6.25;
+  /* Every chart row, every mode, all eight systems (US, UK, EU, Italy, France,
+   * Japan, Brazil, India). Until 4 Nov 2026 this loop compared five systems and
+   * skipped US 6¼ by hand, so a second knife-edge row would have needed someone
+   * to notice it. Now the rows that read back differently are FOUND by the same
+   * function the chart uses to place its † and footnote, and pinned here: a new
+   * one fails the build until a person has looked at it (Step 4b, ChatGPT audit). */
+  const hits = chartReadBackMismatches(CHART_ROWS);
+  const flaggedRows = [...new Set(hits.map((h) => h.row.us))];
+  eq('rows whose printed value reads back differently', flaggedRows.join(','), '6¼');
+  eq('…and every other row reads back exactly, all modes',
+     CHART_ROWS.filter((r) => !flaggedRows.includes(r.us)).length, CHART_ROWS.length - 1);
+  /* The footnote sends a 6¼ reader to the circumference, so the mismatch has
+   * to be confined to the diameter columns, and the circumference columns of a
+   * flagged row have to read back exactly. */
+  eq('…and only in the diameter columns', hits.every((h) => h.measure === 'dia'), true);
+  eq('…which are mm and cm, the inch column reads back',
+     hits.map((h) => `${h.measure}/${h.unit}`).join(','), 'dia/mm,dia/cm');
   for (const m of ['dia', 'circ'] as const) {
     for (const u of ['mm', 'cm', 'in'] as const) {
-      const s3 = modeSpec(m, u);
-      let wrong = 0;
-      for (const row of CHART_ROWS) {
-        /* Every row the chart prints. This used to stop at US 13, which is how
-         * the chart's 3 dp inch-circumference column (the tool needs 4) went
-         * unnoticed: the rows it skipped were not the ones that failed, but a
-         * loop that skips rows cannot claim to cover the chart (QA audit #7).
-         * The chart now takes its decimal places from modeSpec, the same
-         * table this loop formats with. */
-        if (row.usNumeric === null || row.usNumeric === KNIFE_EDGE) continue;
-        const printed = toMode(row.diameterMm, m, u).toFixed(s3.dp);
-        if (key(fromDiameter(toDia(parseFloat(printed), m, u))) !== key(row)) wrong++;
-      }
+      const wrong = hits.filter((h) => h.measure === m && h.unit === u && h.row.us !== '6¼').length;
       eq(`${m}/${u}: every printed chart value names its own size`, wrong, 0);
     }
   }

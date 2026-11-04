@@ -12,7 +12,7 @@
  * runtime is derived from this one table, so the two cannot disagree.
  */
 
-import { ISO_MIN, ISO_MAX } from './ringSizes.ts';
+import { ISO_MIN, ISO_MAX, fromDiameter, type RingSize } from './ringSizes.ts';
 
 export type Measure = 'dia' | 'circ';
 export type Unit = 'mm' | 'cm' | 'in';
@@ -330,4 +330,45 @@ export function modeFromParams(
     measure: isMeasure(m) ? m : fallback.measure,
     unit: isUnit(u) ? u : fallback.unit,
   };
+}
+
+/* ── Printed chart values, typed back into the sizer ─────────────────────
+ * A reader copies a figure off the chart and types it into the tool. What
+ * they type has already been rounded to the mode's decimal places, so on a
+ * row whose exact size sits a hair over a boundary the tool can name a
+ * neighbouring size. US 6¼ is the known case: 52.5061 mm round, 0.006 mm over
+ * the EU 52/53 line, printed as 16.71 mm across, which reads back as EU 52.
+ * No shared rounding rule removes it: the tool is right for 16.71, the chart
+ * is right for US 6¼, and only a 4 dp diameter would make them meet.
+ *
+ * So the chart flags such rows instead, and this finds them rather than
+ * listing them, across every mode and every system, so the flag cannot go
+ * stale and verify-sizes.ts can prove no unflagged row disagrees. */
+const READ_BACK_SYSTEMS = ['us', 'uk', 'eu', 'it', 'fr', 'jp', 'br', 'in'] as const;
+export type ReadBackSystem = (typeof READ_BACK_SYSTEMS)[number];
+
+export interface ReadBackMismatch {
+  row: RingSize;
+  measure: Measure;
+  unit: Unit;
+  /** The figure as the chart prints it, at the mode's decimal places. */
+  printed: string;
+  /** What the sizer names for that printed figure. */
+  back: RingSize;
+  systems: ReadBackSystem[];
+}
+
+export function chartReadBackMismatches(rows: RingSize[]): ReadBackMismatch[] {
+  const out: ReadBackMismatch[] = [];
+  for (const row of rows) {
+    for (const m of ['dia', 'circ'] as const) {
+      for (const u of ['mm', 'cm', 'in'] as const) {
+        const printed = toMode(row.diameterMm, m, u).toFixed(modeSpec(m, u).dp);
+        const back = fromDiameter(toDia(parseFloat(printed), m, u));
+        const systems = READ_BACK_SYSTEMS.filter((k) => back[k] !== row[k]);
+        if (systems.length) out.push({ row, measure: m, unit: u, printed, back, systems });
+      }
+    }
+  }
+  return out;
 }

@@ -20,7 +20,7 @@ const quarterMm = diameterFromUs(6.25) - diameterFromUs(6);
 ---
 <Layout
   title={`About — ${SITE_NAME}`}
-  description={`How ${SITE_NAME} calculates ring sizes from the published standards rather than copying other charts — and where the method is least accurate.`}
+  description={`How ${SITE_NAME} calculates ring sizes from published standards and trade conventions rather than copying other charts — and where the method is least accurate.`}
   noindex={NOINDEX_SITE}
 >
   <Prose title="About">
@@ -62,8 +62,9 @@ const quarterMm = diameterFromUs(6.25) - diameterFromUs(6);
     </p>
     <p>
       You then either lay a ring you own on the calibrated circle, or measure your finger with a
-      strip of paper and type the length in. Both produce an inner diameter, which is the only
-      measurement every national size system is actually built from.
+      strip of paper and type the length in. Both produce an inner diameter, and every size system
+      here can be computed from it: the US and Japanese scales are defined by diameter, and the
+      rest — EU/ISO, UK letters, India — by circumference, which is exactly π&nbsp;× the diameter.
     </p>
 
     <h2>Where it is less accurate</h2>
