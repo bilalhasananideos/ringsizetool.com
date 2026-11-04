@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
+import { lastmodFor } from './scripts/page-lastmod.mjs';
 
 // Replace SITE_URL per project. Required for sitemap + canonical URLs.
 const SITE_URL = 'https://ringsizetool.com';
@@ -46,7 +47,17 @@ export default defineConfig({
    * maintenance for a difference the URI standard defines as no difference.
    *
    * Closed as a verified non-issue. */
-  integrations: [sitemap()],
+  /* <lastmod> = last git commit to the page and what its content is built
+   * from — see scripts/page-lastmod.mjs for the rule. Never the build date.
+   * URLs with no page file get none. Proven by `npm run check:sitemap`. */
+  integrations: [
+    sitemap({
+      serialize(item) {
+        const lastmod = lastmodFor(new URL(item.url).pathname);
+        return lastmod ? { ...item, lastmod } : item;
+      },
+    }),
+  ],
 
   vite: {
     plugins: [tailwindcss()],
