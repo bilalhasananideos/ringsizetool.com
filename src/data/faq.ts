@@ -41,11 +41,11 @@ export interface Faq {
 export const FAQS: Faq[] = [
   {
     q: 'How can I measure my ring size at home?',
-    a: `Two ways, both on this page. If you own a ring that fits, calibrate your screen against a bank card, then size the on-screen circle until its outer edge meets the inside of the band. If you do not, wrap a strip of paper around the base of your finger, mark the overlap, lay the strip flat on the sizer's on-screen ruler — true to scale once you have calibrated — or on any ruler, and type the length in. Both give you an inner diameter, and every ring size system can be computed from it.`,
+    a: `Two ways, both on this page. If you own a ring that fits, calibrate your screen against a bank card, then size the on-screen circle until its outer edge meets the inside of the band. If you do not, wrap a strip of paper around the base of your finger, mark the overlap, lay the strip flat on the sizer's on-screen ruler — true to scale once you have calibrated — or on any ruler, and type the length in. Both give you an inner diameter, and every ring size system can be computed from it. That is accurate enough to buy most rings. What you cannot do at home is resize one: that needs a jeweller's saw, solder and mandrel, and ring adjusters, tape or glue-in inserts change the fit but not the ring and can mark soft metals. For an engagement ring, or one in tungsten, titanium, ceramic or steel, confirm the measurement with a jeweller before buying, because those cannot be altered afterwards.`,
   },
   {
     q: 'Can I measure my ring size on my phone?',
-    a: `Yes, and a phone is often better than a laptop because you can hold the ring flat against the glass. Calibrate on the phone itself — screen scale differs between devices, so a calibration saved on your laptop will not be right here. Keep browser zoom at 100%.`,
+    a: `Yes, and a phone is often better than a laptop because you can hold the ring flat against the glass. Open this page on the phone, calibrate against a bank card held flat on the screen, then lay the ring on the glass and size the circle to the inside of the band. Calibrate on the phone itself — screen scale and pixel density differ between devices, so a calibration saved on your laptop will not be right here. Keep browser zoom at 100%.`,
   },
   {
     q: 'Is there a virtual ring sizer?',
@@ -60,10 +60,6 @@ export const FAQS: Faq[] = [
     a: `Measure the inner diameter of a ring that already fits, or the circumference of the finger itself, then convert. Everything else — printable charts, string tricks, guessing from glove size — is a less direct route to the same two numbers. Diameter and circumference are locked together as circumference = π × diameter, so either one gives you the other exactly.`,
   },
   {
-    q: 'Can I size my ring at home?',
-    a: `You can measure at home accurately enough to buy most rings. You cannot resize one at home — that needs a jeweller's saw, solder and mandrel. If the ring is an engagement ring, or in tungsten, titanium, ceramic or steel, confirm the measurement with a jeweller before buying, because those cannot be altered afterwards.`,
-  },
-  {
     q: 'Does ring size vary by finger?',
     a: `Considerably. Every finger differs, and the same finger differs between hands — a ring worn on the right hand is commonly a quarter to a half size away from the left. Measure the exact finger the ring will live on. A measurement from any other finger is not transferable.`,
   },
@@ -73,7 +69,7 @@ export const FAQS: Faq[] = [
   },
   {
     q: 'Can I measure my ring online?',
-    a: `Yes — this page does it entirely in your browser. Nothing is uploaded, no photo is taken and no account is needed. The calibration is stored only on your own device so a repeat visit skips that step.`,
+    a: `Yes — this page does it entirely in your browser, with or without a ring sizer to hand. Nothing is uploaded, no photo is taken and no account is needed; the calibration is stored only on your own device so a repeat visit skips that step. If you own a ring that fits, calibrate against a bank card and match the on-screen circle to the inside of the band — that measures a real object and is the more accurate way. If you do not, wrap a strip of paper round the base of the finger, mark the overlap and read it against the ruler on this page. What does not work is estimating from height, glove size or shoe size; the spread on those is wider than the whole range of sizes sold.`,
   },
   {
     q: 'Is there an app to check your ring size?',
@@ -86,10 +82,6 @@ export const FAQS: Faq[] = [
   {
     q: 'What is the best ring sizer to use?',
     a: `A jeweller's steel ring gauge set is the most accurate thing there is, and it is what you should use for an engagement ring. For buying online, a calibrated on-screen sizer or a correctly printed paper sizer is close enough for a resizable ring. The main failure in every method is scale: an uncalibrated screen and a printer set to "fit to page" are both wrong in the same way.`,
-  },
-  {
-    q: 'Can I size my ring on my phone?',
-    a: `Yes. Open this page on the phone, calibrate against a bank card held flat on the screen, then lay the ring on the glass and size the circle to the inside of the band. Do not reuse a calibration from another device — pixel density differs, and that is exactly what calibration corrects for.`,
   },
   {
     q: 'How do I know my correct ring size?',
@@ -112,10 +104,6 @@ export const FAQS: Faq[] = [
     a: `With a set of graduated rings, slide each one on until you find the one that passes the knuckle with slight resistance and sits without spinning. With a mandrel, drop the ring over the cone and read the mark where it stops. With this page, match the on-screen circle to the inside of the ring — not the outside, which includes the metal.`,
   },
   {
-    q: 'Can I size a ring at home?',
-    a: `Measuring, yes. Physically resizing, no — home methods such as ring adjusters, tape or glue-in inserts change the fit but not the ring, and they can mark soft metals. Treat them as a temporary fix while you have the ring properly sized.`,
-  },
-  {
     q: 'Which rings cannot be resized?',
     a: `Eternity rings set with stones all the way round, tension settings, and anything made of tungsten, titanium, ceramic or stainless steel. There is no plain section of metal to cut and rejoin, and those materials cannot be worked the way gold or silver can. For any of them, get the size confirmed by a jeweller before ordering.`,
   },
@@ -129,8 +117,11 @@ export const FAQS: Faq[] = [
    * actually receiving impressions for in its first GSC window (30 Aug – 4 Sep
    * 2026) were `ring sizer online for free`, `ring sizer online` and `ring size
    * finder online` — so "free" and "online, without owning a sizer" are
-   * measured demand, not a guess. The wording of the two questions below is
-   * OURS. Do not relabel them as People-also-ask. */
+   * measured demand, not a guess. The wording of the question below is
+   * OURS. (A second one, "Can I find my ring size online without a ring
+   * sizer?", was merged into "Can I measure my ring online?" in Step 5, Nov
+   * 2026 — same intent, so one entry; its answer is carried there.)
+   * Do not relabel it as People-also-ask. */
   {
     q: 'Is this ring sizer free?',
     /* ⚠️ Do NOT write "the site is funded by ads" here. As of 7 Sep 2026 there
@@ -147,10 +138,6 @@ export const FAQS: Faq[] = [
      * added a fifth, rst.consent, so the answer now names four things: the
      * two calibration keys are one thing to a reader. */
     a: `Yes — the whole tool, the chart and the printable sheet, with no account, no email address and no trial. Nothing you measure is uploaded: the sizing runs entirely in your browser. Four things are remembered on your own device and sent nowhere — your screen calibration, which reference object you calibrated with, whether you chose the light or dark theme, and your answer to the analytics cookie question. There are no ads and no advertising cookies today; the site is intended to carry advertising eventually, and the privacy policy will name the network, and ask EEA and UK visitors for consent, before any advertising cookie is set.`,
-  },
-  {
-    q: 'Can I find my ring size online without a ring sizer?',
-    a: `Yes, and there are two honest ways. If you own a ring that fits, calibrate your screen against a bank card and match the on-screen circle to the inside of the band — that measures a real object and is the more accurate of the two. If you do not, wrap a strip of paper round the base of the finger, mark the overlap and read it against the ruler on this page. What does not work is estimating from height, glove size or shoe size; the spread on those is wider than the whole range of sizes sold.`,
   },
 ];
 
